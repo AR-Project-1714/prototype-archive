@@ -1,740 +1,2241 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIAP TANAH — Sistem Informasi Arsip Pertanahan Kelurahan Loktuan</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:wght@600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#faf8f5;--bg2:#f3efe9;--card:#fff;--border:#e8e2d9;--border2:#d5cdc2;
-  --text:#2a2318;--t2:#6b6054;--t3:#a39888;--t4:#c4baa8;
-  --pri:#c26a2a;--pri2:#a85620;--priL:#fef6f0;--priB:rgba(194,106,42,.08);
-  --blue:#2878a0;--blueL:#eef6fb;--green:#2a8058;--greenL:#edf7f1;
-  --purple:#7050aa;--purpleL:#f2eefa;--red:#c04040;--redL:#fdf0f0;
-  --amber:#a07818;--amberL:#fdf8ee;--dark:#201c16;--dark2:#302a22;--dark3:#403830;
-  --r:12px;--rl:16px;--rr:20px;
-  --font:'Outfit',sans-serif;--head:'Fraunces',serif;
-  --sh:0 1px 3px rgba(42,35,24,.06);--sh2:0 4px 16px rgba(42,35,24,.08);--sh3:0 12px 40px rgba(42,35,24,.12);
-  --ease:cubic-bezier(.4,0,.2,1);
-}
-html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
-button{cursor:pointer;font-family:inherit;border:none;background:none;font-size:inherit}
-input,select,textarea{font-family:inherit;font-size:13px}
-table{border-collapse:collapse;width:100%}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--t4);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--t3)}
-::selection{background:rgba(194,106,42,.15)}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIADP Loktuan - Prototype Arsip Digital Pertanahan</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --body: #4d4d4d;
+      --muted: #737373;
+      --line: #e5e7eb;
+      --line-strong: #b8c0cc;
+      --canvas: #ffffff;
+      --soft: #fafafa;
+      --soft-2: #f4f6f8;
+      --primary: #1e40af;
+      --primary-deep: #1e3a5f;
+      --link: #0070f3;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --warning: #d97706;
+      --warning-soft: #fff7ed;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --teal: #0f766e;
+      --violet: #7928ca;
+      --pink: #ff0080;
+      --amber: #f59e0b;
+      --shadow-1: 0 1px 1px rgba(0, 0, 0, .03), 0 2px 2px rgba(0, 0, 0, .04), inset 0 0 0 1px rgba(0, 0, 0, .08);
+      --shadow-2: 0 2px 2px rgba(0, 0, 0, .04), 0 8px 16px -8px rgba(0, 0, 0, .12), inset 0 0 0 1px rgba(0, 0, 0, .08);
+      --radius: 8px;
+      --radius-sm: 6px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
 
-/* ═══ ANIMATIONS ═══ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(194,106,42,.2)}50%{box-shadow:0 0 0 8px rgba(194,106,42,0)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.anim-up{animation:fadeUp .4s var(--ease) both}
-.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
+    * {
+      box-sizing: border-box;
+    }
 
-/* ═══ LOGIN ═══ */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.login-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1a1610 0%,#2a2218 35%,#382e22 60%,#2a2218 100%)}
-.login-bg::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
-.login-bg::after{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(194,106,42,.08),transparent 65%);top:-150px;right:-100px}
-.login-orb{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(40,120,160,.06),transparent 65%);bottom:-80px;left:-60px}
-.login-box{width:400px;max-width:92vw;z-index:1;animation:fadeUp .6s var(--ease) both}
-.login-brand{text-align:center;margin-bottom:28px}
-.login-brand .ico{width:56px;height:56px;border-radius:16px;background:linear-gradient(140deg,var(--pri),var(--pri2));display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 6px 24px rgba(194,106,42,.3),inset 0 1px 0 rgba(255,255,255,.2)}
-.login-brand h1{font-family:var(--head);color:#fff;font-size:24px;font-weight:800;letter-spacing:-.3px}
-.login-brand p{color:rgba(255,255,255,.35);font-size:12px;margin-top:3px;font-weight:400;letter-spacing:.5px}
-.login-form{background:#fff;border-radius:var(--rr);padding:32px;box-shadow:var(--sh3);border:1px solid rgba(255,255,255,.1)}
-.login-form h2{font-size:16px;font-weight:700;margin-bottom:20px;color:var(--text)}
-.fg{margin-bottom:14px}
-.fg label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px}
-.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--bg);transition:all .2s var(--ease);color:var(--text);font-weight:500}
-.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px var(--priB);background:#fff}
-.fg input::placeholder{color:var(--t4);font-weight:400}
-.btn-login{width:100%;padding:13px;border-radius:var(--r);color:#fff;font-weight:700;font-size:13px;background:linear-gradient(140deg,var(--pri),var(--pri2));letter-spacing:.3px;transition:all .25s var(--ease);position:relative;overflow:hidden}
-.btn-login:hover{box-shadow:0 4px 16px rgba(194,106,42,.3);transform:translateY(-1px)}
-.btn-login:active{transform:translateY(0);box-shadow:0 2px 8px rgba(194,106,42,.2)}
-.err-box{background:var(--redL);border:1px solid #e8c4c4;color:var(--red);font-size:12px;padding:10px 14px;border-radius:var(--r);margin-bottom:14px;display:none;align-items:center;gap:8px;font-weight:500}
-.demo-sec{margin-top:20px;padding-top:18px;border-top:1.5px solid var(--border)}
-.demo-sec h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:10px}
-.demo-item{width:100%;text-align:left;padding:10px 14px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;transition:all .15s var(--ease);font-size:12px;font-weight:500}
-.demo-item:hover{background:var(--priL);border-color:var(--pri);transform:translateX(2px)}
-.rtag{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
-.rt-a{background:var(--redL);color:var(--red)}.rt-o{background:var(--blueL);color:var(--blue)}.rt-v{background:var(--bg2);color:var(--t3)}
+    html {
+      scroll-behavior: smooth;
+    }
 
-/* ═══ LAYOUT ═══ */
-.app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:240px;background:var(--dark);display:flex;flex-direction:column;flex-shrink:0;position:relative}
-.sidebar::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02))}
-.sb-top{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
-.sb-top-inner{display:flex;align-items:center;gap:12px}
-.sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(140deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(194,106,42,.25)}
-.sb-top h3{color:#fff;font-size:13px;font-weight:800;letter-spacing:.2px}
-.sb-top small{color:rgba(255,255,255,.25);font-size:9px;display:block;margin-top:1px;letter-spacing:.5px;text-transform:uppercase}
-.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
-.sb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.15);padding:14px 12px 6px}
-.nb{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,.4);font-size:13px;font-weight:500;transition:all .15s var(--ease);margin-bottom:2px;position:relative}
-.nb:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.75)}
-.nb.on{background:rgba(255,255,255,.08);color:#fff;font-weight:600}
-.nb.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;border-radius:0 3px 3px 0;background:var(--pri)}
-.nb svg{width:17px;height:17px;flex-shrink:0;opacity:.7}
-.nb.on svg{opacity:1;color:var(--pri)}
-.sb-bot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.05)}
-.sb-bot .uinfo{padding:0 4px;margin-bottom:10px}
-.sb-bot .uinfo strong{color:rgba(255,255,255,.7);display:block;font-size:12px;font-weight:600}
-.sb-bot .uinfo span{color:rgba(255,255,255,.25);font-size:10px}
-.logout-btn{width:100%;padding:9px 12px;border-radius:10px;color:rgba(200,120,120,.7);font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;transition:all .15s var(--ease)}
-.logout-btn:hover{background:rgba(200,120,120,.08);color:rgba(200,120,120,.9)}
+    body {
+      margin: 0;
+      background: var(--soft);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.45;
+    }
 
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.header{background:var(--card);border-bottom:1.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.header h2{font-family:var(--head);font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.2px}
-.header small{font-size:11px;color:var(--t3);font-weight:400}
-.page{flex:1;overflow-y:auto;padding:24px 28px}
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
-/* ═══ COMPONENTS ═══ */
-.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);transition:box-shadow .2s var(--ease)}
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;letter-spacing:.2px}
-.b-b{background:var(--blueL);color:var(--blue)}.b-g{background:var(--greenL);color:var(--green)}.b-a{background:var(--amberL);color:var(--amber)}.b-r{background:var(--redL);color:var(--red)}.b-x{background:var(--bg2);color:var(--t3)}.b-p{background:var(--purpleL);color:var(--purple)}.b-o{background:var(--priL);color:var(--pri)}
+    button {
+      cursor: pointer;
+    }
 
-.btn{padding:9px 18px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .2s var(--ease);letter-spacing:.2px}
-.btn svg{width:15px;height:15px}
-.btn-pri{background:linear-gradient(140deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 2px 8px rgba(194,106,42,.15)}
-.btn-pri:hover{box-shadow:0 4px 16px rgba(194,106,42,.25);transform:translateY(-1px)}
-.btn-grn{background:linear-gradient(140deg,var(--green),#1e6e48);color:#fff}.btn-grn:hover{box-shadow:0 3px 12px rgba(42,128,88,.2);transform:translateY(-1px)}
-.btn-pur{background:linear-gradient(140deg,var(--purple),#5a3a90);color:#fff}.btn-pur:hover{box-shadow:0 3px 12px rgba(112,80,170,.2);transform:translateY(-1px)}
-.btn-dk{background:var(--dark);color:#fff}.btn-dk:hover{background:var(--dark2)}
-.btn-ghost{border:1.5px solid var(--border);color:var(--t2);background:var(--card)}.btn-ghost:hover{background:var(--bg);border-color:var(--border2)}
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+    }
 
-.icon-btn{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s var(--ease)}
-.icon-btn svg{width:15px;height:15px}
-.icon-btn:hover{transform:scale(1.08)}
-.ib-v{color:var(--blue)}.ib-v:hover{background:var(--blueL)}.ib-e{color:var(--pri)}.ib-e:hover{background:var(--priL)}.ib-d{color:var(--red)}.ib-d:hover{background:var(--redL)}.ib-p{color:var(--purple)}.ib-p:hover{background:var(--purpleL)}
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: var(--canvas);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
 
-.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.toolbar p{font-size:12px;color:var(--t3);font-weight:400}
+    .brand {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
 
-/* Tables */
-table th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);background:var(--bg2);border-bottom:1.5px solid var(--border)}
-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--t2);transition:background .1s}
-table tr:hover td{background:var(--priB)}
-td.bld{font-weight:700;color:var(--text)}
-table th:first-child{border-radius:var(--rl) 0 0 0}
-table th:last-child{border-radius:0 var(--rl) 0 0}
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 20% 10%, #50e3c2 0 16%, transparent 17%),
+        radial-gradient(circle at 88% 18%, #ff0080 0 16%, transparent 17%),
+        linear-gradient(135deg, #007cf0, #7928ca 52%, #f9cb28);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .55), 0 6px 18px rgba(30, 64, 175, .18);
+    }
 
-/* Stats */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .25s var(--ease);position:relative;overflow:hidden}
-.stat::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.04;transition:opacity .2s}
-.stat:nth-child(1)::after{background:var(--amber)}.stat:nth-child(2)::after{background:var(--blue)}.stat:nth-child(3)::after{background:var(--green)}.stat:nth-child(4)::after{background:var(--purple)}
-.stat:hover{box-shadow:var(--sh2);transform:translateY(-3px);border-color:var(--border2)}
-.stat-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.stat-ico svg{width:19px;height:19px}
-.stat-num{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.5px;font-family:var(--head)}
-.stat-lbl{font-size:11px;color:var(--t3);font-weight:500;margin-top:2px}
+    .brand-title {
+      display: grid;
+      gap: 1px;
+    }
 
-.grid-2col{display:grid;grid-template-columns:1fr 2fr;gap:18px}
+    .brand-title strong {
+      font-size: 15px;
+      font-weight: 600;
+    }
 
-/* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(32,28,22,.5);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;animation:fadeIn .15s var(--ease)}
-.modal{background:var(--card);border-radius:var(--rr);width:560px;max-width:96vw;box-shadow:var(--sh3);animation:slideIn .25s var(--ease);border:1px solid var(--border)}
-.modal.w{width:740px}.modal.xw{width:900px}
-.modal-h{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--card);border-radius:var(--rr) var(--rr) 0 0;z-index:2}
-.modal-h h3{font-size:15px;font-weight:700;font-family:var(--head)}
-.modal-x{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .12s}
-.modal-x:hover{background:var(--bg2);color:var(--text)}
-.modal-b{padding:24px;max-height:75vh;overflow-y:auto}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fgrid .full{grid-column:1/-1}
-.factions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1.5px solid var(--border)}
+    .brand-title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
 
-/* ═══ LACAKTANAH ═══ */
-.lt-hero{background:var(--card);border:2px solid var(--pri);border-radius:var(--rr);padding:28px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(194,106,42,.06)}
-.lt-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(194,106,42,.06),transparent 70%)}
-.lt-hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(40,120,160,.04),transparent 70%)}
-.lt-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(140deg,var(--pri),var(--pri2));color:#fff;font-size:10px;font-weight:800;padding:5px 14px;border-radius:8px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;box-shadow:0 2px 8px rgba(194,106,42,.2)}
-.lt-title{font-family:var(--head);font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
-.lt-desc{font-size:12px;color:var(--t2);max-width:600px;line-height:1.7;position:relative;z-index:1}
-.lt-search{display:flex;gap:10px;margin-top:18px;position:relative;z-index:1}
-.lt-input-w{flex:1;position:relative}
-.lt-input-w svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--t4)}
-.lt-input{width:100%;padding:14px 18px 14px 48px;border:2px solid var(--border);border-radius:var(--r);font-size:14px;background:var(--bg);transition:all .25s var(--ease);font-weight:500}
-.lt-input:focus{outline:none;border-color:var(--pri);background:#fff;box-shadow:0 0 0 5px var(--priB)}
-.lt-select{padding:14px 20px;border:2px solid var(--border);border-radius:var(--r);font-size:12px;font-weight:600;background:var(--bg);min-width:160px;transition:all .2s var(--ease)}
-.lt-select:focus{outline:none;border-color:var(--pri)}
-.lt-tags{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;position:relative;z-index:1}
-.lt-tag{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border);color:var(--t2);background:var(--card);transition:all .15s var(--ease)}
-.lt-tag:hover{border-color:var(--pri);color:var(--pri);background:var(--priL);transform:translateY(-1px)}
+    .nav {
+      padding: 14px 12px;
+      display: grid;
+      gap: 4px;
+      overflow: auto;
+    }
 
-/* Result card */
-.res-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rr);overflow:hidden;margin-bottom:18px;box-shadow:var(--sh);transition:all .2s var(--ease)}
-.res-card:hover{box-shadow:var(--sh2)}
-.res-top{padding:20px 24px;background:linear-gradient(135deg,var(--bg),var(--bg2));border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
-.res-title{font-family:var(--head);font-size:18px;font-weight:800;letter-spacing:-.2px}
-.res-sub{font-size:11px;color:var(--t3);margin-top:3px;font-weight:400}
-.res-owner .ro-label{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);font-weight:700}
-.res-owner .ro-name{font-family:var(--head);font-size:16px;font-weight:700;color:var(--pri2)}
-.res-owner .ro-luas{font-size:10px;color:var(--t3);margin-top:2px}
+    .nav button {
+      height: 40px;
+      border: 0;
+      background: transparent;
+      color: var(--body);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      text-align: left;
+      transition: background .18s ease, color .18s ease;
+    }
 
-/* Chain */
-.chain-area{padding:16px 24px;background:var(--priB);border-bottom:1px solid var(--border);overflow-x:auto}
-.chain-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:10px}
-.chain-row{display:flex;align-items:center;min-width:max-content}
-.chain-node{text-align:center}
-.chain-pill{padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;white-space:nowrap;border:2px solid var(--border);background:var(--card);color:var(--t2);transition:all .15s var(--ease)}
-.chain-pill:hover{border-color:var(--pri);color:var(--pri)}
-.chain-pill.now{background:var(--pri);border-color:var(--pri);color:#fff;box-shadow:0 2px 8px rgba(194,106,42,.2)}
-.chain-pill.hl{border-color:var(--pri);color:var(--pri);background:var(--priL)}
-.chain-yr{font-size:9px;color:var(--t3);font-weight:600;margin-top:3px}
-.chain-arr{width:36px;display:flex;align-items:center;justify-content:center;color:var(--t4);flex-shrink:0}
-.chain-arr svg{width:18px;height:18px}
+    .nav button:hover {
+      background: var(--soft-2);
+      color: var(--ink);
+    }
 
-/* Tabs */
-.tabs{display:flex;border-bottom:2px solid var(--border);padding:0 24px;background:var(--bg)}
-.tab{padding:12px 18px;font-size:12px;font-weight:600;color:var(--t3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s var(--ease);display:flex;align-items:center;gap:6px;cursor:pointer}
-.tab:hover{color:var(--text)}
-.tab.on{color:var(--pri);border-bottom-color:var(--pri);font-weight:700}
-.tab svg{width:14px;height:14px}
-.tab-body{padding:24px;display:none}.tab-body.on{display:block}
+    .nav button.active {
+      background: #edf4ff;
+      color: var(--primary);
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
 
-/* Timeline */
-.tl{position:relative;padding-left:32px}
-.tl-line{position:absolute;left:13px;top:8px;bottom:8px;width:3px;border-radius:2px;background:linear-gradient(180deg,var(--green),var(--amber),var(--pri))}
-.tl-n{position:relative;padding-bottom:20px}.tl-n:last-child{padding-bottom:0}
-.tl-dot{position:absolute;left:-26px;top:4px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1}
-.tl-dot.first{background:var(--green);box-shadow:0 0 0 4px var(--greenL)}
-.tl-dot.mid{background:var(--amber);box-shadow:0 0 0 4px var(--amberL)}
-.tl-dot.now{background:var(--pri);box-shadow:0 0 0 4px var(--priL);animation:pulse 2.5s ease infinite}
-.tl-dot svg{width:8px;height:8px;fill:#fff;stroke:#fff;stroke-width:2}
-.tl-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 18px;transition:all .2s var(--ease);position:relative}
-.tl-card:hover{box-shadow:var(--sh);background:var(--card);border-color:var(--border2)}
-.tl-card.now{border-color:var(--pri);border-width:2px;background:var(--card);box-shadow:0 2px 12px rgba(194,106,42,.06)}
-.tl-card .dur{position:absolute;top:12px;right:14px;font-size:9px;color:var(--t3);background:var(--card);padding:2px 8px;border-radius:6px;font-weight:700;border:1px solid var(--border)}
-.tl-card .owner{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tl-card .period{font-size:11px;color:var(--t3);margin-top:3px;display:flex;align-items:center;gap:5px}
-.tl-card .period svg{width:12px;height:12px}
-.tl-card .mutasi{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:4px 10px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.m-jb{background:var(--blueL);color:var(--blue)}.m-wr{background:var(--greenL);color:var(--green)}.m-hb{background:var(--purpleL);color:var(--purple)}.m-aw{background:var(--bg2);color:var(--t3);border:1px solid var(--border)}.m-pc{background:var(--amberL);color:var(--amber)}
-.tl-card .ket{font-size:11px;color:var(--t2);margin-top:6px;font-style:italic;line-height:1.5}
+    .nav svg,
+    .btn svg,
+    .icon-only svg,
+    .tool-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
 
-/* Info boxes */
-.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.info-box{background:var(--bg);border-radius:10px;padding:10px 14px;border:1px solid var(--border)}
-.info-box .lbl{font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.info-box .val{font-size:13px;font-weight:700;color:var(--text);margin-top:2px}
-.info-box.hl{background:var(--priL);border-color:rgba(194,106,42,.15)}.info-box.hl .lbl{color:var(--pri)}.info-box.hl .val{color:var(--pri2)}
-.info-box.sp2{grid-column:span 2}
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      display: grid;
+      gap: 10px;
+    }
 
-/* Docs */
-.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.doc-item{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;transition:all .15s var(--ease)}
-.doc-item:hover{border-color:var(--pri);box-shadow:var(--sh);transform:translateY(-2px)}
-.doc-ico{width:44px;height:44px;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
-.doc-ico svg{width:20px;height:20px}
-.doc-ico.pdf{background:var(--redL);color:var(--red)}.doc-ico.jpg{background:var(--blueL);color:var(--blue)}.doc-ico.surat{background:var(--greenL);color:var(--green)}
-.doc-name{font-size:11px;font-weight:600;word-break:break-all;color:var(--text)}.doc-meta{font-size:9px;color:var(--t3);margin-top:3px}
+    .admin-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--canvas);
+      color: var(--body);
+    }
 
-.sum-bar{display:flex;gap:10px;padding:16px 24px;border-top:1.5px solid var(--border);background:var(--bg)}
-.sum-i{flex:1;text-align:center;padding:8px;border-radius:10px;background:var(--card);border:1px solid var(--border)}
-.sum-i .sv{font-size:18px;font-weight:900;font-family:var(--head);color:var(--text)}.sum-i .sl{font-size:9px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+    .main {
+      min-width: 0;
+    }
 
-/* Feed */
-.feed-i{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:10px;transition:background .1s;margin-bottom:2px}
-.feed-i:hover{background:var(--bg2)}
-.feed-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.feed-ico svg{width:13px;height:13px}
-.feed-ico.add{background:var(--greenL);color:var(--green)}.feed-ico.edit{background:var(--blueL);color:var(--blue)}.feed-ico.del{background:var(--redL);color:var(--red)}
-.feed-txt{font-size:11px;color:var(--t2);line-height:1.4}.feed-txt strong{color:var(--text)}.feed-meta{font-size:9px;color:var(--t3);margin-top:2px}
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      height: 64px;
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 28px;
+    }
 
-.bar-r{margin-bottom:10px}.bar-l{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}.bar-l span:first-child{color:var(--t2);font-weight:500}.bar-l span:last-child{font-weight:800}
-.bar-t{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden}.bar-f{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--pri),var(--pri2));transition:.5s}
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-/* Print */
-.print-box{border:1.5px solid var(--border);padding:40px;border-radius:var(--r);background:#fff;font-size:13px;line-height:1.9}
-.print-head{text-align:center;border-bottom:3px double var(--text);padding-bottom:14px;margin-bottom:20px}
-.print-head .sub2{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--t2)}.print-head h2{font-family:var(--head);font-size:20px;margin-top:3px}
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* User cards */
-.ugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.ucard{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px;transition:all .2s var(--ease)}
-.ucard:hover{box-shadow:var(--sh2)}
-.ucard-top{display:flex;justify-content:space-between;margin-bottom:10px}
-.ucard-av{width:38px;height:38px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center}
-.ucard-av svg{width:18px;height:18px;color:var(--t3)}
+    .content {
+      padding: 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
 
-.card-sec-h{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card-sec-h svg{width:16px;height:16px;flex-shrink:0}
-.empty{text-align:center;padding:60px 24px;color:var(--t3)}
-.empty svg{width:48px;height:48px;margin:0 auto 14px;display:block;color:var(--border2)}
-.empty h3{font-size:15px;font-weight:700;color:var(--t2)}.empty p{font-size:12px;margin-top:4px}
+    .section {
+      display: none;
+      animation: fadeIn .18s ease;
+    }
 
-/* Banner */
-.lt-banner{background:linear-gradient(140deg,var(--priL),#fef8f2);border:1.5px solid rgba(194,106,42,.12);border-radius:var(--rl);padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s var(--ease)}
-.lt-banner:hover{box-shadow:var(--sh2);border-color:rgba(194,106,42,.25);transform:translateY(-1px)}
-.lt-banner-ico{width:44px;height:44px;border-radius:12px;background:linear-gradient(140deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(194,106,42,.2)}
-.lt-banner-ico svg{width:20px;height:20px;color:#fff}
-.lt-banner h4{font-size:14px;font-weight:800;color:var(--pri2)}.lt-banner p{font-size:11px;color:var(--t2);margin-top:1px}
-.lt-banner .arr{margin-left:auto;color:var(--pri);opacity:.5;transition:all .15s}
-.lt-banner:hover .arr{opacity:1;transform:translateX(3px)}
+    .section.active {
+      display: block;
+    }
 
-/* ═══ INPUT DOKUMEN ═══ */
-.id-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-.id-left{position:sticky;top:0}
-.id-card-head{font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.id-card-head svg{width:15px;height:15px;flex-shrink:0}
-.id-upload-zone{border:2.5px dashed var(--border2);border-radius:var(--rl);padding:32px 20px;text-align:center;background:var(--bg);transition:all .25s var(--ease);cursor:pointer;position:relative;overflow:hidden}
-.id-upload-zone:hover,.id-upload-zone.drag{border-color:var(--pri);background:var(--priL)}
-.id-upload-zone.has-img{border-style:solid;border-color:var(--green);padding:12px}
-.id-upload-zone img{max-width:100%;max-height:220px;border-radius:var(--r);object-fit:contain}
-.id-upload-ico{width:48px;height:48px;border-radius:14px;background:var(--priL);display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;color:var(--pri)}
-.id-upload-ico svg{width:20px;height:20px}
-.id-upload-zone h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
-.id-upload-zone p{font-size:10px;color:var(--t3)}
-.id-scan-btn{width:100%;margin-top:12px;padding:12px;border-radius:var(--r);font-size:12px;font-weight:700;background:linear-gradient(140deg,var(--blue),#1e6690);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .25s var(--ease);box-shadow:0 2px 8px rgba(40,120,160,.15)}
-.id-scan-btn svg{width:15px;height:15px;flex-shrink:0}
-.id-scan-btn:hover{box-shadow:0 4px 16px rgba(40,120,160,.25);transform:translateY(-1px)}
-.id-scan-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.id-scan-btn.scanning{animation:shimmer 1.5s infinite;background:linear-gradient(90deg,var(--blue),#3aa0d0,var(--blue));background-size:200% 100%}
-.id-form{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rl);padding:22px}
-.id-form h3{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px}
-.id-form h3 svg{width:16px;height:16px;flex-shrink:0}
-.id-form .fg input.scanned{border-color:var(--green);background:var(--greenL);animation:fadeIn .3s}
-.id-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--r);font-size:11px;font-weight:600;margin-bottom:14px}
-.id-status svg{width:15px;height:15px;flex-shrink:0}
-.id-status.success{background:var(--greenL);color:var(--green);border:1px solid rgba(42,128,88,.15)}
-.id-status.info{background:var(--blueL);color:var(--blue);border:1px solid rgba(40,120,160,.15)}
-.id-status.warn{background:var(--amberL);color:var(--amber);border:1px solid rgba(160,120,24,.15)}
-.id-type-select{margin-bottom:18px}
-.id-type-select label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px}
-.id-type-select select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--bg);font-size:13px;font-weight:600;color:var(--text);transition:all .2s var(--ease)}
-.id-type-select select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px var(--priB);background:#fff}
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-/* ═══ ARSIP DIGITAL ═══ */
-.arsip-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
-.arsip-folder{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s var(--ease);position:relative}
-.arsip-folder:hover{box-shadow:var(--sh2);transform:translateY(-3px);border-color:var(--pri)}
-.arsip-folder .af-ico{width:42px;height:42px;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.arsip-folder .af-ico svg{width:19px;height:19px}
-.arsip-folder:hover .af-ico{transform:scale(1.05)}
-.arsip-folder .af-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
-.arsip-folder .af-count{font-size:9px;color:var(--t3);font-weight:500}
-.arsip-folder .af-del{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:5px;display:none;align-items:center;justify-content:center;color:var(--red);background:var(--redL);transition:all .15s}
-.arsip-folder .af-del svg{width:12px;height:12px}
-.arsip-folder:hover .af-del{display:flex}
-.arsip-folder .af-del:hover{background:var(--red);color:#fff}
-.arsip-add{background:var(--bg);border:2px dashed var(--border2);border-radius:var(--rl);padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s var(--ease)}
-.arsip-add:hover{border-color:var(--pri);background:var(--priL)}
-.arsip-add .af-ico{width:42px;height:42px;border-radius:12px;background:var(--priB);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;color:var(--pri)}
-.arsip-add .af-ico svg{width:19px;height:19px}
-.arsip-breadcrumb{display:flex;align-items:center;gap:6px;margin-bottom:14px;font-size:12px}
-.arsip-breadcrumb button{color:var(--pri);font-weight:600;text-decoration:underline}
-.arsip-breadcrumb span{color:var(--t3)}
-.arsip-file-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.arsip-file{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;transition:all .15s var(--ease)}
-.arsip-file:hover{border-color:var(--pri);box-shadow:var(--sh)}
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, .8fr);
+      gap: 28px;
+      align-items: stretch;
+    }
 
-.hidden{display:none!important}
-@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.grid-2col{grid-template-columns:1fr}.ugrid,.doc-grid{grid-template-columns:1fr 1fr}.info-grid{grid-template-columns:1fr 1fr}.id-wrap{grid-template-columns:1fr}.arsip-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      inset: -42% -12% auto auto;
+      width: 620px;
+      height: 330px;
+      background:
+        radial-gradient(circle at 16% 44%, rgba(0, 124, 240, .24), transparent 30%),
+        radial-gradient(circle at 50% 18%, rgba(121, 40, 202, .20), transparent 32%),
+        radial-gradient(circle at 78% 42%, rgba(255, 0, 128, .18), transparent 30%),
+        radial-gradient(circle at 55% 78%, rgba(249, 203, 40, .24), transparent 30%);
+      filter: blur(18px);
+      pointer-events: none;
+    }
+
+    .hero-copy,
+    .hero-status {
+      position: relative;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 840px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.04;
+      font-weight: 600;
+      margin-bottom: 14px;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 18px;
+      line-height: 1.28;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 760px;
+      color: var(--body);
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .cta-row,
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 0 14px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--canvas);
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .btn.blue {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn.secondary {
+      border-color: var(--line);
+      background: var(--canvas);
+    }
+
+    .btn.warning {
+      background: var(--warning-soft);
+      color: var(--warning);
+      border-color: #fed7aa;
+    }
+
+    .btn.danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    .btn.small {
+      min-height: 30px;
+      font-size: 13px;
+      padding: 0 10px;
+      border-radius: 8px;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+      transform: none;
+    }
+
+    .icon-only,
+    .tool-btn {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: var(--canvas);
+      color: var(--ink);
+      border-radius: 999px;
+      position: relative;
+    }
+
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+      padding: 6px 8px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      transition: opacity .14s ease, transform .14s ease;
+      z-index: 50;
+    }
+
+    [data-tip]:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .status-card {
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow-1);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .stat,
+    .card,
+    .table-wrap,
+    .panel {
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-1);
+    }
+
+    .stat {
+      padding: 18px;
+      min-height: 112px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat strong {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .trend {
+      width: fit-content;
+      min-height: 22px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--success-soft);
+      color: var(--success);
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .trend.warn {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr);
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      padding: 18px;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--soft-2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover td {
+      background: #fbfdff;
+    }
+
+    .code {
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      background: var(--canvas);
+      color: var(--body);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .pill.success {
+      color: var(--success);
+      background: var(--success-soft);
+      border-color: #bbf7d0;
+    }
+
+    .pill.warning {
+      color: var(--warning);
+      background: var(--warning-soft);
+      border-color: #fed7aa;
+    }
+
+    .pill.danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border-color: #fecaca;
+    }
+
+    .pill.blue {
+      color: var(--primary);
+      background: #edf4ff;
+      border-color: #bfdbfe;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) repeat(4, minmax(110px, 160px)) auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      color: var(--body);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--canvas);
+      color: var(--ink);
+      border-radius: 6px;
+      min-height: 40px;
+      padding: 0 11px;
+      outline: none;
+      transition: border-color .14s ease, box-shadow .14s ease;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      padding-top: 10px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(147, 197, 253, .35);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn,
+    .choice {
+      border: 1px solid var(--line);
+      background: var(--canvas);
+      color: var(--body);
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0 12px;
+      font-weight: 500;
+    }
+
+    .tab-btn.active,
+    .choice.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .wizard {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .steps {
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow-1);
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      position: sticky;
+      top: 86px;
+    }
+
+    .step-btn {
+      border: 0;
+      background: transparent;
+      min-height: 58px;
+      border-radius: 8px;
+      text-align: left;
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 8px;
+      color: var(--body);
+    }
+
+    .step-btn:hover {
+      background: var(--soft-2);
+    }
+
+    .step-btn.active {
+      background: #edf4ff;
+      color: var(--primary);
+    }
+
+    .step-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--soft-2);
+      border: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .step-btn.active .step-num {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .step-title strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: currentColor;
+    }
+
+    .step-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 1px;
+    }
+
+    .wizard-stage {
+      display: none;
+    }
+
+    .wizard-stage.active {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .inline-alert {
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      background: var(--soft-2);
+      color: var(--body);
+      font-size: 13px;
+    }
+
+    .inline-alert.warning {
+      background: var(--warning-soft);
+      border-color: #fed7aa;
+      color: #92400e;
+    }
+
+    .inline-alert.danger {
+      background: var(--danger-soft);
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .inline-alert.success {
+      background: var(--success-soft);
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .split-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .option-card {
+      min-height: 116px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--canvas);
+      text-align: left;
+      display: grid;
+      align-content: start;
+      gap: 7px;
+      color: var(--body);
+      box-shadow: none;
+    }
+
+    .option-card strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .option-card.active {
+      border-color: #93c5fd;
+      background: #f8fbff;
+      box-shadow: inset 0 0 0 1px #bfdbfe;
+    }
+
+    .upload-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .upload-row {
+      display: grid;
+      grid-template-columns: 26px minmax(180px, 1fr) 110px 170px;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--canvas);
+    }
+
+    .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      display: grid;
+      place-items: center;
+      color: transparent;
+      font-size: 13px;
+      background: var(--soft);
+    }
+
+    .upload-row.done .check {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .upload-row.done .check::after {
+      content: "";
+      width: 8px;
+      height: 4px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+
+    .upload-name {
+      min-width: 0;
+    }
+
+    .upload-name strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .upload-name span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progress {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--soft-2);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress i {
+      display: block;
+      width: var(--value, 0%);
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--teal));
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--canvas);
+    }
+
+    .summary-box dl {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .summary-box div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .summary-box div:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    dt {
+      color: var(--muted);
+    }
+
+    dd {
+      margin: 0;
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 0;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      bottom: 30px;
+      left: 9px;
+      width: 2px;
+      background: linear-gradient(var(--primary), var(--success));
+    }
+
+    .event {
+      position: relative;
+      padding: 0 0 18px;
+    }
+
+    .event::before {
+      content: "";
+      position: absolute;
+      left: -23px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--canvas);
+      border: 4px solid var(--primary);
+      box-shadow: 0 0 0 3px var(--canvas);
+    }
+
+    .event.current::before {
+      border-color: var(--success);
+    }
+
+    .event.historic .event-box {
+      border-style: dashed;
+      background: #fffaf0;
+    }
+
+    .event-box {
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow-1);
+    }
+
+    .event-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .doc-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .doc-chip {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 0 9px;
+      color: var(--body);
+      font-size: 12px;
+    }
+
+    .doc-chip:hover {
+      color: var(--primary);
+      border-color: #bfdbfe;
+      background: #f8fbff;
+    }
+
+    .map-preview {
+      min-height: 242px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(30, 64, 175, .08) 1px, transparent 1px),
+        linear-gradient(rgba(30, 64, 175, .08) 1px, transparent 1px),
+        #eef7f3;
+      background-size: 34px 34px;
+      position: relative;
+    }
+
+    .map-preview::before {
+      content: "";
+      position: absolute;
+      inset: 28px 22px 36px 70px;
+      border: 2px solid var(--primary);
+      background: rgba(255, 255, 255, .62);
+      transform: rotate(-5deg);
+      border-radius: 6px;
+    }
+
+    .map-preview::after {
+      content: "LKT-03-02-2024-0001";
+      position: absolute;
+      left: 92px;
+      top: 104px;
+      color: var(--primary);
+      font-family: var(--mono);
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+
+    .road {
+      position: absolute;
+      background: #d6dee8;
+      border: 1px solid #c5ceda;
+    }
+
+    .road.horizontal {
+      left: 0;
+      right: 0;
+      top: 42px;
+      height: 26px;
+    }
+
+    .road.vertical {
+      top: 0;
+      bottom: 0;
+      left: 42px;
+      width: 24px;
+    }
+
+    .dark-band {
+      margin-top: 18px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .dark-band .muted,
+    .dark-band p {
+      color: #c9c9c9;
+    }
+
+    .terminal {
+      background: #050505;
+      border: 1px solid #303030;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #e7e7e7;
+      overflow: auto;
+      min-height: 190px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+    }
+
+    .terminal .ok {
+      color: #50e3c2;
+    }
+
+    .terminal .warn {
+      color: #f9cb28;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 80;
+      min-width: 320px;
+      max-width: calc(100vw - 40px);
+      background: var(--canvas);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-2);
+      border-radius: 8px;
+      padding: 13px 14px;
+      display: none;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .toast.show {
+      display: flex;
+      animation: toastIn .2s ease;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(0, 0, 0, .42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(860px, 100%);
+      max-height: calc(100vh - 56px);
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, .03), 0 8px 16px -4px rgba(0, 0, 0, .12), 0 24px 32px -8px rgba(0, 0, 0, .14);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .modal-head {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .doc-preview {
+      min-height: 520px;
+      background: var(--soft-2);
+      padding: 20px;
+      overflow: auto;
+      display: grid;
+      place-items: center;
+    }
+
+    .paper {
+      width: min(560px, 100%);
+      min-height: 720px;
+      background: #fff;
+      box-shadow: var(--shadow-2);
+      border-radius: 3px;
+      padding: 42px;
+      color: var(--ink);
+    }
+
+    .paper-line {
+      height: 10px;
+      background: #eef2f7;
+      border-radius: 999px;
+      margin: 14px 0;
+    }
+
+    .paper-line.short {
+      width: 62%;
+    }
+
+    .paper-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .signature {
+      height: 96px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      display: grid;
+      place-items: end center;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mobile-menu {
+      display: none;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+        width: 272px;
+      }
+
+      body.menu-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .mobile-menu {
+        display: inline-flex;
+      }
+
+      .topbar {
+        padding: 0 16px;
+      }
+
+      .hero-panel,
+      .grid-2,
+      .dark-band,
+      .wizard {
+        grid-template-columns: 1fr;
+      }
+
+      .steps {
+        position: static;
+      }
+
+      .stat-grid,
+      .grid-3,
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .content {
+        padding: 18px 14px;
+      }
+
+      .top-actions .btn.secondary {
+        display: none;
+      }
+
+      .hero-panel {
+        padding: 20px;
+      }
+
+      .stat-grid,
+      .grid-3,
+      .summary-grid,
+      .form-grid,
+      .split-options,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .upload-row {
+        grid-template-columns: 24px minmax(0, 1fr);
+      }
+
+      .upload-row .progress,
+      .upload-row .row {
+        grid-column: 2;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-title">
+          <strong>SIADP Loktuan</strong>
+          <span>Arsip Digital Pertanahan</span>
+        </div>
+      </div>
 
-<div id="loginPage" class="login-wrap">
-<div class="login-bg"></div><div class="login-orb"></div>
-<div class="login-box">
-<div class="login-brand">
-<div class="ico"><svg viewBox="0 0 24 24" style="width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-<h1>SIAP TANAH</h1>
-<p>Sistem Informasi Arsip Pertanahan</p>
-</div>
-<div class="login-form">
-<h2>Masuk ke Sistem</h2>
-<div id="loginErr" class="err-box"><span>Username atau password salah.</span></div>
-<div class="fg"><label>Username</label><input id="lU" placeholder="Masukkan username"></div>
-<div class="fg"><label>Password</label><input type="password" id="lP" placeholder="Masukkan password"></div>
-<button class="btn-login" onclick="doLogin()">MASUK</button>
-<div class="demo-sec">
-<h4>Akun Demo — Klik untuk mengisi</h4>
-<button class="demo-item" onclick="fillL('admin','admin123')"><span><b>admin</b> / admin123</span><span class="rtag rt-a">Admin</span></button>
-<button class="demo-item" onclick="fillL('operator','oper123')"><span><b>operator</b> / oper123</span><span class="rtag rt-o">Operator</span></button>
-<button class="demo-item" onclick="fillL('viewer','view123')"><span><b>viewer</b> / view123</span><span class="rtag rt-v">Viewer</span></button>
-</div>
-</div>
-</div>
-</div>
+      <nav class="nav" id="mainNav">
+        <button class="active" data-section="dashboard">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10Z"/><path d="M13 21h8v-8h-8v8Z"/><path d="M13 3v8h8V3h-8Z"/><path d="M3 21h8v-6H3v6Z"/></svg>
+          Dashboard
+        </button>
+        <button data-section="arsip">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+          Arsip Baru
+        </button>
+        <button data-section="cari">
+          <svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35"/><circle cx="11" cy="11" r="7"/></svg>
+          Cari Arsip
+        </button>
+        <button data-section="persil">
+          <svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg>
+          Daftar Persil
+        </button>
+        <button data-section="detail">
+          <svg viewBox="0 0 24 24"><path d="M12 8v8"/><path d="M8 12h8"/><circle cx="12" cy="12" r="10"/></svg>
+          Detail Chain
+        </button>
+        <button data-section="pihak">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Data Pihak
+        </button>
+        <button data-section="audit">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Audit Log
+        </button>
+        <button data-section="pengaturan">
+          <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>
+          Pengaturan
+        </button>
+      </nav>
 
-<div id="appWrap" class="app hidden">
-<aside class="sidebar">
-<div class="sb-top"><div class="sb-top-inner"><div class="sb-logo"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><h3>SIAP TANAH</h3><small>Kel. Loktuan</small></div></div></div>
-<nav class="sb-nav" id="sbNav"></nav>
-<div class="sb-bot"><div class="uinfo"><strong id="fU"></strong><span id="fR"></span></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Keluar</button></div>
-</aside>
-<div class="main">
-<header class="header"><div><h2 id="pgT">Dashboard</h2><small>Kelurahan Loktuan, Kecamatan Bontang Utara, Kota Bontang</small></div><span class="badge b-g" id="tR"></span></header>
-<div class="page" id="cnt"></div>
-</div>
-</div>
+      <div class="sidebar-foot">
+        <div class="admin-pill">
+          <span>Admin Kelurahan</span>
+          <span class="pill success">Aktif</span>
+        </div>
+        <span>Intranet kantor. Session idle 120 menit.</span>
+      </div>
+    </aside>
 
-<script>
-const U=[{id:1,username:"admin",password:"admin123",nama:"Rahma, S.Kom",role:"Admin",jab:"Administrator Sistem"},{id:2,username:"operator",password:"oper123",nama:"Siti Nurhaliza",role:"Operator",jab:"Staf Pertanahan"},{id:3,username:"viewer",password:"view123",nama:"Ahmad Fauzi",role:"Viewer",jab:"Kasi Pemerintahan"}];
-let users=[...U],cur=null,pg='dashboard';
-let P=[
-{id:1,np:"P.12a",kl:"Darat",lu:450,al:"Jl. Pupuk Raya RT.05",lc:[{id:1,nc:"C.001",st:"Aktif",rw:[{id:1,pm:"H. Abdul Rahman",m:"1982-03-15",a:"1998-06-20",j:"Pendaftaran Awal",k:"Pencatatan pertama Buku C Desa",ak:"-"},{id:2,pm:"Samsul Bahri",m:"1998-06-20",a:"2015-11-03",j:"Jual Beli",k:"Peralihan melalui AJB",ak:"AJB No. 45/JB/1998"},{id:3,pm:"Muhammad Arif",m:"2015-11-03",a:null,j:"Waris",k:"Peralihan waris dari alm. Samsul Bahri",ak:"SK Waris No. 12/W/2015"}]}],dok:[{n:"Scan_BukuC_001_hal1.pdf",t:"pdf",u:"1.2 MB",tg:"2026-04-10",kt:"Letter C"},{n:"Foto_Bidang_P12a.jpg",t:"jpg",u:"2.4 MB",tg:"2026-04-12",kt:"Foto Bidang"}]},
-{id:2,np:"P.12b",kl:"Darat",lu:320,al:"Jl. Gajah Mada RT.03",lc:[{id:2,nc:"C.002",st:"Aktif",rw:[{id:1,pm:"Dg. Mattola",m:"1985-01-10",a:"2005-08-14",j:"Pendaftaran Awal",k:"Pencatatan pertama",ak:"-"},{id:2,pm:"Hj. Fatimah",m:"2005-08-14",a:null,j:"Hibah",k:"Hibah dari ayah",ak:"Akta Hibah No. 22/H/2005"}]}],dok:[{n:"Scan_BukuC_002.pdf",t:"pdf",u:"1.5 MB",tg:"2026-04-14",kt:"Letter C"}]},
-{id:3,np:"P.15c",kl:"Sawah",lu:1200,al:"Jl. Tanjung Laut RT.08",lc:[{id:3,nc:"C.003",st:"Aktif",rw:[{id:1,pm:"Ruslan",m:"1980-07-22",a:null,j:"Pendaftaran Awal",k:"Tanah garapan sejak 1975",ak:"-"}]}],dok:[{n:"Scan_BukuC_003.jpg",t:"jpg",u:"3.1 MB",tg:"2026-04-15",kt:"Letter C"}]},
-{id:4,np:"P.20a",kl:"Darat",lu:600,al:"Jl. Lombok RT.12",lc:[{id:4,nc:"C.004",st:"Tidak Aktif (Pecah)",rw:[{id:1,pm:"H. Baharuddin",m:"1978-05-01",a:"1995-02-10",j:"Pendaftaran Awal",k:"Tanah warisan keluarga",ak:"-"},{id:2,pm:"Aminah",m:"1995-02-10",a:"2020-07-15",j:"Waris",k:"Waris setelah H. Baharuddin wafat",ak:"SK Waris No. 08/W/1995"}]},{id:5,nc:"C.004-A",st:"Aktif",rw:[{id:1,pm:"Aminah",m:"2020-07-15",a:null,j:"Pemecahan",k:"Bagian utara 300 m²",ak:"BA Pemecahan No. 03/P/2020"}]},{id:6,nc:"C.004-B",st:"Aktif",rw:[{id:1,pm:"Yusuf",m:"2020-07-15",a:null,j:"Pemecahan",k:"Bagian selatan 300 m², dijual",ak:"AJB No. 18/JB/2020"}]}],dok:[{n:"Scan_BukuC_004.pdf",t:"pdf",u:"1.8 MB",tg:"2026-04-20",kt:"Letter C"},{n:"BA_Pemecahan_004.pdf",t:"pdf",u:"450 KB",tg:"2026-04-20",kt:"Surat"}]}
-];
-let SK=[{id:1,no:"593.2/SKT/001/KEL-LKT/IV/2026",tg:"2026-04-18",pm:"Muhammad Arif",nc:"C.001",np:"P.12a",lok:"Jl. Pupuk Raya RT.05",lu:450,bu:"Tanah H. Ridwan",bs:"Jalan Raya",bt:"Tanah Sarifah",bb:"Gang 4",st:"Diterbitkan"},{id:2,no:"593.2/SKT/002/KEL-LKT/IV/2026",tg:"2026-04-20",pm:"Hj. Fatimah",nc:"C.002",np:"P.12b",lok:"Jl. Gajah Mada RT.03",lu:320,bu:"Tanah Amir",bs:"Tanah H. Baso",bt:"Sungai",bb:"Jalan Desa",st:"Diterbitkan"}];
-let SP=[{id:1,no:"593.3/SP/001/KEL-LKT/IV/2026",tg:"2026-04-22",pm:"Muhammad Arif",nc:"C.001",np:"P.12a",tj:"Pendaftaran Tanah Pertama Kali",sb:"Diproses"}];
-let L=[{id:1,u:"Siti Nurhaliza",a:"Tambah",m:"Letter C",d:"Input Persil P.12a / C.001",w:"2026-04-10 08:30"},{id:2,u:"Siti Nurhaliza",a:"Tambah",m:"Dokumen",d:"Upload Scan_BukuC_001.pdf",w:"2026-04-10 08:45"},{id:3,u:"Siti Nurhaliza",a:"Tambah",m:"SKT",d:"Terbit SKT 593.2/SKT/001",w:"2026-04-18 11:20"},{id:4,u:"Siti Nurhaliza",a:"Tambah",m:"Surat Pengantar",d:"Buat SP 593.3/SP/001",w:"2026-04-22 14:30"}];
+    <main class="main">
+      <header class="topbar">
+        <div class="row">
+          <button class="icon-only mobile-menu" id="menuBtn" data-tip="Menu" aria-label="Menu">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+          </button>
+          <div>
+            <div class="breadcrumb" id="breadcrumb">Dashboard / Ringkasan</div>
+            <strong id="pageTitle">Dashboard Arsip Pertanahan</strong>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="btn secondary small" data-action="show-toast">
+            <svg viewBox="0 0 24 24"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>
+            Notifikasi
+          </button>
+          <button class="btn primary small" data-section-link="arsip">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Arsip Baru
+          </button>
+        </div>
+      </header>
 
-// Helpers
-const h=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const fD=d=>{if(!d)return"Sekarang";return new Date(d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});};
-const fY=d=>d?new Date(d).getFullYear():'Kini';
-const dur=(s,e)=>{const a=new Date(s),b=e?new Date(e):new Date();const y=Math.floor((b-a)/(365.25*24*60*60*1000));return y>0?y+' thn':'< 1 thn';};
-const bg=(t,c)=>`<span class="badge b-${c}">${t}</span>`;
-const ce=()=>cur&&(cur.role==='Admin'||cur.role==='Operator');
-const ia=()=>cur&&cur.role==='Admin';
-const aL=(a,m,d)=>{const w=new Date().toLocaleString("id-ID",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(/\//g,"-");L.unshift({id:Date.now(),u:cur.nama,a,m,d,w});};
-const gO=p=>{ let o=[];p.lc.filter(l=>l.st.startsWith('Aktif')).forEach(l=>{if(l.rw.length)o.push(l.rw[l.rw.length-1].pm);});return[...new Set(o)];};
-const gAO=p=>{let o=[];p.lc.forEach(l=>l.rw.forEach(r=>o.push({n:r.pm,y:fY(r.m),now:!r.a})));return o;};
-const gM=p=>p.lc.reduce((a,l)=>a+l.rw.length,0);
-const mC=j=>j==='Jual Beli'?'jb':j==='Waris'?'wr':j==='Hibah'?'hb':j==='Pemecahan'?'pc':'aw';
-const SVG={
-search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>',
-fc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>',
-file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>',
-act:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
-map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
-print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
-x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-arr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
-user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
-upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
-};
+      <div class="content">
+        <section class="section active" id="dashboard" data-title="Dashboard Arsip Pertanahan" data-crumb="Dashboard / Ringkasan">
+          <div class="hero-panel">
+            <div class="hero-copy">
+              <p class="eyebrow">SIADP-LOKTUAN / INTRANET</p>
+              <h1>Temu-kembali arsip pertanahan dalam hitungan menit.</h1>
+              <p class="lead">Prototype ini memetakan alur kerja kelurahan: pendataan persil, pencatatan pihak, arsip peralihan, upload dokumen hasil scan, validasi chain of title, dan audit akses berkas.</p>
+              <div class="cta-row">
+                <button class="btn primary" data-section-link="arsip">
+                  <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  Mulai Arsip Baru
+                </button>
+                <button class="btn secondary" data-section-link="cari">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                  Cari Berkas
+                </button>
+                <button class="btn warning" data-section-link="detail">
+                  <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                  Lihat Chain
+                </button>
+              </div>
+            </div>
+            <div class="hero-status">
+              <div class="status-card">
+                <div class="card-head">
+                  <div>
+                    <h3>Kondisi hari ini</h3>
+                    <p>14 Mei 2026, Loktuan</p>
+                  </div>
+                  <span class="pill blue">Prototype</span>
+                </div>
+                <div class="inline-alert success">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <div>Data contoh sudah menampilkan rantai kepemilikan lengkap, dokumen wajib, dan akses preview yang tercatat.</div>
+                </div>
+                <div>
+                  <div class="row" style="justify-content: space-between; margin-bottom: 7px;">
+                    <span class="muted">Kelengkapan arsip bulan ini</span>
+                    <strong>86%</strong>
+                  </div>
+                  <div class="progress" style="--value: 86%;"><i></i></div>
+                </div>
+                <div class="row">
+                  <span class="pill success">132 dokumen valid</span>
+                  <span class="pill warning">11 draft</span>
+                  <span class="pill danger">2 sengketa</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-// Auth
-function fillL(u,p){document.getElementById('lU').value=u;document.getElementById('lP').value=p;document.getElementById('loginErr').style.display='none';}
-function doLogin(){const u=document.getElementById('lU').value.trim(),p=document.getElementById('lP').value.trim();const f=users.find(x=>x.username===u&&x.password===p);if(!f){document.getElementById('loginErr').style.display='flex';return;}cur=f;document.getElementById('loginPage').classList.add('hidden');document.getElementById('appWrap').classList.remove('hidden');bSB();render();}
-function doLogout(){cur=null;pg='dashboard';document.getElementById('appWrap').classList.add('hidden');document.getElementById('loginPage').classList.remove('hidden');document.getElementById('lU').value='';document.getElementById('lP').value='';}
+          <div class="stat-grid">
+            <div class="stat">
+              <div class="stat-top"><span>Total persil</span><span class="code">TANAH</span></div>
+              <strong>428</strong>
+              <span class="trend">+18 tahun ini</span>
+            </div>
+            <div class="stat">
+              <div class="stat-top"><span>Peralihan</span><span class="code">CHAIN</span></div>
+              <strong>913</strong>
+              <span class="trend">+42 transaksi</span>
+            </div>
+            <div class="stat">
+              <div class="stat-top"><span>Dokumen scan</span><span class="code">FILE</span></div>
+              <strong>3.284</strong>
+              <span class="trend">Hash SHA-256</span>
+            </div>
+            <div class="stat">
+              <div class="stat-top"><span>Rata-rata temu kembali</span><span class="code">SLA</span></div>
+              <strong>4 mnt</strong>
+              <span class="trend warn">Sebelumnya 2-3 hari</span>
+            </div>
+          </div>
 
-// Sidebar
-function bSB(){
-  const items=[{id:'dashboard',l:'Dashboard',i:'home'},{id:'lacak',l:'LacakTanah',i:'search',sep:'PELACAKAN'},{id:'inputdok',l:'Input Dokumen',i:'upload',sep:'PENGINPUTAN'},{id:'arsip',l:'Arsip Digital',i:'folder',sep:'ARSIP PERTANAHAN'},{id:'letterc',l:'Persil & Letter C',i:'book'},{id:'skt',l:'SKT',i:'fc'},{id:'sp',l:'Surat Pengantar',i:'file'},{id:'dokumen',l:'Semua Dokumen',i:'file'},{id:'audit',l:'Log Aktivitas',i:'act',sep:'ADMINISTRASI'}];
-  if(ia())items.push({id:'users',l:'Kelola User',i:'users'});
-  let x='';items.forEach(it=>{if(it.sep)x+=`<div class="sb-label">${it.sep}</div>`;x+=`<button class="nb ${pg===it.id?'on':''}" onclick="go('${it.id}')">${SVG[it.i]} ${it.l}</button>`;});
-  document.getElementById('sbNav').innerHTML=x;
-  document.getElementById('fU').textContent=cur.nama;document.getElementById('fR').textContent=cur.role+' — '+cur.jab;document.getElementById('tR').textContent=cur.role;
-}
-function go(p2){pg=p2;bSB();render();}
-function render(){
-  const t={dashboard:'Dashboard',lacak:'LacakTanah — Pencarian Historis',inputdok:'Input Dokumen — Scan & Digitalisasi',arsip:'Arsip Digital',letterc:'Data Persil & Letter C',skt:'Surat Keterangan Tanah',sp:'Surat Pengantar Sertifikat',dokumen:'Dokumen Digital',audit:'Log Aktivitas',users:'Kelola User'};
-  document.getElementById('pgT').textContent=t[pg]||'';const c=document.getElementById('cnt');
-  switch(pg){case'dashboard':c.innerHTML=rD();break;case'lacak':c.innerHTML=rLT();break;case'inputdok':c.innerHTML=rID();break;case'arsip':c.innerHTML=rArsip();break;case'letterc':c.innerHTML=rLC();break;case'skt':c.innerHTML=rSK();break;case'sp':c.innerHTML=rSP();break;case'dokumen':c.innerHTML=rDok();break;case'audit':c.innerHTML=rAud();break;case'users':c.innerHTML=ia()?rUs():'';break;}
-}
+          <div class="grid-2">
+            <div class="table-wrap">
+              <div class="card-head" style="padding: 16px 16px 0;">
+                <div>
+                  <h3>10 arsip terbaru</h3>
+                  <p>Urutan berdasarkan waktu diarsipkan.</p>
+                </div>
+                <button class="btn secondary small" data-section-link="persil">Lihat Semua</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>KODE PERSIL</th>
+                    <th>PEMILIK SAAT INI</th>
+                    <th>JENIS</th>
+                    <th>DOKUMEN</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="code">LKT-03-02-2024-0001</td><td>Budi Santoso</td><td>Jual Beli</td><td>8 file</td><td><span class="pill success">Terarsip</span></td></tr>
+                  <tr><td class="code">LKT-01-04-2026-0012</td><td>Rahmawati</td><td>Waris</td><td>5 file</td><td><span class="pill warning">Draft</span></td></tr>
+                  <tr><td class="code">LKT-06-01-2025-0008</td><td>Hj. Murni</td><td>Hibah</td><td>6 file</td><td><span class="pill success">Terarsip</span></td></tr>
+                  <tr><td class="code">LKT-02-05-2026-0003</td><td>Hasan Basri</td><td>Pertama</td><td>7 file</td><td><span class="pill success">Terarsip</span></td></tr>
+                </tbody>
+              </table>
+            </div>
 
-// Dashboard
-function rD(){
-  const tP=P.length,tLC=P.reduce((a,p)=>a+p.lc.length,0),tM=P.reduce((a,p)=>a+gM(p),0),tD=P.reduce((a,p)=>a+p.dok.length,0);
-  const jm={};P.forEach(p=>p.lc.forEach(l=>l.rw.forEach(r=>{jm[r.j]=(jm[r.j]||0)+1;})));const mx=Math.max(...Object.values(jm),1);
-  let bars='';for(const[k,v]of Object.entries(jm)){bars+=`<div class="bar-r"><div class="bar-l"><span>${k}</span><span>${v}</span></div><div class="bar-t"><div class="bar-f" style="width:${(v/mx)*100}%"></div></div></div>`;}
-  let feed='';L.slice(0,6).forEach(l=>{const c2=l.a==='Tambah'?'add':'edit';feed+=`<div class="feed-i"><div class="feed-ico ${c2}">${SVG.plus}</div><div><div class="feed-txt">${h(l.d)}</div><div class="feed-meta">${h(l.u)} · ${l.w}</div></div></div>`;});
-  return`<div class="stats">${[['Bidang Tanah',tP,'amberL','amber',SVG.map,'lacak'],['Letter C',tLC,'blueL','blue',SVG.book,'letterc'],['SKT Terbit',SK.length,'greenL','green',SVG.fc,'skt'],['Dokumen',tD,'purpleL','purple',SVG.folder,'dokumen']].map((s,i)=>`<div class="stat anim-up d${i+1}" onclick="go('${s[5]}')"><div class="stat-ico" style="background:var(--${s[2]});color:var(--${s[3]})">${s[4]}</div><div class="stat-num">${s[1]}</div><div class="stat-lbl">${s[0]}</div></div>`).join('')}</div>
-  <div class="lt-banner anim-up d5" onclick="go('lacak')"><div class="lt-banner-ico">${SVG.search}</div><div><h4>LacakTanah — Pencarian Historis</h4><p>Satu kali cari — seluruh data tanah, riwayat, surat, dan dokumen tampil lengkap.</p></div><div class="arr">${SVG.arr}</div></div>
-  <div class="grid-2col"><div class="card anim-up" style="padding:20px"><div class="card-sec-h">${SVG.act} Distribusi Mutasi</div>${bars}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;padding-top:12px;border-top:1.5px solid var(--border)"><div style="text-align:center;padding:8px;background:var(--bg2);border-radius:10px"><div style="font-size:20px;font-weight:900;font-family:var(--head)">${P.reduce((a,p)=>a+p.lu,0).toLocaleString()}</div><div style="font-size:9px;color:var(--t3)">Total m²</div></div><div style="text-align:center;padding:8px;background:var(--bg2);border-radius:10px"><div style="font-size:20px;font-weight:900;font-family:var(--head)">${tM}</div><div style="font-size:9px;color:var(--t3)">Total Mutasi</div></div></div></div>
-  <div class="card anim-up d2" style="padding:20px"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="card-sec-h" style="margin-bottom:0">${SVG.clock} Aktivitas Terakhir</span><button style="font-size:10px;color:var(--pri);font-weight:700" onclick="go('audit')">Semua →</button></div>${feed}</div></div>`;
-}
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Checklist pengamanan</h3>
+                  <p>Kontrol utama sesuai spesifikasi teknis.</p>
+                </div>
+                <span class="pill blue">Aktif</span>
+              </div>
+              <div class="upload-list">
+                <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>File di storage private</strong><span>Tidak disimpan di public folder</span></div><span class="pill success">OK</span><span class="code">storage/app/private</span></div>
+                <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>NIK terenkripsi</strong><span>AES-256 di layer aplikasi</span></div><span class="pill success">OK</span><span class="code">nik_cari SHA-256</span></div>
+                <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>Audit append-only</strong><span>Write dan preview file tercatat</span></div><span class="pill success">OK</span><span class="code">VIEW_FILE</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-// LacakTanah
-function rLT(){
-  const tags=[];P.forEach(p=>{gO(p).forEach(o=>{if(!tags.find(t=>t.v===o))tags.push({v:o,l:o});});tags.push({v:p.np,l:'Persil '+p.np});p.lc.forEach(l=>tags.push({v:l.nc,l:l.nc}));});
-  let tagH='';tags.slice(0,10).forEach(t=>{tagH+=`<button class="lt-tag" onclick="ltQ('${h(t.v)}')">${h(t.l)}</button>`;});
-  return`<div class="lt-hero anim-up"><div class="lt-badge">${SVG.search} LACAKTANAH</div><div class="lt-title">Pencarian Historis Tanah</div><div class="lt-desc">Lacak seluruh riwayat kepemilikan, dokumen, SKT, dan surat pengantar dalam satu pencarian. Masukkan nama pemilik (termasuk pemilik lama), nomor persil, atau nomor Letter C.</div>
-  <div class="lt-search"><div class="lt-input-w">${SVG.search}<input class="lt-input" id="ltI" placeholder="Ketik nama pemilik, nomor persil, atau nomor Letter C..." oninput="ltS()"></div><select class="lt-select" id="ltM" onchange="ltS()"><option value="semua">Semua</option><option value="nama">Nama Pemilik</option><option value="persil">No. Persil</option><option value="letterc">No. Letter C</option></select></div>
-  <div class="lt-tags">${tagH}</div></div>
-  <div id="ltR"><div class="empty">${SVG.map}<h3>Masukkan kata kunci pencarian</h3><p>Atau klik salah satu tag pencarian cepat di atas</p></div></div>`;
-}
-function ltQ(v){document.getElementById('ltI').value=v;ltS();}
-function ltS(){
-  const q=document.getElementById('ltI').value.trim().toLowerCase(),m=document.getElementById('ltM').value;
-  if(!q){document.getElementById('ltR').innerHTML=`<div class="empty">${SVG.map}<h3>Masukkan kata kunci pencarian</h3></div>`;return;}
-  const res=P.filter(p=>{if(m==='persil')return p.np.toLowerCase().includes(q);if(m==='letterc')return p.lc.some(l=>l.nc.toLowerCase().includes(q));if(m==='nama')return p.lc.some(l=>l.rw.some(r=>r.pm.toLowerCase().includes(q)));return p.np.toLowerCase().includes(q)||p.al.toLowerCase().includes(q)||p.lc.some(l=>l.nc.toLowerCase().includes(q)||l.rw.some(r=>r.pm.toLowerCase().includes(q)));});
-  if(!res.length){document.getElementById('ltR').innerHTML=`<div class="empty">${SVG.search}<h3>Tidak ditemukan</h3><p>Coba kata kunci lain atau ubah filter</p></div>`;return;}
-  let x=`<div style="font-size:12px;color:var(--t3);margin-bottom:14px;font-weight:600">${res.length} bidang tanah ditemukan</div>`;
-  res.forEach(p=>{
-    const ow=gO(p),ao=gAO(p),relSK=SK.filter(s=>s.np===p.np),relSP=SP.filter(s=>s.np===p.np);
-    let ch='';ao.forEach((o,i)=>{const hl2=o.n.toLowerCase().includes(q);ch+=`<div class="chain-node"><div class="chain-pill ${o.now?'now':''} ${hl2?'hl':''}">${h(o.n)}</div><div class="chain-yr">${o.y}</div></div>`;if(i<ao.length-1)ch+=`<div class="chain-arr">${SVG.arr}</div>`;});
-    let lcT='',lcB='';
-    p.lc.forEach((lc,li)=>{const act=li===0;
-      lcT+=`<div class="tab ${act?'on':''}" onclick="ltTab(${p.id},${li})" id="ltT_${p.id}_${li}">${SVG.book} ${h(lc.nc)} ${lc.st.startsWith('Aktif')?bg('Aktif','g'):bg(lc.st,'a')}</div>`;
-      let tl='';lc.rw.forEach((r,ri)=>{const isL=ri===lc.rw.length-1,isF=ri===0;const dot=isL&&!r.a?'now':isF?'first':'mid';const hl2=r.pm.toLowerCase().includes(q);
-        tl+=`<div class="tl-n"><div class="tl-dot ${dot}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="${isL&&!r.a?'4':'3'}"/></svg></div><div class="tl-card ${isL&&!r.a?'now':''} ${hl2?'now':''}"><div class="dur">${dur(r.m,r.a)}</div><div class="owner">${hl2?'<span style="background:var(--priB);padding:1px 5px;border-radius:4px">'+h(r.pm)+'</span>':h(r.pm)} ${isL&&!r.a?bg('PEMILIK SAAT INI','o'):''}</div><div class="period">${SVG.clock} ${fD(r.m)} — ${fD(r.a)}</div><div class="mutasi m-${mC(r.j)}">${r.j}</div>${r.ak&&r.ak!=='-'?`<div class="ket">📄 ${h(r.ak)}</div>`:''}${r.k?`<div class="ket">${h(r.k)}</div>`:''}</div></div>`;});
-      lcB+=`<div class="tab-body ${act?'on':''}" id="ltB_${p.id}_${li}"><div class="tl"><div class="tl-line"></div>${tl}</div></div>`;
+        <section class="section" id="arsip" data-title="Wizard Arsip Baru" data-crumb="Arsip Baru / Input Peralihan">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">CORE WORKFLOW</p>
+              <h2>Arsip peralihan tanah.</h2>
+              <p class="muted">Alur lima langkah dari pilih persil sampai konfirmasi penyimpanan.</p>
+            </div>
+            <div class="row">
+              <span class="pill warning">Draft tersimpan otomatis</span>
+              <button class="btn secondary small" data-action="show-toast">Simpan Draft</button>
+            </div>
+          </div>
+
+          <div class="wizard">
+            <div class="steps" id="wizardSteps">
+              <button class="step-btn active" data-step="1"><span class="step-num">1</span><span class="step-title"><strong>Persil</strong><span>Pilih atau daftar</span></span></button>
+              <button class="step-btn" data-step="2"><span class="step-num">2</span><span class="step-title"><strong>Pihak</strong><span>Pengalih dan penerima</span></span></button>
+              <button class="step-btn" data-step="3"><span class="step-num">3</span><span class="step-title"><strong>Peralihan</strong><span>Jenis, tanggal, nomor</span></span></button>
+              <button class="step-btn" data-step="4"><span class="step-num">4</span><span class="step-title"><strong>Dokumen</strong><span>Upload lampiran</span></span></button>
+              <button class="step-btn" data-step="5"><span class="step-num">5</span><span class="step-title"><strong>Review</strong><span>Konfirmasi arsip</span></span></button>
+            </div>
+
+            <div>
+              <div class="wizard-stage active" data-stage="1">
+                <div class="card">
+                  <div class="card-head">
+                    <div>
+                      <h3>Langkah 1 - Pilih persil</h3>
+                      <p>Persil dapat dicari dari data lama atau didaftarkan langsung.</p>
+                    </div>
+                    <span class="pill blue">Kode otomatis</span>
+                  </div>
+                  <div class="split-options">
+                    <button class="option-card active" data-choice-group="persilMode">
+                      <strong>Persil sudah terdaftar</strong>
+                      <span>Cari berdasarkan kode persil, NOP PBB, atau alamat lokasi.</span>
+                    </button>
+                    <button class="option-card" data-choice-group="persilMode">
+                      <strong>Daftarkan persil baru</strong>
+                      <span>Sistem menyiapkan kode LKT-RT-RW-TAHUN-NOURUT.</span>
+                    </button>
+                  </div>
+                  <div class="form-grid">
+                    <div class="field wide">
+                      <label>Cari persil</label>
+                      <input value="LKT-03-02-2024-0001 - Jl. Bougenville RT 03/RW 02">
+                    </div>
+                    <div class="field"><label>Kode persil</label><input value="LKT-03-02-2024-0001"></div>
+                    <div class="field"><label>NOP PBB</label><input value="64.72.040.003.123-0001.0"></div>
+                    <div class="field wide"><label>Alamat lokasi</label><textarea>Jl. Bougenville, RT 03/RW 02, Kelurahan Loktuan, Kecamatan Bontang Utara</textarea></div>
+                    <div class="field"><label>Luas</label><input value="250 m2"></div>
+                    <div class="field"><label>Pemilik terakhir</label><input value="Ahmad Subandi"></div>
+                  </div>
+                  <div class="inline-alert success" style="margin-top: 14px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div>Persil ditemukan. Peralihan terakhir mencatat Ahmad Subandi sebagai pemilik sebelum transaksi baru.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-stage" data-stage="2">
+                <div class="card">
+                  <div class="card-head">
+                    <div>
+                      <h3>Langkah 2 - Data pihak</h3>
+                      <p>Validasi pengalih harus cocok dengan pemilik terakhir pada chain of title.</p>
+                    </div>
+                    <span class="pill blue">NIK termasking</span>
+                  </div>
+                  <div class="grid-2">
+                    <div>
+                      <h3 style="font-size: 15px;">Pihak pengalih</h3>
+                      <div class="form-grid">
+                        <div class="field wide"><label>Cari NIK atau nama</label><input value="Ahmad Subandi - ####-####-####-3120"></div>
+                        <div class="field"><label>Status hidup</label><select><option>Hidup</option><option>Meninggal</option></select></div>
+                        <div class="field"><label>Sebagai</label><select><option>Penjual</option><option>Pewaris</option><option>Pemberi hibah</option></select></div>
+                      </div>
+                      <div class="inline-alert success" style="margin-top: 12px;">
+                        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div>Pengalih cocok dengan pemilik terakhir: Ahmad Subandi.</div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 style="font-size: 15px;">Pihak penerima</h3>
+                      <div class="form-grid">
+                        <div class="field wide"><label>Cari NIK atau nama</label><input value="Budi Santoso - ####-####-####-7021"></div>
+                        <div class="field"><label>Jenis kelamin</label><select><option>Laki-laki</option><option>Perempuan</option></select></div>
+                        <div class="field"><label>No. telepon</label><input value="0812-7788-1020"></div>
+                        <div class="field wide"><label>Alamat</label><textarea>Jl. Slamet Riyadi RT 05/RW 01, Loktuan</textarea></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="inline-alert danger" style="margin-top: 14px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" fill="none" stroke-width="2"/><path d="M12 9v4" stroke="currentColor" stroke-width="2"/><path d="M12 17h.01" stroke="currentColor" stroke-width="2"/></svg>
+                    <div>Contoh validasi: jika pengalih dipilih bukan Ahmad Subandi, sistem menolak penyimpanan dengan pesan rantai kepemilikan tidak valid.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-stage" data-stage="3">
+                <div class="card">
+                  <div class="card-head">
+                    <div>
+                      <h3>Langkah 3 - Data peralihan</h3>
+                      <p>Nomor urut rantai dibuat otomatis dari riwayat persil.</p>
+                    </div>
+                    <span class="pill success">Rantai #2</span>
+                  </div>
+                  <div class="form-grid">
+                    <div class="field"><label>Jenis peralihan</label><select id="jenisPeralihan"><option>Jual Beli</option><option>Kepemilikan Pertama</option><option>Hibah</option><option>Waris</option><option>Tukar Menukar</option><option>Lainnya</option></select></div>
+                    <div class="field"><label>Tanggal peristiwa</label><input type="date" value="2024-01-15"></div>
+                    <div class="field"><label>Nomor SPPHT</label><input value="001/SPPHT/LKT/2024"></div>
+                    <div class="field"><label>Nomor akta PPAT</label><input placeholder="Opsional"></div>
+                    <div class="field wide"><label>Catatan</label><textarea>SPPHT telah ditandatangani lengkap oleh para pihak, saksi batas, RT, Lurah, dan Camat.</textarea></div>
+                  </div>
+                  <label class="inline-alert warning" style="margin-top: 14px;">
+                    <input type="checkbox" style="width: 18px; min-height: 18px; margin-top: 2px;">
+                    <span>Rekonstruksi historis. Gunakan untuk arsip lama yang datanya valid tetapi dokumen fisik tidak lengkap.</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="wizard-stage" data-stage="4">
+                <div class="card">
+                  <div class="card-head">
+                    <div>
+                      <h3>Langkah 4 - Upload dokumen lampiran</h3>
+                      <p>Format PDF, JPG, PNG. Maksimal 10 MB per file.</p>
+                    </div>
+                    <span class="pill warning" id="missingDocs">2 wajib belum lengkap</span>
+                  </div>
+                  <div class="upload-list" id="uploadList">
+                    <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>SPPHT *</strong><span>sppht_001_2024.pdf</span></div><div class="progress" style="--value: 100%;"><i></i></div><div class="row"><button class="btn secondary small" data-preview="SPPHT No. 001/SPPHT/LKT/2024">Preview</button></div></div>
+                    <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>KTP Pemohon *</strong><span>ktp_budi_santoso.jpg</span></div><div class="progress" style="--value: 100%;"><i></i></div><div class="row"><button class="btn secondary small" data-preview="KTP Pemohon">Preview</button></div></div>
+                    <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>KK Pemohon *</strong><span>kk_budi_santoso.pdf</span></div><div class="progress" style="--value: 100%;"><i></i></div><div class="row"><button class="btn secondary small" data-preview="KK Pemohon">Preview</button></div></div>
+                    <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>Surat Pengantar RT/RW *</strong><span>surat_pengantar_rtrw.pdf</span></div><div class="progress" style="--value: 100%;"><i></i></div><div class="row"><button class="btn secondary small" data-preview="Surat Pengantar RT/RW">Preview</button></div></div>
+                    <div class="upload-row done"><span class="check"></span><div class="upload-name"><strong>Surat Tidak Sengketa *</strong><span>surat_tidak_sengketa.pdf</span></div><div class="progress" style="--value: 100%;"><i></i></div><div class="row"><button class="btn secondary small" data-preview="Surat Tidak Sengketa">Preview</button></div></div>
+                    <div class="upload-row"><span class="check"></span><div class="upload-name"><strong>KTP Saksi 1 *</strong><span>Belum diupload</span></div><div class="progress" style="--value: 0%;"><i></i></div><div class="row"><button class="btn blue small" data-upload>Unggah</button></div></div>
+                    <div class="upload-row"><span class="check"></span><div class="upload-name"><strong>KTP Saksi 2 *</strong><span>Belum diupload</span></div><div class="progress" style="--value: 0%;"><i></i></div><div class="row"><button class="btn blue small" data-upload>Unggah</button></div></div>
+                    <div class="upload-row"><span class="check"></span><div class="upload-name"><strong>Denah Lokasi</strong><span>Opsional</span></div><div class="progress" style="--value: 0%;"><i></i></div><div class="row"><button class="btn secondary small" data-upload>Unggah</button></div></div>
+                  </div>
+                  <div class="row" style="margin-top: 14px;">
+                    <button class="btn secondary small" data-action="show-toast">Tambah Dokumen Lain</button>
+                    <button class="btn secondary small" data-action="show-toast">Simpan sebagai Draft</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-stage" data-stage="5">
+                <div class="card">
+                  <div class="card-head">
+                    <div>
+                      <h3>Langkah 5 - Review dan konfirmasi</h3>
+                      <p>Ringkasan sebelum data disimpan dalam satu transaksi database.</p>
+                    </div>
+                    <span class="pill success">Siap disimpan</span>
+                  </div>
+                  <div class="summary-grid">
+                    <div class="summary-box">
+                      <h3 style="font-size: 15px;">Persil</h3>
+                      <dl>
+                        <div><dt>Kode</dt><dd class="code">LKT-03-02-2024-0001</dd></div>
+                        <div><dt>Lokasi</dt><dd>Jl. Bougenville</dd></div>
+                        <div><dt>Luas</dt><dd>250 m2</dd></div>
+                      </dl>
+                    </div>
+                    <div class="summary-box">
+                      <h3 style="font-size: 15px;">Peralihan</h3>
+                      <dl>
+                        <div><dt>Jenis</dt><dd>Jual Beli</dd></div>
+                        <div><dt>Pengalih</dt><dd>Ahmad Subandi</dd></div>
+                        <div><dt>Penerima</dt><dd>Budi Santoso</dd></div>
+                      </dl>
+                    </div>
+                    <div class="summary-box">
+                      <h3 style="font-size: 15px;">Dokumen</h3>
+                      <dl>
+                        <div><dt>Terupload</dt><dd>8 file</dd></div>
+                        <div><dt>Hash</dt><dd>SHA-256</dd></div>
+                        <div><dt>Storage</dt><dd>private/arsip/2024</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="inline-alert success" style="margin-top: 14px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div>Setelah tombol simpan ditekan, prototype menampilkan notifikasi sukses, audit log bertambah, dan detail chain of title dapat dibuka.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" style="justify-content: space-between; margin-top: 14px;">
+                <button class="btn secondary" id="prevStep">
+                  <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+                  Kembali
+                </button>
+                <button class="btn primary" id="nextStep">
+                  Lanjut
+                  <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="cari" data-title="Pencarian Arsip" data-crumb="Cari Arsip / Hasil">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">TEMU-KEMBALI</p>
+                <h2>Cari arsip pertanahan.</h2>
+                <p>Telusuri berdasarkan pemilik, persil, pemilik terkini, atau periode peralihan.</p>
+              </div>
+              <button class="btn primary" data-action="show-toast">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                Cari
+              </button>
+            </div>
+            <div class="tabs">
+              <button class="tab-btn active">Nama / NIK Pemilik</button>
+              <button class="tab-btn">Kode / Lokasi Persil</button>
+              <button class="tab-btn">Pemilik Terkini</button>
+              <button class="tab-btn">Tanggal</button>
+            </div>
+            <div class="filters">
+              <div class="field"><label>Kata kunci</label><input value="Budi Santoso"></div>
+              <div class="field"><label>RT</label><input value="03"></div>
+              <div class="field"><label>RW</label><input value="02"></div>
+              <div class="field"><label>Jenis</label><select><option>Semua</option><option>Jual Beli</option><option>Waris</option><option>Hibah</option></select></div>
+              <div class="field"><label>Status</label><select><option>Semua</option><option>Aktif</option><option>Sengketa</option></select></div>
+              <button class="btn blue" data-action="show-toast">Terapkan</button>
+            </div>
+          </div>
+
+          <div class="table-wrap" style="margin-top: 16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>KODE</th>
+                  <th>LOKASI</th>
+                  <th>PEMILIK</th>
+                  <th>JENIS</th>
+                  <th>TANGGAL</th>
+                  <th>STATUS</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="code">LKT-03-02-2024-0001</td><td>Jl. Bougenville RT 03/RW 02</td><td>Budi Santoso</td><td>Jual Beli</td><td>15 Jan 2024</td><td><span class="pill success">Saat ini</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
+                <tr><td class="code">LKT-05-01-1995-0007</td><td>Jl. Padat Karya RT 05/RW 01</td><td>Budi Santoso</td><td>Pertama</td><td>05 Mar 1995</td><td><span class="pill warning">Dulu</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
+                <tr><td class="code">LKT-06-03-2021-0010</td><td>Jl. RE Martadinata RT 06/RW 03</td><td>Budi Santoso</td><td>Hibah</td><td>22 Agt 2021</td><td><span class="pill success">Saat ini</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="persil" data-title="Daftar Persil" data-crumb="Persil / Daftar">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">MANAJEMEN PERSIL</p>
+              <h2>Daftar persil terdaftar.</h2>
+              <p class="muted">Filter RT/RW, status, NOP PBB, dan alamat lokasi.</p>
+            </div>
+            <button class="btn primary" data-section-link="arsip">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Tambah Persil
+            </button>
+          </div>
+          <div class="card">
+            <div class="filters">
+              <div class="field"><label>Pencarian</label><input value="Bougenville"></div>
+              <div class="field"><label>RT</label><input value="03"></div>
+              <div class="field"><label>RW</label><input value="02"></div>
+              <div class="field"><label>Status</label><select><option>Semua</option><option>Aktif</option><option>Tidak Aktif</option><option>Sengketa</option></select></div>
+              <div class="field"><label>Urutkan</label><select><option>Tanggal pendaftaran</option><option>Kode persil</option></select></div>
+              <button class="btn blue" data-action="show-toast">Filter</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top: 16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>KODE PERSIL</th>
+                  <th>NOP PBB</th>
+                  <th>RT/RW</th>
+                  <th>LOKASI</th>
+                  <th>LUAS</th>
+                  <th>STATUS</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="code">LKT-03-02-2024-0001</td><td class="code">64.72.040.003.123-0001.0</td><td>03/02</td><td>Jl. Bougenville</td><td>250 m2</td><td><span class="pill success">Aktif</span></td><td><button class="btn secondary small" data-section-link="detail">Buka</button></td></tr>
+                <tr><td class="code">LKT-01-04-2026-0012</td><td class="muted">Belum terbit</td><td>01/04</td><td>Jl. Kapal Layar</td><td>180 m2</td><td><span class="pill warning">Draft</span></td><td><button class="btn secondary small">Buka</button></td></tr>
+                <tr><td class="code">LKT-02-05-2026-0003</td><td class="code">64.72.040.002.511-0003.0</td><td>02/05</td><td>Jl. Pelabuhan</td><td>312 m2</td><td><span class="pill success">Aktif</span></td><td><button class="btn secondary small">Buka</button></td></tr>
+                <tr><td class="code">LKT-04-02-2022-0015</td><td class="code">64.72.040.004.118-0015.0</td><td>04/02</td><td>Jl. Damai</td><td>145 m2</td><td><span class="pill danger">Sengketa</span></td><td><button class="btn secondary small">Buka</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="detail" data-title="Detail Persil dan Chain of Title" data-crumb="Persil / LKT-03-02-2024-0001">
+          <div class="hero-panel" style="grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);">
+            <div class="hero-copy">
+              <p class="eyebrow">DETAIL PERSIL</p>
+              <h1 style="font-size: clamp(28px, 3vw, 40px);">LKT-03-02-2024-0001</h1>
+              <p class="lead">Jl. Bougenville RT 03/RW 02, Kelurahan Loktuan, Kecamatan Bontang Utara, Kota Bontang.</p>
+              <div class="row">
+                <span class="pill success">Aktif</span>
+                <span class="pill blue">NOP 64.72.040.003.123-0001.0</span>
+                <span class="pill">Luas 250 m2</span>
+                <span class="pill">Pemilik saat ini: Budi Santoso</span>
+              </div>
+              <div class="cta-row" style="margin-top: 18px;">
+                <button class="btn primary" data-section-link="arsip">Tambah Peralihan</button>
+                <button class="btn secondary" data-action="show-toast">Edit Persil</button>
+              </div>
+            </div>
+            <div class="map-preview">
+              <div class="road horizontal"></div>
+              <div class="road vertical"></div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top: 18px;">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Riwayat kepemilikan</h3>
+                  <p>Urutan kronologis semua peralihan untuk persil ini.</p>
+                </div>
+                <span class="pill blue">Chain valid</span>
+              </div>
+              <div class="timeline">
+                <article class="event historic">
+                  <div class="event-box">
+                    <div class="event-top">
+                      <div>
+                        <span class="pill warning">Data Historis - Dokumen Tidak Lengkap</span>
+                        <h3 style="margin-top: 10px;">#1 Kepemilikan pertama</h3>
+                      </div>
+                      <span class="code muted">12 Mar 1992</span>
+                    </div>
+                    <p><strong>Penerima:</strong> Ahmad Subandi <span class="muted">(NIK: ####-####-####-3120)</span></p>
+                    <p><strong>Dasar:</strong> SPPHT No. 005/1992. Rekonstruksi dari arsip fisik lama.</p>
+                    <div class="doc-chips">
+                      <button class="doc-chip" data-preview="SPPHT No. 005/1992">SPPHT</button>
+                      <button class="doc-chip" data-preview="KTP Ahmad Subandi">KTP</button>
+                      <button class="doc-chip" data-preview="Surat RT/RW 1992">Surat RT/RW</button>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="event current">
+                  <div class="event-box">
+                    <div class="event-top">
+                      <div>
+                        <span class="pill success">Pemilik saat ini</span>
+                        <h3 style="margin-top: 10px;">#2 Jual beli</h3>
+                      </div>
+                      <span class="code muted">15 Jan 2024</span>
+                    </div>
+                    <p><strong>Dari:</strong> Ahmad Subandi</p>
+                    <p><strong>Kepada:</strong> Budi Santoso <span class="muted">(NIK: ####-####-####-7021)</span></p>
+                    <p><strong>Dasar:</strong> SPPHT No. 001/SPPHT/LKT/2024. Diarsipkan 16 Jan 2024 oleh Admin Kelurahan.</p>
+                    <div class="doc-chips">
+                      <button class="doc-chip" data-preview="SPPHT No. 001/SPPHT/LKT/2024">SPPHT</button>
+                      <button class="doc-chip" data-preview="KTP Penjual">KTP Penjual</button>
+                      <button class="doc-chip" data-preview="KTP Pembeli">KTP Pembeli</button>
+                      <button class="doc-chip" data-preview="Surat Tidak Sengketa">Surat Tidak Sengketa</button>
+                      <button class="doc-chip" data-preview="Denah Lokasi">Denah Lokasi</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Batas tanah</h3>
+                  <p>Dicatat sebagai atribut persil.</p>
+                </div>
+              </div>
+              <div class="summary-box" style="margin-bottom: 14px;">
+                <dl>
+                  <div><dt>Utara</dt><dd>Jalan Bougenville</dd></div>
+                  <div><dt>Selatan</dt><dd>Tanah Sdr. Hasan</dd></div>
+                  <div><dt>Timur</dt><dd>Tanah Sdr. Mahmud</dd></div>
+                  <div><dt>Barat</dt><dd>Tanah Sdr. Rahmad</dd></div>
+                </dl>
+              </div>
+              <div class="inline-alert warning">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" fill="none" stroke-width="2"/><path d="M12 9v4" stroke="currentColor" stroke-width="2"/><path d="M12 17h.01" stroke="currentColor" stroke-width="2"/></svg>
+                <div>Jika status persil berubah menjadi sengketa, banner merah akan muncul di atas timeline dan penyimpanan peralihan baru dapat dikunci.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dark-band">
+            <div>
+              <p class="eyebrow">VALIDASI SERVER-SIDE</p>
+              <h2>Aturan chain of title tetap menjadi pagar utama.</h2>
+              <p>Prototype ini menampilkan pesan validasi yang perlu muncul ketika tanggal mundur, pemilik terakhir tidak cocok, atau jenis kepemilikan pertama dibuat lebih dari satu kali.</p>
+            </div>
+            <div class="terminal">
+              <div><span class="ok">OK</span> tanah.kode_persil unique: LKT-03-02-2024-0001</div>
+              <div><span class="ok">OK</span> pihak_pengalih_id == penerima peralihan terakhir</div>
+              <div><span class="ok">OK</span> tanggal_peristiwa >= 12 Mar 1992</div>
+              <div><span class="warn">WARN</span> rekonstruksi_historis = 1, tampilkan label kuning</div>
+              <div><span class="ok">OK</span> audit_log append-only untuk VIEW_FILE</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="pihak" data-title="Data Pihak" data-crumb="Pihak / Daftar">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">REPOSITORI PIHAK</p>
+              <h2>Data pihak terlibat.</h2>
+              <p class="muted">Satu pihak dapat tampil di banyak persil dan transaksi.</p>
+            </div>
+            <button class="btn primary" data-action="show-toast">Tambah Pihak</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>NAMA</th>
+                  <th>NIK</th>
+                  <th>STATUS</th>
+                  <th>KETERLIBATAN</th>
+                  <th>RIWAYAT TERAKHIR</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Ahmad Subandi</td><td class="code">####-####-####-3120</td><td><span class="pill success">Hidup</span></td><td>4 peralihan</td><td>Pengalih, LKT-03-02-2024-0001</td></tr>
+                <tr><td>Budi Santoso</td><td class="code">####-####-####-7021</td><td><span class="pill success">Hidup</span></td><td>3 peralihan</td><td>Penerima, LKT-03-02-2024-0001</td></tr>
+                <tr><td>Hj. Murni</td><td class="code">####-####-####-5811</td><td><span class="pill success">Hidup</span></td><td>2 peralihan</td><td>Penerima hibah, LKT-06-01-2025-0008</td></tr>
+                <tr><td>H. Usman</td><td class="code">####-####-####-1190</td><td><span class="pill warning">Meninggal</span></td><td>1 peralihan</td><td>Pewaris, LKT-01-04-2026-0012</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="audit" data-title="Audit Log" data-crumb="Audit Log / Aktivitas">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">APPEND ONLY</p>
+              <h2>Jejak audit sistem.</h2>
+              <p class="muted">Tidak ada tombol hapus atau edit pada audit log.</p>
+            </div>
+            <span class="pill success">Terekam otomatis</span>
+          </div>
+          <div class="card">
+            <div class="filters">
+              <div class="field"><label>Aksi</label><select><option>Semua</option><option>CREATE</option><option>UPDATE</option><option>VIEW_FILE</option><option>LOGIN</option></select></div>
+              <div class="field"><label>Entitas</label><select><option>Semua</option><option>tanah</option><option>pihak</option><option>peralihan</option><option>dokumen</option></select></div>
+              <div class="field"><label>Dari</label><input type="date" value="2026-05-01"></div>
+              <div class="field"><label>Sampai</label><input type="date" value="2026-05-14"></div>
+              <div class="field"><label>Admin</label><input value="Admin Kelurahan"></div>
+              <button class="btn blue" data-action="show-toast">Filter</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top: 16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>WAKTU</th>
+                  <th>ADMIN</th>
+                  <th>AKSI</th>
+                  <th>ENTITAS</th>
+                  <th>ID</th>
+                  <th>IP ADDRESS</th>
+                </tr>
+              </thead>
+              <tbody id="auditRows">
+                <tr><td>14 Mei 2026 16:48</td><td>Admin Kelurahan</td><td><span class="pill blue">VIEW_FILE</span></td><td>dokumen</td><td class="code">DKM-8842</td><td class="code">192.168.10.14</td></tr>
+                <tr><td>14 Mei 2026 16:35</td><td>Admin Kelurahan</td><td><span class="pill success">CREATE</span></td><td>peralihan</td><td class="code">PRL-224</td><td class="code">192.168.10.14</td></tr>
+                <tr><td>14 Mei 2026 15:02</td><td>Admin Kelurahan</td><td><span class="pill success">UPDATE</span></td><td>tanah</td><td class="code">TNH-428</td><td class="code">192.168.10.14</td></tr>
+                <tr><td>14 Mei 2026 08:10</td><td>Admin Kelurahan</td><td><span class="pill blue">LOGIN</span></td><td>users</td><td class="code">USR-1</td><td class="code">192.168.10.14</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="pengaturan" data-title="Pengaturan Sistem" data-crumb="Pengaturan / Sistem">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow">AKUN ADMIN</p>
+                  <h2>Ganti password.</h2>
+                  <p>Single admin account, tanpa registrasi terbuka.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field wide"><label>Password lama</label><input type="password" value="loktuan"></div>
+                <div class="field"><label>Password baru</label><input type="password" value="Loktuan2026"></div>
+                <div class="field"><label>Konfirmasi</label><input type="password" value="Loktuan2026"></div>
+              </div>
+              <div class="row" style="margin-top: 14px;"><button class="btn primary" data-action="show-toast">Simpan Password</button></div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow">INFORMASI SISTEM</p>
+                  <h2>Ringkasan instalasi.</h2>
+                  <p>Untuk kebutuhan operator dan pemeliharaan intranet.</p>
+                </div>
+              </div>
+              <div class="summary-box">
+                <dl>
+                  <div><dt>Versi prototype</dt><dd>Alpha 1.0</dd></div>
+                  <div><dt>Target stack</dt><dd>Laravel 11, MySQL 8</dd></div>
+                  <div><dt>Storage</dt><dd>Private local disk</dd></div>
+                  <div><dt>Backup terakhir</dt><dd>13 Mei 2026 17:00</dd></div>
+                  <div><dt>Session timeout</dt><dd>120 menit idle</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status">
+    <span class="pill success">Sukses</span>
+    <div>
+      <strong id="toastTitle">Aksi prototype diproses.</strong>
+      <div class="muted" id="toastText">Pada implementasi Laravel, aksi ini akan tersimpan ke database dan audit log.</div>
+    </div>
+  </div>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <strong id="previewTitle">Preview Dokumen</strong>
+          <div class="muted code">Audit: VIEW_FILE akan dicatat</div>
+        </div>
+        <button class="icon-only" id="closeModal" data-tip="Tutup" aria-label="Tutup preview">
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="doc-preview">
+        <div class="paper">
+          <p class="eyebrow">KELURAHAN LOKTUAN / DOKUMEN DIGITAL</p>
+          <h2 id="paperTitle">SPPHT No. 001/SPPHT/LKT/2024</h2>
+          <div class="paper-line"></div>
+          <div class="paper-line"></div>
+          <div class="paper-line short"></div>
+          <div class="paper-line"></div>
+          <div class="paper-line" style="width: 84%;"></div>
+          <div class="paper-line"></div>
+          <div class="paper-line short"></div>
+          <div class="paper-grid">
+            <div class="signature">Pengalih</div>
+            <div class="signature">Penerima</div>
+            <div class="signature">Saksi 1</div>
+            <div class="signature">Lurah</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sections = [...document.querySelectorAll(".section")];
+    const navButtons = [...document.querySelectorAll("[data-section]")];
+    const pageTitle = document.getElementById("pageTitle");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const toast = document.getElementById("toast");
+    const previewModal = document.getElementById("previewModal");
+    const previewTitle = document.getElementById("previewTitle");
+    const paperTitle = document.getElementById("paperTitle");
+    const auditRows = document.getElementById("auditRows");
+    let currentStep = 1;
+
+    function showSection(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      sections.forEach(section => section.classList.toggle("active", section.id === id));
+      navButtons.forEach(button => button.classList.toggle("active", button.dataset.section === id));
+      pageTitle.textContent = target.dataset.title || "SIADP Loktuan";
+      breadcrumb.textContent = target.dataset.crumb || "Dashboard";
+      document.body.classList.remove("menu-open");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showToast(title = "Aksi prototype diproses.", text = "Pada implementasi Laravel, aksi ini akan tersimpan ke database dan audit log.") {
+      document.getElementById("toastTitle").textContent = title;
+      document.getElementById("toastText").textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3600);
+    }
+
+    function setWizardStep(step) {
+      currentStep = Math.max(1, Math.min(5, step));
+      document.querySelectorAll(".step-btn").forEach(button => {
+        button.classList.toggle("active", Number(button.dataset.step) === currentStep);
+      });
+      document.querySelectorAll(".wizard-stage").forEach(stage => {
+        stage.classList.toggle("active", Number(stage.dataset.stage) === currentStep);
+      });
+      document.getElementById("prevStep").disabled = currentStep === 1;
+      document.getElementById("nextStep").innerHTML = currentStep === 5
+        ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Simpan Arsip'
+        : 'Lanjut <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
+    }
+
+    function openPreview(title) {
+      previewTitle.textContent = title;
+      paperTitle.textContent = title;
+      previewModal.classList.add("show");
+      previewModal.setAttribute("aria-hidden", "false");
+      const row = document.createElement("tr");
+      row.innerHTML = '<td>14 Mei 2026 17:12</td><td>Admin Kelurahan</td><td><span class="pill blue">VIEW_FILE</span></td><td>dokumen</td><td class="code">PREVIEW</td><td class="code">192.168.10.14</td>';
+      auditRows.prepend(row);
+    }
+
+    document.addEventListener("click", event => {
+      const nav = event.target.closest("[data-section]");
+      if (nav) showSection(nav.dataset.section);
+
+      const link = event.target.closest("[data-section-link]");
+      if (link) showSection(link.dataset.sectionLink);
+
+      const action = event.target.closest("[data-action='show-toast']");
+      if (action) showToast();
+
+      const step = event.target.closest(".step-btn");
+      if (step) setWizardStep(Number(step.dataset.step));
+
+      const choice = event.target.closest("[data-choice-group]");
+      if (choice) {
+        document.querySelectorAll(`[data-choice-group="${choice.dataset.choiceGroup}"]`).forEach(item => item.classList.remove("active"));
+        choice.classList.add("active");
+      }
+
+      const upload = event.target.closest("[data-upload]");
+      if (upload) {
+        const row = upload.closest(".upload-row");
+        row.classList.add("done");
+        row.querySelector(".upload-name span").textContent = "file_simulasi_terupload.pdf";
+        row.querySelector(".progress").style.setProperty("--value", "100%");
+        upload.textContent = "Preview";
+        upload.classList.remove("blue");
+        upload.classList.add("secondary");
+        upload.removeAttribute("data-upload");
+        upload.setAttribute("data-preview", row.querySelector(".upload-name strong").textContent.replace(" *", ""));
+        const remaining = [...document.querySelectorAll("#uploadList .upload-row:not(.done) .upload-name strong")]
+          .filter(item => item.textContent.includes("*")).length;
+        document.getElementById("missingDocs").textContent = remaining ? `${remaining} wajib belum lengkap` : "Semua wajib lengkap";
+        document.getElementById("missingDocs").className = remaining ? "pill warning" : "pill success";
+        showToast("Dokumen berhasil diunggah.", "File sementara tersimpan sampai proses konfirmasi selesai.");
+      }
+
+      const preview = event.target.closest("[data-preview]");
+      if (preview) openPreview(preview.dataset.preview);
     });
-    let docsH='';p.dok.forEach(d=>{docsH+=`<div class="doc-item"><div class="doc-ico ${d.t}">${SVG.file}</div><div class="doc-name">${h(d.n)}</div><div class="doc-meta">${d.u} · ${d.tg}</div></div>`;});
-    let skH=relSK.length?relSK.map(s=>`<div style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:6px"><div style="display:flex;justify-content:space-between"><span style="font-weight:700;font-size:11px">${h(s.no)}</span>${bg(s.st,'g')}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${h(s.pm)} · ${fD(s.tg)} · ${s.lu} m²</div></div>`).join(''):'<div style="font-size:11px;color:var(--t3);font-style:italic">Belum ada SKT.</div>';
-    let spH=relSP.length?relSP.map(s=>{const sc=s.sb==='Selesai'?'g':s.sb==='Diproses'?'a':'x';return`<div style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:6px"><div style="display:flex;justify-content:space-between"><span style="font-weight:700;font-size:11px">${h(s.no)}</span>${bg(s.sb,sc)}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${h(s.pm)} · ${h(s.tj)}</div></div>`;}).join(''):'<div style="font-size:11px;color:var(--t3);font-style:italic">Belum ada surat pengantar.</div>';
-    x+=`<div class="res-card anim-up"><div class="res-top"><div><div class="res-title">Persil ${h(p.np)}</div><div class="res-sub">${h(p.al)}, Kel. Loktuan · ${p.kl} · ${p.lc.length} Letter C</div></div><div class="res-owner"><div class="ro-label">Pemilik Saat Ini</div><div class="ro-name">${h(ow.join(', '))}</div><div class="ro-luas">${p.lu.toLocaleString()} m²</div></div></div>
-    <div class="chain-area"><div class="chain-lbl">Rantai Kepemilikan Kronologis</div><div class="chain-row">${ch}</div></div>
-    <div class="tabs" id="ltTs_${p.id}">${lcT}</div><div id="ltBs_${p.id}">${lcB}</div>
-    <div style="border-top:1.5px solid var(--border);padding:20px 24px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div style="font-size:12px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">${SVG.fc} SKT Terkait</div>${skH}</div><div><div style="font-size:12px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">${SVG.file} Surat Pengantar</div>${spH}</div></div></div>
-    <div style="border-top:1.5px solid var(--border);padding:20px 24px"><div style="font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px">${SVG.folder} Dokumen Digital (${p.dok.length})</div><div class="doc-grid">${docsH||'<div style="font-size:11px;color:var(--t3);font-style:italic;grid-column:1/-1">Belum ada dokumen.</div>'}</div></div>
-    <div class="sum-bar"><div class="sum-i"><div class="sv">${gM(p)}</div><div class="sl">Mutasi</div></div><div class="sum-i"><div class="sv">${p.lc.length}</div><div class="sl">Letter C</div></div><div class="sum-i"><div class="sv">${relSK.length}</div><div class="sl">SKT</div></div><div class="sum-i"><div class="sv">${p.dok.length}</div><div class="sl">Dokumen</div></div><div class="sum-i"><div class="sv">${fY(p.lc[0].rw[0].m)}</div><div class="sl">Sejak</div></div></div></div>`;
-  });
-  document.getElementById('ltR').innerHTML=x;
-}
-function ltTab(pid,idx){document.querySelectorAll(`#ltTs_${pid} .tab`).forEach((t,i)=>t.classList.toggle('on',i===idx));document.querySelectorAll(`#ltBs_${pid} .tab-body`).forEach((b,i)=>b.classList.toggle('on',i===idx));}
 
-// Letter C
-function rLC(){let rows='';P.forEach(p=>{p.lc.forEach(lc=>{const c2=lc.rw.length?lc.rw[lc.rw.length-1].pm:'-';rows+=`<tr><td class="bld">${h(p.np)}</td><td class="bld">${h(lc.nc)}</td><td>${bg(p.kl,p.kl==='Sawah'?'g':'x')}</td><td>${p.lu.toLocaleString()}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(p.al)}</td><td class="bld">${h(c2)}</td><td>${bg(lc.rw.length+'x','a')}</td><td>${bg(lc.st,lc.st.startsWith('Aktif')?'g':'a')}</td><td><button class="icon-btn ib-v" onclick="ltQ('${h(p.np)}')" title="LacakTanah">${SVG.eye}</button>${ce()?`<button class="icon-btn ib-e" onclick="eLC(${p.id},${lc.id})">${SVG.edit}</button>`:''}</td></tr>`;});});
-  return`<div class="toolbar"><p>Data bidang tanah berdasarkan Persil → Letter C.</p>${ce()?`<button class="btn btn-pri" onclick="aP()">${SVG.plus} Tambah Persil</button>`:''}</div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Persil</th><th>No. C</th><th>Kelas</th><th>Luas</th><th>Alamat</th><th>Pemilik</th><th>Mutasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
-function aP(){sM('Tambah Persil & Letter C',`<div class="fgrid"><div class="fg"><label>No. Persil *</label><input id="fP1" placeholder="P.XXx"></div><div class="fg"><label>No. Letter C *</label><input id="fP2" placeholder="C.XXX"></div><div class="fg"><label>Kelas</label><select id="fP3"><option>Darat</option><option>Sawah</option><option>Pekarangan</option></select></div><div class="fg"><label>Luas (m²)</label><input type="number" id="fP4"></div><div class="fg full"><label>Alamat *</label><input id="fP5"></div><div class="fg"><label>Pemilik Pertama *</label><input id="fP6"></div><div class="fg"><label>Tgl Pencatatan *</label><input type="date" id="fP7"></div><div class="fg full"><label>Keterangan</label><input id="fP8" placeholder="Catatan"></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-pri" onclick="sP()">Simpan</button></div>`);}
-function sP(){const n=document.getElementById('fP1').value.trim(),lc=document.getElementById('fP2').value.trim(),pm=document.getElementById('fP6').value.trim(),tg=document.getElementById('fP7').value;if(!n||!lc||!pm||!tg){alert('Data wajib harus diisi.');return;}P.push({id:Date.now(),np:n,kl:document.getElementById('fP3').value,lu:Number(document.getElementById('fP4').value)||0,al:document.getElementById('fP5').value.trim(),lc:[{id:Date.now(),nc:lc,st:"Aktif",rw:[{id:Date.now(),pm,m:tg,a:null,j:"Pendaftaran Awal",k:document.getElementById('fP8').value.trim(),ak:"-"}]}],dok:[]});aL('Tambah','Letter C','Input '+n+'/'+lc);cM();render();}
-function eLC(pid,lcid){const p=P.find(x=>x.id===pid),lc=p.lc.find(x=>x.id===lcid);sM('Edit — '+lc.nc,`<div class="fgrid"><div class="fg"><label>No. Persil</label><input value="${h(p.np)}" disabled></div><div class="fg"><label>No. Letter C</label><input id="eL1" value="${h(lc.nc)}"></div><div class="fg"><label>Kelas</label><select id="eL2"><option ${p.kl==='Darat'?'selected':''}>Darat</option><option ${p.kl==='Sawah'?'selected':''}>Sawah</option><option ${p.kl==='Pekarangan'?'selected':''}>Pekarangan</option></select></div><div class="fg"><label>Luas</label><input type="number" id="eL3" value="${p.lu}"></div><div class="fg full"><label>Alamat</label><input id="eL4" value="${h(p.al)}"></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-pri" onclick="sEL(${pid},${lcid})">Simpan</button></div>`);}
-function sEL(pid,lcid){const p=P.find(x=>x.id===pid),lc=p.lc.find(x=>x.id===lcid);lc.nc=document.getElementById('eL1').value.trim();p.kl=document.getElementById('eL2').value;p.lu=Number(document.getElementById('eL3').value)||0;p.al=document.getElementById('eL4').value.trim();aL('Edit','Letter C','Update '+lc.nc);cM();render();}
-
-// SKT
-function rSK(){let rows='';SK.forEach(s=>{rows+=`<tr><td class="bld" style="font-size:10px;font-family:monospace">${h(s.no)}</td><td>${fD(s.tg)}</td><td class="bld">${h(s.pm)}</td><td>${bg(s.nc,'b')}</td><td>${s.lu} m²</td><td>${bg(s.st,s.st==='Diterbitkan'?'g':'r')}</td><td><button class="icon-btn ib-v" onclick="vSK(${s.id})">${SVG.eye}</button><button class="icon-btn ib-p" onclick="pSK(${s.id})">${SVG.print}</button>${ce()?`<button class="icon-btn ib-d" onclick="dSK(${s.id})">${SVG.trash}</button>`:''}</td></tr>`;});
-  return`<div class="toolbar"><p>Surat Keterangan Tanah yang diterbitkan.</p>${ce()?`<button class="btn btn-grn" onclick="aSK()">${SVG.plus} Terbitkan SKT</button>`:''}</div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>No. SKT</th><th>Tanggal</th><th>Pemohon</th><th>Letter C</th><th>Luas</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
-function aSK(){let opts='<option value="">— Pilih —</option>';P.forEach(p=>p.lc.filter(l=>l.st.startsWith('Aktif')).forEach(l=>{const o=l.rw.length?l.rw[l.rw.length-1].pm:'-';opts+=`<option value="${h(l.nc)}|${h(p.np)}">${l.nc}/${p.np} — ${h(o)}</option>`;}));sM('Terbitkan SKT',`<div class="fgrid"><div class="fg"><label>No. SKT *</label><input id="fK1" placeholder="593.2/SKT/XXX/KEL-LKT/..."></div><div class="fg"><label>Tanggal *</label><input type="date" id="fK2"></div><div class="fg"><label>Pemohon *</label><input id="fK3"></div><div class="fg"><label>Letter C / Persil</label><select id="fK4">${opts}</select></div><div class="fg full"><label>Lokasi</label><input id="fK5"></div><div class="fg"><label>Luas (m²)</label><input type="number" id="fK6"></div><div class="fg"><label>Status</label><select id="fK7"><option>Diterbitkan</option><option>Dibatalkan</option></select></div><div class="fg"><label>Batas Utara</label><input id="fK_bu"></div><div class="fg"><label>Batas Selatan</label><input id="fK_bs"></div><div class="fg"><label>Batas Timur</label><input id="fK_bt"></div><div class="fg"><label>Batas Barat</label><input id="fK_bb"></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-grn" onclick="sSK()">Simpan</button></div>`,'w');}
-function sSK(){const n=document.getElementById('fK1').value.trim(),pm=document.getElementById('fK3').value.trim();if(!n||!pm){alert('Wajib diisi.');return;}const v=document.getElementById('fK4').value.split('|');SK.push({id:Date.now(),no:n,tg:document.getElementById('fK2').value,pm,nc:v[0]||'',np:v[1]||'',lok:document.getElementById('fK5').value.trim(),lu:Number(document.getElementById('fK6').value)||0,bu:document.getElementById('fK_bu').value.trim(),bs:document.getElementById('fK_bs').value.trim(),bt:document.getElementById('fK_bt').value.trim(),bb:document.getElementById('fK_bb').value.trim(),st:document.getElementById('fK7').value});aL('Tambah','SKT','Terbit '+n);cM();render();}
-function dSK(id){const s=SK.find(x=>x.id===id);if(!confirm('Hapus SKT?'))return;SK=SK.filter(x=>x.id!==id);aL('Hapus','SKT','Hapus '+s.no);render();}
-function vSK(id){const s=SK.find(x=>x.id===id);sM('Detail SKT',`<div class="info-grid" style="grid-template-columns:repeat(4,1fr)">${[['No. SKT',s.no],['Tanggal',fD(s.tg)],['Pemohon',s.pm],['Letter C',s.nc],['Persil',s.np],['Lokasi',s.lok],['Luas',s.lu+' m²'],['Status',s.st],['Utara',s.bu],['Selatan',s.bs],['Timur',s.bt],['Barat',s.bb]].map(([l,v])=>`<div class="info-box"><div class="lbl">${l}</div><div class="val">${h(v||'-')}</div></div>`).join('')}</div>`,'w');}
-function pSK(id){const s=SK.find(x=>x.id===id);sM('Cetak SKT',`<div class="print-box"><div class="print-head"><div class="sub2">Pemerintah Kota Bontang — Kecamatan Bontang Utara</div><h2>KELURAHAN LOKTUAN</h2><div style="font-size:9px;color:var(--t3)">Jl. Pupuk Raya, Loktuan, Kota Bontang 75321</div></div><div style="text-align:center;font-weight:700;text-decoration:underline;margin-bottom:2px">SURAT KETERANGAN TANAH</div><div style="text-align:center;font-size:10px;color:var(--t2);margin-bottom:16px">Nomor: ${h(s.no)}</div><p>Yang bertanda tangan di bawah ini, Lurah Loktuan, menerangkan bahwa:</p><table style="margin:8px 0 8px 16px"><tr><td style="padding:2px 6px">Nama</td><td>:</td><td><b>${h(s.pm)}</b></td></tr><tr><td style="padding:2px 6px">Lokasi</td><td>:</td><td>${h(s.lok)}</td></tr><tr><td style="padding:2px 6px">Luas</td><td>:</td><td>${s.lu} m²</td></tr></table><p>Batas-batas:</p><table style="margin:4px 0 0 16px"><tr><td style="padding:1px 6px">Utara</td><td>:</td><td>${h(s.bu)}</td></tr><tr><td style="padding:1px 6px">Selatan</td><td>:</td><td>${h(s.bs)}</td></tr><tr><td style="padding:1px 6px">Timur</td><td>:</td><td>${h(s.bt)}</td></tr><tr><td style="padding:1px 6px">Barat</td><td>:</td><td>${h(s.bb)}</td></tr></table><p style="margin-top:12px">Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p><div style="text-align:right;margin-top:30px"><p>Loktuan, ${fD(s.tg)}</p><p><b>LURAH LOKTUAN</b></p><div style="height:50px"></div><p><b><u>________________________</u></b></p></div></div><div class="factions"><button class="btn btn-pur" onclick="window.print()">${SVG.print} Cetak</button></div>`,'w');}
-
-// SP
-function rSP(){let rows='';SP.forEach(s=>{const sc=s.sb==='Selesai'?'g':s.sb==='Diproses'?'a':'x';rows+=`<tr><td class="bld" style="font-size:10px;font-family:monospace">${h(s.no)}</td><td>${fD(s.tg)}</td><td class="bld">${h(s.pm)}</td><td>${bg(s.nc,'b')}</td><td>${h(s.tj)}</td><td>${bg(s.sb,sc)}</td><td><button class="icon-btn ib-p" onclick="pSP2(${s.id})">${SVG.print}</button>${ce()?`<button class="icon-btn ib-d" onclick="dSP2(${s.id})">${SVG.trash}</button>`:''}</td></tr>`;});
-  return`<div class="toolbar"><p>Surat pengantar pendaftaran tanah ke BPN.</p>${ce()?`<button class="btn btn-pur" onclick="aSP2()">${SVG.plus} Buat Surat Pengantar</button>`:''}</div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>No. Surat</th><th>Tanggal</th><th>Pemohon</th><th>Letter C</th><th>Tujuan</th><th>Status BPN</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
-function aSP2(){let opts='<option value="">— Pilih —</option>';P.forEach(p=>p.lc.filter(l=>l.st.startsWith('Aktif')).forEach(l=>{opts+=`<option value="${h(l.nc)}|${h(p.np)}">${l.nc}/${p.np}</option>`;}));sM('Buat Surat Pengantar',`<div class="fgrid"><div class="fg"><label>No. Surat *</label><input id="fS1" placeholder="593.3/SP/XXX/KEL-LKT/..."></div><div class="fg"><label>Tanggal *</label><input type="date" id="fS2"></div><div class="fg"><label>Pemohon *</label><input id="fS3"></div><div class="fg"><label>Letter C / Persil</label><select id="fS4">${opts}</select></div><div class="fg"><label>Tujuan</label><select id="fS5"><option>Pendaftaran Tanah Pertama Kali</option><option>Pemecahan Sertifikat</option><option>Balik Nama</option></select></div><div class="fg"><label>Status BPN</label><select id="fS6"><option>Belum Diproses</option><option>Diproses</option><option>Selesai</option></select></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-pur" onclick="sSP2()">Simpan</button></div>`);}
-function sSP2(){const n=document.getElementById('fS1').value.trim(),pm=document.getElementById('fS3').value.trim();if(!n||!pm){alert('Wajib diisi.');return;}const v=document.getElementById('fS4').value.split('|');SP.push({id:Date.now(),no:n,tg:document.getElementById('fS2').value,pm,nc:v[0]||'',np:v[1]||'',tj:document.getElementById('fS5').value,sb:document.getElementById('fS6').value});aL('Tambah','Surat Pengantar','Buat SP '+n);cM();render();}
-function dSP2(id){const s=SP.find(x=>x.id===id);if(!confirm('Hapus?'))return;SP=SP.filter(x=>x.id!==id);aL('Hapus','SP','Hapus '+s.no);render();}
-function pSP2(id){const s=SP.find(x=>x.id===id);sM('Cetak Surat Pengantar',`<div class="print-box"><div class="print-head"><div class="sub2">Pemerintah Kota Bontang — Kecamatan Bontang Utara</div><h2>KELURAHAN LOKTUAN</h2></div><div style="text-align:center;font-weight:700;text-decoration:underline;margin-bottom:2px">SURAT PENGANTAR</div><div style="text-align:center;font-size:10px;color:var(--t2);margin-bottom:16px">Nomor: ${h(s.no)}</div><p>Yang bertanda tangan di bawah ini, Lurah Loktuan, memberikan pengantar kepada:</p><table style="margin:8px 0 0 16px"><tr><td style="padding:2px 6px">Nama</td><td>:</td><td><b>${h(s.pm)}</b></td></tr><tr><td style="padding:2px 6px">Letter C</td><td>:</td><td>${h(s.nc)}</td></tr><tr><td style="padding:2px 6px">Keperluan</td><td>:</td><td>${h(s.tj)}</td></tr></table><p style="margin-top:12px">Untuk mengurus keperluan tersebut pada Kantor Pertanahan Kota Bontang.</p><div style="text-align:right;margin-top:30px"><p>Loktuan, ${fD(s.tg)}</p><p><b>LURAH LOKTUAN</b></p><div style="height:50px"></div><p><b><u>________________________</u></b></p></div></div><div class="factions"><button class="btn btn-pur" onclick="window.print()">${SVG.print} Cetak</button></div>`,'w');}
-
-// Dokumen
-function rDok(){let all=[];P.forEach(p=>p.dok.forEach(d=>all.push({...d,np:p.np})));let grid='';all.forEach(d=>{grid+=`<div class="doc-item"><div class="doc-ico ${d.t}">${SVG.file}</div><div class="doc-name">${h(d.n)}</div><div class="doc-meta">${d.u} · ${h(d.np)} · ${d.tg}</div><div style="margin-top:6px">${bg(d.kt,'x')}</div></div>`;});
-  return`<div class="toolbar"><p>Seluruh dokumen digital yang tersimpan dalam sistem.</p>${ce()?`<button class="btn btn-pri" onclick="aDok()">${SVG.upload} Unggah Dokumen</button>`:''}</div><div class="stats" style="grid-template-columns:repeat(3,1fr)">${[['File PDF',all.filter(d=>d.t==='pdf').length,'redL','red'],['File Gambar',all.filter(d=>d.t==='jpg').length,'blueL','blue'],['Total',all.length,'greenL','green']].map(s=>`<div class="stat"><div class="stat-ico" style="background:var(--${s[2]});color:var(--${s[3]})">${SVG.file}</div><div class="stat-num">${s[1]}</div><div class="stat-lbl">${s[0]}</div></div>`).join('')}</div><div class="card" style="padding:20px"><div class="doc-grid">${grid}</div></div>`;}
-function aDok(){let opts='';P.forEach(p=>{opts+=`<option value="${p.id}">${p.np} — ${h(gO(p).join(', '))}</option>`;});sM('Unggah Dokumen (Simulasi)',`<div class="fgrid"><div class="fg"><label>Nama File *</label><input id="fD1" placeholder="Scan_BukuC_005.pdf"></div><div class="fg"><label>Tipe</label><select id="fD2"><option value="pdf">PDF</option><option value="jpg">JPG/Gambar</option></select></div><div class="fg"><label>Persil *</label><select id="fD3">${opts}</select></div><div class="fg"><label>Kategori</label><select id="fD4"><option>Letter C</option><option>Foto Bidang</option><option>Surat</option></select></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-pri" onclick="sDok()">Simpan</button></div>`);}
-function sDok(){const nm=document.getElementById('fD1').value.trim();if(!nm){alert('Nama file wajib.');return;}const p=P.find(x=>x.id===Number(document.getElementById('fD3').value));p.dok.push({n:nm,t:document.getElementById('fD2').value,u:"1.0 MB",tg:new Date().toISOString().split('T')[0],kt:document.getElementById('fD4').value});aL('Tambah','Dokumen','Upload '+nm);cM();render();}
-
-// Audit
-function rAud(){let rows='';L.forEach((l,i)=>{const ac=l.a==='Tambah'?'g':l.a==='Edit'?'a':'r';rows+=`<tr><td style="color:var(--t3)">${i+1}</td><td style="font-family:monospace;font-size:10px">${l.w}</td><td style="font-weight:600">${h(l.u)}</td><td>${bg(l.a,ac)}</td><td>${bg(l.m,'b')}</td><td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(l.d)}</td></tr>`;});
-  return`<div class="toolbar"><p>Catatan seluruh aktivitas pengguna.</p></div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Modul</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
-
-// Users
-function rUs(){let cards='';users.forEach(u=>{const rc=u.role==='Admin'?'r':u.role==='Operator'?'b':'x';cards+=`<div class="ucard"><div class="ucard-top"><div class="ucard-av">${SVG.user}</div>${bg(u.role,rc)}</div><div style="font-weight:700;font-size:14px">${h(u.nama)}</div><div style="font-size:11px;color:var(--t3)">${h(u.jab)}</div><div style="font-size:10px;color:var(--t3);font-family:monospace;margin-top:3px">@${h(u.username)}</div><div style="margin-top:12px;padding-top:10px;border-top:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-size:10px;color:var(--t3)">••••••••</span>${u.role!=='Admin'?`<button style="font-size:10px;color:var(--red);font-weight:600" onclick="dU(${u.id})">Hapus</button>`:''}</div></div>`;});
-  return`<div class="toolbar"><p>Kelola akun pengguna.</p><button class="btn btn-dk" onclick="aU()">${SVG.plus} Tambah User</button></div><div class="ugrid">${cards}</div>`;}
-function aU(){sM('Tambah User',`<div class="fgrid"><div class="fg"><label>Nama *</label><input id="fU1"></div><div class="fg"><label>Jabatan</label><input id="fU2"></div><div class="fg"><label>Username *</label><input id="fU3"></div><div class="fg"><label>Password *</label><input id="fU4"></div><div class="fg full"><label>Role</label><select id="fU5"><option>Operator</option><option>Viewer</option></select></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-dk" onclick="sU()">Simpan</button></div>`);}
-function sU(){const n=document.getElementById('fU1').value.trim(),u=document.getElementById('fU3').value.trim(),p=document.getElementById('fU4').value.trim();if(!n||!u||!p){alert('Wajib diisi.');return;}users.push({id:Date.now(),nama:n,username:u,password:p,role:document.getElementById('fU5').value,jab:document.getElementById('fU2').value.trim()});aL('Tambah','User','Tambah '+n);cM();render();}
-function dU(id){const u=users.find(x=>x.id===id);if(u.role==='Admin'){alert('Tidak bisa hapus Admin.');return;}if(!confirm('Hapus?'))return;users=users.filter(x=>x.id!==id);aL('Hapus','User','Hapus '+u.nama);render();}
-
-// Input Dokumen
-let idImg=null,idScanned=false;
-const DOC_TYPES=[
-  {id:'letterc',name:'Letter C / Buku C',fields:['no_letterc','nama_pemilik','no_persil','kelas_tanah','luas','alamat','tgl_pencatatan']},
-  {id:'skt',name:'Surat Keterangan Tanah (SKT)',fields:['no_skt','tgl_terbit','nama_pemohon','no_letterc','no_persil','lokasi','luas','batas_utara','batas_selatan','batas_timur','batas_barat']},
-  {id:'sp',name:'Surat Pengantar Sertifikat',fields:['no_surat','tgl_surat','nama_pemohon','no_letterc','no_persil','tujuan']},
-  {id:'sppt',name:'SPPT PBB',fields:['nop','tahun','nama_wp','alamat_op','luas_tanah','luas_bangunan','njop_tanah','njop_bangunan','pbb_terutang']},
-  {id:'ajb',name:'Akta Jual Beli (AJB)',fields:['no_akta','tgl_akta','penjual','pembeli','no_persil','luas','harga','ppat']},
-  {id:'waris',name:'Surat Keterangan Waris',fields:['no_surat','tgl_surat','nama_pewaris','ahli_waris','no_persil','luas','keterangan']},
-  {id:'hibah',name:'Akta Hibah',fields:['no_akta','tgl_akta','pemberi','penerima','no_persil','luas','keterangan']},
-  {id:'lainnya',name:'Dokumen Lainnya',fields:['judul_dokumen','no_dokumen','tgl_dokumen','pihak_terkait','keterangan']}
-];
-const FIELD_LABELS={no_letterc:'No. Letter C',nama_pemilik:'Nama Pemilik',no_persil:'No. Persil',kelas_tanah:'Kelas Tanah',luas:'Luas (m²)',alamat:'Alamat',tgl_pencatatan:'Tgl Pencatatan',no_skt:'No. SKT',tgl_terbit:'Tgl Terbit',nama_pemohon:'Nama Pemohon',lokasi:'Lokasi',batas_utara:'Batas Utara',batas_selatan:'Batas Selatan',batas_timur:'Batas Timur',batas_barat:'Batas Barat',no_surat:'No. Surat',tgl_surat:'Tanggal Surat',tujuan:'Tujuan',nop:'NOP',tahun:'Tahun',nama_wp:'Nama Wajib Pajak',alamat_op:'Alamat Objek Pajak',luas_tanah:'Luas Tanah (m²)',luas_bangunan:'Luas Bangunan (m²)',njop_tanah:'NJOP Tanah',njop_bangunan:'NJOP Bangunan',pbb_terutang:'PBB Terutang',no_akta:'No. Akta',tgl_akta:'Tgl Akta',penjual:'Penjual',pembeli:'Pembeli',harga:'Harga',ppat:'PPAT',nama_pewaris:'Nama Pewaris',ahli_waris:'Ahli Waris',keterangan:'Keterangan',pemberi:'Pemberi Hibah',penerima:'Penerima Hibah',judul_dokumen:'Judul Dokumen',no_dokumen:'No. Dokumen',tgl_dokumen:'Tgl Dokumen',pihak_terkait:'Pihak Terkait'};
-
-function rID(){
-  let dtOpts='<option value="">— Pilih Jenis Dokumen —</option>';
-  DOC_TYPES.forEach(d=>{dtOpts+=`<option value="${d.id}">${d.name}</option>`;});
-  return`<div class="anim-up"><div class="id-status info">${SVG.file} Pilih jenis dokumen, unggah gambar/foto, lalu klik <b>Scan</b> untuk mengisi form otomatis.</div>
-  <div class="id-type-select"><label>Jenis Dokumen</label><select id="idType" onchange="idTypeChange()">${dtOpts}</select></div>
-  <div class="id-wrap"><div class="id-left"><div class="card" style="padding:18px"><div class="id-card-head">${SVG.upload} Upload Gambar Dokumen</div>
-  <div class="id-upload-zone" id="idZone" onclick="document.getElementById('idFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="idDrop(event)">
-  <input type="file" id="idFile" accept="image/*" style="display:none" onchange="idFileChange(event)">
-  <div id="idPreview"><div class="id-upload-ico">${SVG.upload}</div><h4>Klik atau seret gambar ke sini</h4><p>Format: JPG, PNG, JPEG — Maks 10MB</p></div></div>
-  <button class="id-scan-btn" id="idScanBtn" onclick="idScan()" disabled>${SVG.search} Scan & Isi Otomatis (OCR)</button>
-  </div></div>
-  <div class="id-form" id="idFormArea"><h3>${SVG.file} Data Dokumen</h3><div id="idFields"><div class="empty" style="padding:30px"><p style="font-size:12px;color:var(--t3)">Pilih jenis dokumen terlebih dahulu</p></div></div></div></div></div>`;
-}
-
-function idTypeChange(){
-  const sel=document.getElementById('idType').value;
-  if(!sel){document.getElementById('idFields').innerHTML='<div class="empty" style="padding:30px"><p style="font-size:12px;color:var(--t3)">Pilih jenis dokumen terlebih dahulu</p></div>';return;}
-  const dt=DOC_TYPES.find(d=>d.id===sel);
-  let fields='<div class="fgrid">';
-  dt.fields.forEach(f=>{
-    const lbl=FIELD_LABELS[f]||f;
-    const isDate=f.includes('tgl')||f==='tahun';
-    fields+=`<div class="fg"><label>${lbl}</label><input id="idf_${f}" ${isDate?'type="date"':''} placeholder="${lbl}"></div>`;
-  });
-  fields+=`</div><div class="factions"><button class="btn btn-ghost" onclick="idReset()">Reset</button><button class="btn btn-pri" onclick="idSave()">Simpan ke Arsip</button></div>`;
-  document.getElementById('idFields').innerHTML=fields;
-  idScanned=false;
-}
-
-function idFileChange(e){const f=e.target.files[0];if(f)idLoadImg(f);}
-function idDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))idLoadImg(f);}
-function idLoadImg(file){
-  const reader=new FileReader();
-  reader.onload=e=>{
-    idImg=e.target.result;
-    document.getElementById('idPreview').innerHTML=`<img src="${idImg}" alt="Dokumen">`;
-    document.getElementById('idZone').classList.add('has-img');
-    document.getElementById('idScanBtn').disabled=!document.getElementById('idType').value;
-  };reader.readAsDataURL(file);
-}
-
-function idScan(){
-  const sel=document.getElementById('idType').value;
-  if(!sel||!idImg){idNotify('⚠ Pilih jenis dokumen dan upload gambar terlebih dahulu.','warn');return;}
-  const btn=document.getElementById('idScanBtn');
-  btn.classList.add('scanning');btn.disabled=true;btn.innerHTML='⏳ Memindai dokumen...';
-  setTimeout(()=>{
-    btn.classList.remove('scanning');btn.disabled=false;btn.innerHTML=SVG.search+' Scan & Isi Otomatis (OCR)';
-    const dt=DOC_TYPES.find(d=>d.id===sel);
-    const mockData=getMockOCR(sel);
-    dt.fields.forEach(f=>{
-      const inp=document.getElementById('idf_'+f);
-      if(inp&&mockData[f]){inp.value=mockData[f];inp.classList.add('scanned');}
+    document.getElementById("menuBtn").addEventListener("click", () => {
+      document.body.classList.toggle("menu-open");
     });
-    idScanned=true;
-    const formArea=document.getElementById('idFormArea');
-    const existingStatus=formArea.querySelector('.id-status');
-    if(existingStatus)existingStatus.remove();
-    formArea.insertAdjacentHTML('afterbegin','<div class="id-status success">✓ Scan berhasil! Data telah diisi otomatis. Silakan periksa dan perbaiki jika ada kesalahan.</div>');
-  },2000);
-}
 
-function getMockOCR(type){
-  const mocks={
-    letterc:{no_letterc:'C.005',nama_pemilik:'H. Syarifuddin',no_persil:'P.25a',kelas_tanah:'Darat',luas:'520',alamat:'Jl. Nusantara RT.07',tgl_pencatatan:'2024-03-15'},
-    skt:{no_skt:'593.2/SKT/003/KEL-LKT/V/2026',tgl_terbit:'2026-05-05',nama_pemohon:'H. Syarifuddin',no_letterc:'C.005',no_persil:'P.25a',lokasi:'Jl. Nusantara RT.07',luas:'520',batas_utara:'Tanah H. Malik',batas_selatan:'Jalan Raya',batas_timur:'Tanah Arifin',batas_barat:'Sungai Kecil'},
-    sp:{no_surat:'593.3/SP/002/KEL-LKT/V/2026',tgl_surat:'2026-05-06',nama_pemohon:'H. Syarifuddin',no_letterc:'C.005',no_persil:'P.25a',tujuan:'Pendaftaran Tanah Pertama Kali'},
-    sppt:{nop:'64.72.010.005.012.0045.0',tahun:'2026',nama_wp:'H. Syarifuddin',alamat_op:'Jl. Nusantara RT.07',luas_tanah:'520',luas_bangunan:'120',njop_tanah:'156000000',njop_bangunan:'84000000',pbb_terutang:'245000'},
-    ajb:{no_akta:'89/JB/2026',tgl_akta:'2026-04-28',penjual:'Ahmad Dahlan',pembeli:'H. Syarifuddin',no_persil:'P.25a',luas:'520',harga:'350000000',ppat:'Notaris Suhendra, SH'},
-    waris:{no_surat:'KW/15/V/2026',tgl_surat:'2026-05-01',nama_pewaris:'Alm. H. Bakar',ahli_waris:'H. Syarifuddin, Aminah, Yusuf',no_persil:'P.25a',luas:'520',keterangan:'Berdasarkan musyawarah keluarga'},
-    hibah:{no_akta:'12/HIB/2026',tgl_akta:'2026-04-20',pemberi:'H. Bakar',penerima:'H. Syarifuddin',no_persil:'P.25a',luas:'520',keterangan:'Hibah tanah untuk anak sulung'},
-    lainnya:{judul_dokumen:'Surat Pernyataan Penguasaan Fisik',no_dokumen:'SPF/21/V/2026',tgl_dokumen:'2026-05-03',pihak_terkait:'H. Syarifuddin',keterangan:'Penguasaan fisik bidang tanah P.25a'}
-  };
-  return mocks[type]||{};
-}
+    document.getElementById("prevStep").addEventListener("click", () => setWizardStep(currentStep - 1));
+    document.getElementById("nextStep").addEventListener("click", () => {
+      if (currentStep < 5) {
+        setWizardStep(currentStep + 1);
+      } else {
+        showToast("Arsip berhasil disimpan.", "Chain of title LKT-03-02-2024-0001 diperbarui dan audit log tercatat.");
+        showSection("detail");
+      }
+    });
 
-function idReset(){
-  const sel=document.getElementById('idType').value;
-  if(!sel)return;
-  const dt=DOC_TYPES.find(d=>d.id===sel);
-  dt.fields.forEach(f=>{const inp=document.getElementById('idf_'+f);if(inp){inp.value='';inp.classList.remove('scanned');}});
-  idScanned=false;
-  const formArea=document.getElementById('idFormArea');
-  const st=formArea.querySelector('.id-status');if(st)st.remove();
-}
+    document.getElementById("closeModal").addEventListener("click", () => {
+      previewModal.classList.remove("show");
+      previewModal.setAttribute("aria-hidden", "true");
+    });
 
-function idNotify(msg,type){
-  const formArea=document.getElementById('idFormArea');
-  const old=formArea.querySelector('.id-status');if(old)old.remove();
-  formArea.insertAdjacentHTML('afterbegin',`<div class="id-status ${type}">${msg}</div>`);
-  if(type==='success')setTimeout(()=>{const el=formArea.querySelector('.id-status.success');if(el)el.style.opacity='0';},4000);
-}
-function idSave(){
-  const sel=document.getElementById('idType').value;
-  if(!sel){idNotify('⚠ Pilih jenis dokumen terlebih dahulu.','warn');return;}
-  const dt=DOC_TYPES.find(d=>d.id===sel);
-  const data={};let hasData=false;
-  dt.fields.forEach(f=>{const inp=document.getElementById('idf_'+f);if(inp&&inp.value.trim()){data[f]=inp.value.trim();hasData=true;}});
-  if(!hasData){idNotify('⚠ Isi minimal satu field data.','warn');return;}
-  const folder=arsipFolders.find(f=>f.id===sel)||arsipFolders.find(f=>f.id==='lainnya');
-  if(folder){
-    folder.files.push({id:Date.now(),name:dt.name+' — '+(data.nama_pemilik||data.nama_pemohon||data.nama_wp||data.pihak_terkait||'Dokumen'),date:new Date().toISOString().split('T')[0],data,hasImage:!!idImg,type:sel});
-  }
-  aL('Tambah','Input Dokumen','Scan & input '+dt.name);
-  idImg=null;idScanned=false;
-  idTypeChange();
-  document.getElementById('idPreview').innerHTML='<div class="id-upload-ico">'+SVG.upload+'</div><h4>Klik atau seret gambar ke sini</h4><p>Format: JPG, PNG, JPEG — Maks 10MB</p>';
-  document.getElementById('idZone').classList.remove('has-img');
-  document.getElementById('idScanBtn').disabled=true;
-  idNotify('✓ Dokumen berhasil disimpan ke arsip! Buka menu Arsip Digital untuk melihat.','success');
-}
+    previewModal.addEventListener("click", event => {
+      if (event.target === previewModal) {
+        previewModal.classList.remove("show");
+        previewModal.setAttribute("aria-hidden", "true");
+      }
+    });
 
-// Arsip Digital
-let arsipFolders=[
-  {id:'letterc',name:'Letter C / Buku C',color:'amber',icon:'book',files:[]},
-  {id:'skt',name:'SKT',color:'green',icon:'fc',files:[]},
-  {id:'sp',name:'Surat Pengantar',color:'purple',icon:'file',files:[]},
-  {id:'sppt',name:'SPPT PBB',color:'blue',icon:'file',files:[]},
-  {id:'ajb',name:'Akta Jual Beli',color:'pri',icon:'file',files:[]},
-  {id:'waris',name:'Surat Waris',color:'amber',icon:'file',files:[]},
-  {id:'hibah',name:'Akta Hibah',color:'green',icon:'file',files:[]},
-  {id:'lainnya',name:'Lainnya',color:'x',icon:'folder',files:[]}
-];
-let arsipView='folders',arsipCurFolder=null;
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        previewModal.classList.remove("show");
+        previewModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("menu-open");
+      }
+    });
 
-function rArsip(){
-  if(arsipView==='files'&&arsipCurFolder){return rArsipFiles();}
-  let folders='';
-  arsipFolders.forEach(f=>{
-    const cnt=f.files.length;
-    const isDefault=['letterc','skt','sp','sppt','ajb','waris','hibah','lainnya'].includes(f.id);
-    folders+=`<div class="arsip-folder anim-up" onclick="openArsipFolder('${f.id}')"><div class="af-ico" style="background:var(--${f.color}L);color:var(--${f.color})">${SVG[f.icon]||SVG.folder}</div><div class="af-name">${h(f.name)}</div><div class="af-count">${cnt} dokumen</div>${!isDefault?`<button class="af-del" onclick="event.stopPropagation();delArsipFolder('${f.id}')" title="Hapus folder">${SVG.x}</button>`:''}</div>`;
-  });
-  return`<div class="toolbar"><p>Kelola arsip dokumen digital dalam folder-folder terorganisir.</p><button class="btn btn-pri" onclick="addArsipFolder()">${SVG.plus} Tambah Folder</button></div>
-  <div class="stats" style="grid-template-columns:repeat(3,1fr)">${[['Total Folder',arsipFolders.length,'amberL','amber'],['Total Dokumen',arsipFolders.reduce((a,f)=>a+f.files.length,0),'blueL','blue'],['Folder Kustom',arsipFolders.filter(f=>!['letterc','skt','sp','sppt','ajb','waris','hibah','lainnya'].includes(f.id)).length,'greenL','green']].map(s=>`<div class="stat"><div class="stat-ico" style="background:var(--${s[2]});color:var(--${s[3]})">${SVG.folder}</div><div class="stat-num">${s[1]}</div><div class="stat-lbl">${s[0]}</div></div>`).join('')}</div>
-  <div class="arsip-grid">${folders}<div class="arsip-add" onclick="addArsipFolder()"><div class="af-ico">${SVG.plus}</div><div class="af-name" style="color:var(--pri)">Tambah Folder Baru</div><div class="af-count">Buat kategori baru</div></div></div>`;
-}
-
-function rArsipFiles(){
-  const f=arsipFolders.find(x=>x.id===arsipCurFolder);
-  if(!f)return rArsip();
-  let files='';
-  if(f.files.length===0){files=`<div class="empty" style="grid-column:1/-1">${SVG.folder}<h3>Folder kosong</h3><p>Belum ada dokumen di folder ini. Gunakan menu Input Dokumen untuk menambahkan.</p></div>`;}
-  else{f.files.forEach(fl=>{
-    let detail='';
-    if(fl.data){const keys=Object.keys(fl.data).slice(0,3);keys.forEach(k=>{detail+=`<div style="font-size:10px;color:var(--t3);margin-top:2px"><span style="font-weight:600">${FIELD_LABELS[k]||k}:</span> ${h(fl.data[k])}</div>`;});}
-    files+=`<div class="arsip-file"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:12px;font-weight:700;color:var(--text)">${h(fl.name)}</div><div style="font-size:10px;color:var(--t3);margin-top:2px">${fl.date}</div></div><div style="display:flex;gap:4px">${fl.hasImage?'<span class="badge b-b">📷 Gambar</span>':''}<button class="icon-btn ib-d" onclick="delArsipFile('${f.id}',${fl.id})">${SVG.trash}</button></div></div>${detail}</div>`;
-  });}
-  return`<div class="arsip-breadcrumb"><button onclick="arsipBack()">Arsip</button><span>›</span><span style="font-weight:700;color:var(--text)">${h(f.name)}</span></div>
-  <div class="toolbar"><p>${f.files.length} dokumen dalam folder ini.</p><button class="btn btn-ghost" onclick="arsipBack()">${SVG.arr} Kembali</button></div>
-  <div class="arsip-file-grid">${files}</div>`;
-}
-
-function openArsipFolder(id){arsipCurFolder=id;arsipView='files';render();}
-function arsipBack(){arsipView='folders';arsipCurFolder=null;render();}
-
-function addArsipFolder(){
-  sM('Tambah Folder Arsip',`<div class="fgrid"><div class="fg full"><label>Nama Folder *</label><input id="afN" placeholder="Nama kategori folder"></div><div class="fg full"><label>Warna</label><select id="afC"><option value="amber">Amber</option><option value="blue">Biru</option><option value="green">Hijau</option><option value="purple">Ungu</option><option value="pri">Oranye</option><option value="red">Merah</option></select></div></div><div class="factions"><button class="btn btn-ghost" onclick="cM()">Batal</button><button class="btn btn-pri" onclick="saveArsipFolder()">Simpan</button></div>`);
-}
-function saveArsipFolder(){
-  const nm=document.getElementById('afN').value.trim();
-  if(!nm){return;}
-  arsipFolders.push({id:'custom_'+Date.now(),name:nm,color:document.getElementById('afC').value,icon:'folder',files:[]});
-  aL('Tambah','Arsip','Buat folder '+nm);cM();render();
-}
-function delArsipFolder(id){
-  const f=arsipFolders.find(x=>x.id===id);
-  if(!confirm('Hapus folder "'+f.name+'"?'))return;
-  arsipFolders=arsipFolders.filter(x=>x.id!==id);
-  aL('Hapus','Arsip','Hapus folder '+f.name);render();
-}
-function delArsipFile(folderId,fileId){
-  if(!confirm('Hapus dokumen ini?'))return;
-  const f=arsipFolders.find(x=>x.id===folderId);
-  f.files=f.files.filter(x=>x.id!==fileId);
-  aL('Hapus','Arsip','Hapus dokumen dari '+f.name);render();
-}
-
-// Modal
-function sM(t,b,c){const o=document.createElement('div');o.className='modal-bg';o.id='mO';o.onclick=ev=>{if(ev.target===o)cM();};o.innerHTML=`<div class="modal ${c||''}"><div class="modal-h"><h3>${t}</h3><button class="modal-x" onclick="cM()">${SVG.x}</button></div><div class="modal-b">${b}</div></div>`;document.body.appendChild(o);}
-function cM(){const o=document.getElementById('mO');if(o)o.remove();}
-</script>
+    setWizardStep(1);
+  </script>
 </body>
 </html>
