@@ -1131,6 +1131,55 @@
       color: #f9cb28;
     }
 
+    .sim-strip {
+      margin: 14px 0;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #f8fbff;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .sim-strip strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .sim-strip p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .quick-stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--canvas);
+      padding: 10px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .quick-stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .quick-stat strong {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
     .toast {
       position: fixed;
       right: 20px;
@@ -1321,6 +1370,14 @@
         grid-template-columns: 1fr;
       }
 
+      .sim-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .upload-row {
         grid-template-columns: 24px minmax(0, 1fr);
       }
@@ -1473,18 +1530,18 @@
           <div class="stat-grid">
             <div class="stat">
               <div class="stat-top"><span>Total persil</span><span class="code">TANAH</span></div>
-              <strong>428</strong>
-              <span class="trend">+18 tahun ini</span>
+              <strong id="statPersil">428</strong>
+              <span class="trend" id="trendPersil">+18 tahun ini</span>
             </div>
             <div class="stat">
               <div class="stat-top"><span>Peralihan</span><span class="code">CHAIN</span></div>
-              <strong>913</strong>
-              <span class="trend">+42 transaksi</span>
+              <strong id="statPeralihan">913</strong>
+              <span class="trend" id="trendPeralihan">+42 transaksi</span>
             </div>
             <div class="stat">
               <div class="stat-top"><span>Dokumen scan</span><span class="code">FILE</span></div>
-              <strong>3.284</strong>
-              <span class="trend">Hash SHA-256</span>
+              <strong id="statDokumen">3.284</strong>
+              <span class="trend" id="trendDokumen">Hash SHA-256</span>
             </div>
             <div class="stat">
               <div class="stat-top"><span>Rata-rata temu kembali</span><span class="code">SLA</span></div>
@@ -1512,7 +1569,7 @@
                     <th>STATUS</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="latestArchiveRows">
                   <tr><td class="code">LKT-03-02-2024-0001</td><td>Budi Santoso</td><td>Jual Beli</td><td>8 file</td><td><span class="pill success">Terarsip</span></td></tr>
                   <tr><td class="code">LKT-01-04-2026-0012</td><td>Rahmawati</td><td>Waris</td><td>5 file</td><td><span class="pill warning">Draft</span></td></tr>
                   <tr><td class="code">LKT-06-01-2025-0008</td><td>Hj. Murni</td><td>Hibah</td><td>6 file</td><td><span class="pill success">Terarsip</span></td></tr>
@@ -1547,8 +1604,16 @@
             </div>
             <div class="row">
               <span class="pill warning">Draft tersimpan otomatis</span>
-              <button class="btn secondary small" data-action="show-toast">Simpan Draft</button>
+              <button class="btn secondary small" data-action="save-draft">Simpan Draft</button>
             </div>
+          </div>
+
+          <div class="sim-strip">
+            <div>
+              <strong>Mode simulasi aktif</strong>
+              <p>Isi form, unggah dokumen contoh, lalu simpan. Data akan muncul di dashboard, daftar persil, pencarian, pihak, dan audit log selama browser ini menyimpan localStorage.</p>
+            </div>
+            <button class="btn secondary small" data-action="reset-simulation">Reset Simulasi</button>
           </div>
 
           <div class="wizard">
@@ -1566,32 +1631,31 @@
                   <div class="card-head">
                     <div>
                       <h3>Langkah 1 - Pilih persil</h3>
-                      <p>Persil dapat dicari dari data lama atau didaftarkan langsung.</p>
+                      <p>Pilih persil yang sudah terdaftar. Persil baru dibuat dari halaman Daftar Persil.</p>
                     </div>
-                    <span class="pill blue">Kode otomatis</span>
-                  </div>
-                  <div class="split-options">
-                    <button class="option-card active" data-choice-group="persilMode">
-                      <strong>Persil sudah terdaftar</strong>
-                      <span>Cari berdasarkan kode persil, NOP PBB, atau alamat lokasi.</span>
-                    </button>
-                    <button class="option-card" data-choice-group="persilMode">
-                      <strong>Daftarkan persil baru</strong>
-                      <span>Sistem menyiapkan kode LKT-RT-RW-TAHUN-NOURUT.</span>
-                    </button>
+                    <span class="pill blue">Data master persil</span>
                   </div>
                   <div class="form-grid">
                     <div class="field wide">
                       <label>Cari persil</label>
-                      <input value="LKT-03-02-2024-0001 - Jl. Bougenville RT 03/RW 02">
+                      <input id="parcelSearch" value="LKT-03-02-2024-0001 - Jl. Bougenville RT 03/RW 02" list="parcelSuggestions">
+                      <datalist id="parcelSuggestions"></datalist>
                     </div>
-                    <div class="field"><label>Kode persil</label><input value="LKT-03-02-2024-0001"></div>
-                    <div class="field"><label>NOP PBB</label><input value="64.72.040.003.123-0001.0"></div>
-                    <div class="field wide"><label>Alamat lokasi</label><textarea>Jl. Bougenville, RT 03/RW 02, Kelurahan Loktuan, Kecamatan Bontang Utara</textarea></div>
-                    <div class="field"><label>Luas</label><input value="250 m2"></div>
-                    <div class="field"><label>Pemilik terakhir</label><input value="Ahmad Subandi"></div>
+                    <div class="field"><label>RT</label><input id="parcelRt" value="03"></div>
+                    <div class="field"><label>RW</label><input id="parcelRw" value="02"></div>
+                    <div class="field"><label>Kode persil</label><input id="parcelCode" value="LKT-03-02-2024-0001"></div>
+                    <div class="field"><label>NOP PBB</label><input id="parcelNop" value="64.72.040.003.123-0001.0"></div>
+                    <div class="field wide"><label>Alamat lokasi</label><textarea id="parcelAddress">Jl. Bougenville, RT 03/RW 02, Kelurahan Loktuan, Kecamatan Bontang Utara</textarea></div>
+                    <div class="field"><label>Luas</label><input id="parcelArea" value="250 m2"></div>
+                    <div class="field"><label>Pemilik terakhir</label><input id="parcelOwner" value="Ahmad Subandi"></div>
                   </div>
-                  <div class="inline-alert success" style="margin-top: 14px;">
+                  <div class="quick-grid">
+                    <div class="quick-stat"><span>Nomor urut berikutnya</span><strong id="nextParcelNumber">0017</strong></div>
+                    <div class="quick-stat"><span>Validasi kode</span><strong id="parcelCodeStatus">Tersedia</strong></div>
+                    <div class="quick-stat"><span>Riwayat awal</span><strong id="parcelHistoryCount">1 chain</strong></div>
+                    <div class="quick-stat"><span>Status draft</span><strong id="draftStatus">Belum berubah</strong></div>
+                  </div>
+                  <div class="inline-alert success" style="margin-top: 14px;" id="parcelAlert">
                     <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <div>Persil ditemukan. Peralihan terakhir mencatat Ahmad Subandi sebagai pemilik sebelum transaksi baru.</div>
                   </div>
@@ -1611,11 +1675,11 @@
                     <div>
                       <h3 style="font-size: 15px;">Pihak pengalih</h3>
                       <div class="form-grid">
-                        <div class="field wide"><label>Cari NIK atau nama</label><input value="Ahmad Subandi - ####-####-####-3120"></div>
-                        <div class="field"><label>Status hidup</label><select><option>Hidup</option><option>Meninggal</option></select></div>
-                        <div class="field"><label>Sebagai</label><select><option>Penjual</option><option>Pewaris</option><option>Pemberi hibah</option></select></div>
+                        <div class="field wide"><label>Cari NIK atau nama</label><input id="transferorName" value="Ahmad Subandi - ####-####-####-3120"></div>
+                        <div class="field"><label>Status hidup</label><select id="transferorStatus"><option>Hidup</option><option>Meninggal</option></select></div>
+                        <div class="field"><label>Sebagai</label><select id="transferorRole"><option>Penjual</option><option>Pewaris</option><option>Pemberi hibah</option></select></div>
                       </div>
-                      <div class="inline-alert success" style="margin-top: 12px;">
+                      <div class="inline-alert success" style="margin-top: 12px;" id="chainAlert">
                         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <div>Pengalih cocok dengan pemilik terakhir: Ahmad Subandi.</div>
                       </div>
@@ -1623,10 +1687,10 @@
                     <div>
                       <h3 style="font-size: 15px;">Pihak penerima</h3>
                       <div class="form-grid">
-                        <div class="field wide"><label>Cari NIK atau nama</label><input value="Budi Santoso - ####-####-####-7021"></div>
-                        <div class="field"><label>Jenis kelamin</label><select><option>Laki-laki</option><option>Perempuan</option></select></div>
-                        <div class="field"><label>No. telepon</label><input value="0812-7788-1020"></div>
-                        <div class="field wide"><label>Alamat</label><textarea>Jl. Slamet Riyadi RT 05/RW 01, Loktuan</textarea></div>
+                        <div class="field wide"><label>Cari NIK atau nama</label><input id="recipientName" value="Budi Santoso - ####-####-####-7021"></div>
+                        <div class="field"><label>Jenis kelamin</label><select id="recipientGender"><option>Laki-laki</option><option>Perempuan</option></select></div>
+                        <div class="field"><label>No. telepon</label><input id="recipientPhone" value="0812-7788-1020"></div>
+                        <div class="field wide"><label>Alamat</label><textarea id="recipientAddress">Jl. Slamet Riyadi RT 05/RW 01, Loktuan</textarea></div>
                       </div>
                     </div>
                   </div>
@@ -1648,13 +1712,13 @@
                   </div>
                   <div class="form-grid">
                     <div class="field"><label>Jenis peralihan</label><select id="jenisPeralihan"><option>Jual Beli</option><option>Kepemilikan Pertama</option><option>Hibah</option><option>Waris</option><option>Tukar Menukar</option><option>Lainnya</option></select></div>
-                    <div class="field"><label>Tanggal peristiwa</label><input type="date" value="2024-01-15"></div>
-                    <div class="field"><label>Nomor SPPHT</label><input value="001/SPPHT/LKT/2024"></div>
-                    <div class="field"><label>Nomor akta PPAT</label><input placeholder="Opsional"></div>
-                    <div class="field wide"><label>Catatan</label><textarea>SPPHT telah ditandatangani lengkap oleh para pihak, saksi batas, RT, Lurah, dan Camat.</textarea></div>
+                    <div class="field"><label>Tanggal peristiwa</label><input id="eventDate" type="date" value="2024-01-15"></div>
+                    <div class="field"><label>Nomor SPPHT</label><input id="spphtNo" value="001/SPPHT/LKT/2024"></div>
+                    <div class="field"><label>Nomor akta PPAT</label><input id="ppatNo" placeholder="Opsional"></div>
+                    <div class="field wide"><label>Catatan</label><textarea id="transferNotes">SPPHT telah ditandatangani lengkap oleh para pihak, saksi batas, RT, Lurah, dan Camat.</textarea></div>
                   </div>
                   <label class="inline-alert warning" style="margin-top: 14px;">
-                    <input type="checkbox" style="width: 18px; min-height: 18px; margin-top: 2px;">
+                    <input id="historicMode" type="checkbox" style="width: 18px; min-height: 18px; margin-top: 2px;">
                     <span>Rekonstruksi historis. Gunakan untuk arsip lama yang datanya valid tetapi dokumen fisik tidak lengkap.</span>
                   </label>
                 </div>
@@ -1680,8 +1744,8 @@
                     <div class="upload-row"><span class="check"></span><div class="upload-name"><strong>Denah Lokasi</strong><span>Opsional</span></div><div class="progress" style="--value: 0%;"><i></i></div><div class="row"><button class="btn secondary small" data-upload>Unggah</button></div></div>
                   </div>
                   <div class="row" style="margin-top: 14px;">
-                    <button class="btn secondary small" data-action="show-toast">Tambah Dokumen Lain</button>
-                    <button class="btn secondary small" data-action="show-toast">Simpan sebagai Draft</button>
+                    <button class="btn secondary small" data-action="add-document">Tambah Dokumen Lain</button>
+                    <button class="btn secondary small" data-action="save-draft">Simpan sebagai Draft</button>
                   </div>
                 </div>
               </div>
@@ -1699,25 +1763,25 @@
                     <div class="summary-box">
                       <h3 style="font-size: 15px;">Persil</h3>
                       <dl>
-                        <div><dt>Kode</dt><dd class="code">LKT-03-02-2024-0001</dd></div>
-                        <div><dt>Lokasi</dt><dd>Jl. Bougenville</dd></div>
-                        <div><dt>Luas</dt><dd>250 m2</dd></div>
+                        <div><dt>Kode</dt><dd class="code" id="reviewKode">LKT-03-02-2024-0001</dd></div>
+                        <div><dt>Lokasi</dt><dd id="reviewLokasi">Jl. Bougenville</dd></div>
+                        <div><dt>Luas</dt><dd id="reviewLuas">250 m2</dd></div>
                       </dl>
                     </div>
                     <div class="summary-box">
                       <h3 style="font-size: 15px;">Peralihan</h3>
                       <dl>
-                        <div><dt>Jenis</dt><dd>Jual Beli</dd></div>
-                        <div><dt>Pengalih</dt><dd>Ahmad Subandi</dd></div>
-                        <div><dt>Penerima</dt><dd>Budi Santoso</dd></div>
+                        <div><dt>Jenis</dt><dd id="reviewJenis">Jual Beli</dd></div>
+                        <div><dt>Pengalih</dt><dd id="reviewPengalih">Ahmad Subandi</dd></div>
+                        <div><dt>Penerima</dt><dd id="reviewPenerima">Budi Santoso</dd></div>
                       </dl>
                     </div>
                     <div class="summary-box">
                       <h3 style="font-size: 15px;">Dokumen</h3>
                       <dl>
-                        <div><dt>Terupload</dt><dd>8 file</dd></div>
+                        <div><dt>Terupload</dt><dd id="reviewDokumen">6 file</dd></div>
                         <div><dt>Hash</dt><dd>SHA-256</dd></div>
-                        <div><dt>Storage</dt><dd>private/arsip/2024</dd></div>
+                        <div><dt>Storage</dt><dd id="reviewStorage">private/arsip/2024</dd></div>
                       </dl>
                     </div>
                   </div>
@@ -1756,18 +1820,18 @@
               </button>
             </div>
             <div class="tabs">
-              <button class="tab-btn active">Nama / NIK Pemilik</button>
-              <button class="tab-btn">Kode / Lokasi Persil</button>
-              <button class="tab-btn">Pemilik Terkini</button>
-              <button class="tab-btn">Tanggal</button>
+              <button class="tab-btn active" data-search-tab="owner">Nama / NIK Pemilik</button>
+              <button class="tab-btn" data-search-tab="parcel">Kode / Lokasi Persil</button>
+              <button class="tab-btn" data-search-tab="current">Pemilik Terkini</button>
+              <button class="tab-btn" data-search-tab="date">Tanggal</button>
             </div>
             <div class="filters">
-              <div class="field"><label>Kata kunci</label><input value="Budi Santoso"></div>
-              <div class="field"><label>RT</label><input value="03"></div>
-              <div class="field"><label>RW</label><input value="02"></div>
-              <div class="field"><label>Jenis</label><select><option>Semua</option><option>Jual Beli</option><option>Waris</option><option>Hibah</option></select></div>
-              <div class="field"><label>Status</label><select><option>Semua</option><option>Aktif</option><option>Sengketa</option></select></div>
-              <button class="btn blue" data-action="show-toast">Terapkan</button>
+              <div class="field"><label>Kata kunci</label><input id="searchKeyword" value="Budi Santoso"></div>
+              <div class="field"><label>RT</label><input id="searchRt" value="03"></div>
+              <div class="field"><label>RW</label><input id="searchRw" value="02"></div>
+              <div class="field"><label>Jenis</label><select id="searchType"><option>Semua</option><option>Jual Beli</option><option>Waris</option><option>Hibah</option></select></div>
+              <div class="field"><label>Status</label><select id="searchStatus"><option>Semua</option><option>Aktif</option><option>Sengketa</option></select></div>
+              <button class="btn blue" data-action="search-archives">Terapkan</button>
             </div>
           </div>
 
@@ -1784,7 +1848,7 @@
                   <th>AKSI</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="searchRows">
                 <tr><td class="code">LKT-03-02-2024-0001</td><td>Jl. Bougenville RT 03/RW 02</td><td>Budi Santoso</td><td>Jual Beli</td><td>15 Jan 2024</td><td><span class="pill success">Saat ini</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
                 <tr><td class="code">LKT-05-01-1995-0007</td><td>Jl. Padat Karya RT 05/RW 01</td><td>Budi Santoso</td><td>Pertama</td><td>05 Mar 1995</td><td><span class="pill warning">Dulu</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
                 <tr><td class="code">LKT-06-03-2021-0010</td><td>Jl. RE Martadinata RT 06/RW 03</td><td>Budi Santoso</td><td>Hibah</td><td>22 Agt 2021</td><td><span class="pill success">Saat ini</span></td><td><button class="btn secondary small" data-section-link="detail">Detail</button></td></tr>
@@ -1800,19 +1864,19 @@
               <h2>Daftar persil terdaftar.</h2>
               <p class="muted">Filter RT/RW, status, NOP PBB, dan alamat lokasi.</p>
             </div>
-            <button class="btn primary" data-section-link="arsip">
+            <button class="btn primary" data-action="open-parcel-modal">
               <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
               Tambah Persil
             </button>
           </div>
           <div class="card">
             <div class="filters">
-              <div class="field"><label>Pencarian</label><input value="Bougenville"></div>
-              <div class="field"><label>RT</label><input value="03"></div>
-              <div class="field"><label>RW</label><input value="02"></div>
-              <div class="field"><label>Status</label><select><option>Semua</option><option>Aktif</option><option>Tidak Aktif</option><option>Sengketa</option></select></div>
-              <div class="field"><label>Urutkan</label><select><option>Tanggal pendaftaran</option><option>Kode persil</option></select></div>
-              <button class="btn blue" data-action="show-toast">Filter</button>
+              <div class="field"><label>Pencarian</label><input id="parcelFilterKeyword" value="Bougenville"></div>
+              <div class="field"><label>RT</label><input id="parcelFilterRt" value="03"></div>
+              <div class="field"><label>RW</label><input id="parcelFilterRw" value="02"></div>
+              <div class="field"><label>Status</label><select id="parcelFilterStatus"><option>Semua</option><option>Aktif</option><option>Tidak Aktif</option><option>Sengketa</option></select></div>
+              <div class="field"><label>Urutkan</label><select id="parcelSort"><option>Tanggal pendaftaran</option><option>Kode persil</option></select></div>
+              <button class="btn blue" data-action="filter-parcels">Filter</button>
             </div>
           </div>
           <div class="table-wrap" style="margin-top: 16px;">
@@ -1828,7 +1892,7 @@
                   <th>AKSI</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="parcelRows">
                 <tr><td class="code">LKT-03-02-2024-0001</td><td class="code">64.72.040.003.123-0001.0</td><td>03/02</td><td>Jl. Bougenville</td><td>250 m2</td><td><span class="pill success">Aktif</span></td><td><button class="btn secondary small" data-section-link="detail">Buka</button></td></tr>
                 <tr><td class="code">LKT-01-04-2026-0012</td><td class="muted">Belum terbit</td><td>01/04</td><td>Jl. Kapal Layar</td><td>180 m2</td><td><span class="pill warning">Draft</span></td><td><button class="btn secondary small">Buka</button></td></tr>
                 <tr><td class="code">LKT-02-05-2026-0003</td><td class="code">64.72.040.002.511-0003.0</td><td>02/05</td><td>Jl. Pelabuhan</td><td>312 m2</td><td><span class="pill success">Aktif</span></td><td><button class="btn secondary small">Buka</button></td></tr>
@@ -1972,7 +2036,7 @@
                   <th>RIWAYAT TERAKHIR</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="partyRows">
                 <tr><td>Ahmad Subandi</td><td class="code">####-####-####-3120</td><td><span class="pill success">Hidup</span></td><td>4 peralihan</td><td>Pengalih, LKT-03-02-2024-0001</td></tr>
                 <tr><td>Budi Santoso</td><td class="code">####-####-####-7021</td><td><span class="pill success">Hidup</span></td><td>3 peralihan</td><td>Penerima, LKT-03-02-2024-0001</td></tr>
                 <tr><td>Hj. Murni</td><td class="code">####-####-####-5811</td><td><span class="pill success">Hidup</span></td><td>2 peralihan</td><td>Penerima hibah, LKT-06-01-2025-0008</td></tr>
@@ -2105,6 +2169,54 @@
     </div>
   </div>
 
+  <div class="modal" id="parcelModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <strong>Tambah Persil Baru</strong>
+          <div class="muted code">Data master tanah / kode dibuat otomatis</div>
+        </div>
+        <button class="icon-only" id="closeParcelModal" data-tip="Tutup" aria-label="Tutup form tambah persil">
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="doc-preview">
+        <div class="card" style="width: min(760px, 100%);">
+          <div class="card-head">
+            <div>
+              <h3>Input data persil</h3>
+              <p>Persil yang disimpan akan langsung muncul di tabel, datalist Arsip Baru, dan audit log.</p>
+            </div>
+            <span class="pill blue" id="newParcelCodeStatus">Kode tersedia</span>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>RT</label><input id="newParcelRt" value="07"></div>
+            <div class="field"><label>RW</label><input id="newParcelRw" value="01"></div>
+            <div class="field"><label>Kode persil</label><input id="newParcelCode" value="LKT-07-01-2026-0001"></div>
+            <div class="field"><label>NOP PBB</label><input id="newParcelNop" value="Belum terbit"></div>
+            <div class="field wide"><label>Alamat lokasi</label><textarea id="newParcelAddress">Jl. Samudera Baru, RT 07/RW 01, Kelurahan Loktuan</textarea></div>
+            <div class="field"><label>Luas tanah</label><input id="newParcelArea" value="275 m2"></div>
+            <div class="field"><label>Pemilik awal / terakhir</label><input id="newParcelOwner" value="Sarina Yusuf"></div>
+            <div class="field"><label>Status persil</label><select id="newParcelStatus"><option>Aktif</option><option>Draft</option><option>Sengketa</option></select></div>
+            <div class="field"><label>Tanggal pendaftaran</label><input id="newParcelDate" type="date" value="2026-05-14"></div>
+            <div class="field"><label>Batas utara</label><input id="newParcelNorth" value="Jalan lingkungan"></div>
+            <div class="field"><label>Batas selatan</label><input id="newParcelSouth" value="Tanah warga"></div>
+            <div class="field"><label>Batas timur</label><input id="newParcelEast" value="Drainase"></div>
+            <div class="field"><label>Batas barat</label><input id="newParcelWest" value="Tanah kosong"></div>
+          </div>
+          <div class="inline-alert success" style="margin-top: 14px;" id="newParcelAlert">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6 9 17l-5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>Setelah disimpan, persil dapat langsung dipilih saat membuat Arsip Baru.</div>
+          </div>
+          <div class="row" style="justify-content: flex-end; margin-top: 14px;">
+            <button class="btn secondary" data-action="close-parcel-modal">Batal</button>
+            <button class="btn primary" data-action="save-parcel">Simpan Persil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const sections = [...document.querySelectorAll(".section")];
     const navButtons = [...document.querySelectorAll("[data-section]")];
@@ -2112,10 +2224,554 @@
     const breadcrumb = document.getElementById("breadcrumb");
     const toast = document.getElementById("toast");
     const previewModal = document.getElementById("previewModal");
+    const parcelModal = document.getElementById("parcelModal");
     const previewTitle = document.getElementById("previewTitle");
     const paperTitle = document.getElementById("paperTitle");
     const auditRows = document.getElementById("auditRows");
+    const storageKey = "siadp-loktuan-prototype-v2";
     let currentStep = 1;
+    let activeSearchTab = "owner";
+    let persilMode = "existing";
+
+    const baseParcels = [
+      { code: "LKT-03-02-2024-0001", nop: "64.72.040.003.123-0001.0", rt: "03", rw: "02", address: "Jl. Bougenville RT 03/RW 02", fullAddress: "Jl. Bougenville, RT 03/RW 02, Kelurahan Loktuan, Kecamatan Bontang Utara", area: "250 m2", owner: "Budi Santoso", previousOwner: "Ahmad Subandi", status: "Aktif", registeredAt: "2024-01-16" },
+      { code: "LKT-01-04-2026-0012", nop: "Belum terbit", rt: "01", rw: "04", address: "Jl. Kapal Layar", fullAddress: "Jl. Kapal Layar RT 01/RW 04, Loktuan", area: "180 m2", owner: "Rahmawati", previousOwner: "H. Usman", status: "Draft", registeredAt: "2026-05-12" },
+      { code: "LKT-02-05-2026-0003", nop: "64.72.040.002.511-0003.0", rt: "02", rw: "05", address: "Jl. Pelabuhan", fullAddress: "Jl. Pelabuhan RT 02/RW 05, Loktuan", area: "312 m2", owner: "Hasan Basri", previousOwner: "Siti Aminah", status: "Aktif", registeredAt: "2026-05-09" },
+      { code: "LKT-04-02-2022-0015", nop: "64.72.040.004.118-0015.0", rt: "04", rw: "02", address: "Jl. Damai", fullAddress: "Jl. Damai RT 04/RW 02, Loktuan", area: "145 m2", owner: "Mahmud", previousOwner: "Rahmad", status: "Sengketa", registeredAt: "2022-08-18" },
+      { code: "LKT-05-01-1995-0007", nop: "64.72.040.005.201-0007.0", rt: "05", rw: "01", address: "Jl. Padat Karya RT 05/RW 01", fullAddress: "Jl. Padat Karya RT 05/RW 01, Loktuan", area: "210 m2", owner: "Budi Santoso", previousOwner: "Budi Santoso", status: "Aktif", registeredAt: "1995-03-05" },
+      { code: "LKT-06-03-2021-0010", nop: "64.72.040.006.310-0010.0", rt: "06", rw: "03", address: "Jl. RE Martadinata RT 06/RW 03", fullAddress: "Jl. RE Martadinata RT 06/RW 03, Loktuan", area: "198 m2", owner: "Budi Santoso", previousOwner: "Hj. Murni", status: "Aktif", registeredAt: "2021-08-22" }
+    ];
+
+    const baseArchives = [
+      { code: "LKT-03-02-2024-0001", owner: "Budi Santoso", previousOwner: "Ahmad Subandi", type: "Jual Beli", date: "2024-01-15", status: "Saat ini", archiveStatus: "Terarsip", docs: 8, simulated: false },
+      { code: "LKT-01-04-2026-0012", owner: "Rahmawati", previousOwner: "H. Usman", type: "Waris", date: "2026-05-12", status: "Draft", archiveStatus: "Draft", docs: 5, simulated: false },
+      { code: "LKT-06-01-2025-0008", owner: "Hj. Murni", previousOwner: "Abdul Latif", type: "Hibah", date: "2025-02-03", status: "Saat ini", archiveStatus: "Terarsip", docs: 6, simulated: false },
+      { code: "LKT-02-05-2026-0003", owner: "Hasan Basri", previousOwner: "Siti Aminah", type: "Kepemilikan Pertama", date: "2026-05-09", status: "Saat ini", archiveStatus: "Terarsip", docs: 7, simulated: false },
+      { code: "LKT-05-01-1995-0007", owner: "Budi Santoso", previousOwner: "Budi Santoso", type: "Kepemilikan Pertama", date: "1995-03-05", status: "Dulu", archiveStatus: "Terarsip", docs: 4, simulated: false },
+      { code: "LKT-06-03-2021-0010", owner: "Budi Santoso", previousOwner: "Hj. Murni", type: "Hibah", date: "2021-08-22", status: "Saat ini", archiveStatus: "Terarsip", docs: 6, simulated: false }
+    ];
+
+    const baseParties = [
+      { name: "Ahmad Subandi", nik: "####-####-####-3120", status: "Hidup", count: 4, last: "Pengalih, LKT-03-02-2024-0001" },
+      { name: "Budi Santoso", nik: "####-####-####-7021", status: "Hidup", count: 3, last: "Penerima, LKT-03-02-2024-0001" },
+      { name: "Hj. Murni", nik: "####-####-####-5811", status: "Hidup", count: 2, last: "Penerima hibah, LKT-06-01-2025-0008" },
+      { name: "H. Usman", nik: "####-####-####-1190", status: "Meninggal", count: 1, last: "Pewaris, LKT-01-04-2026-0012" }
+    ];
+
+    const baseAudits = [
+      { time: "14 Mei 2026 16:48", admin: "Admin Kelurahan", action: "VIEW_FILE", entity: "dokumen", id: "DKM-8842", ip: "192.168.10.14" },
+      { time: "14 Mei 2026 16:35", admin: "Admin Kelurahan", action: "CREATE", entity: "peralihan", id: "PRL-224", ip: "192.168.10.14" },
+      { time: "14 Mei 2026 15:02", admin: "Admin Kelurahan", action: "UPDATE", entity: "tanah", id: "TNH-428", ip: "192.168.10.14" },
+      { time: "14 Mei 2026 08:10", admin: "Admin Kelurahan", action: "LOGIN", entity: "users", id: "USR-1", ip: "192.168.10.14" }
+    ];
+
+    function createInitialState() {
+      return {
+        parcels: [...baseParcels],
+        archives: [...baseArchives],
+        parties: [...baseParties],
+        audits: [...baseAudits],
+        draft: null
+      };
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey));
+        if (saved && Array.isArray(saved.parcels) && Array.isArray(saved.archives)) return saved;
+      } catch (error) {
+        console.warn("Local simulation state ignored.", error);
+      }
+      return createInitialState();
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function q(id) {
+      return document.getElementById(id);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function cleanName(value) {
+      return String(value || "").split(" - ")[0].trim();
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const date = new Date(`${value}T00:00:00`);
+      return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function nowLabel() {
+      return new Date().toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).replace(".", ":");
+    }
+
+    function pillClass(value) {
+      if (["Aktif", "Terarsip", "Saat ini", "CREATE", "UPDATE"].includes(value)) return "success";
+      if (["Draft", "Dulu"].includes(value)) return "warning";
+      if (["Sengketa", "Ditolak"].includes(value)) return "danger";
+      return "blue";
+    }
+
+    function getParcel(code) {
+      return state.parcels.find(parcel => parcel.code === code) || {};
+    }
+
+    function generateParcelCode() {
+      const rt = q("parcelRt").value.padStart(2, "0").slice(-2) || "00";
+      const rw = q("parcelRw").value.padStart(2, "0").slice(-2) || "00";
+      const year = new Date().getFullYear();
+      const sameArea = state.parcels
+        .map(parcel => parcel.code.match(new RegExp(`^LKT-${rt}-${rw}-${year}-(\\d{4})$`)))
+        .filter(Boolean)
+        .map(match => Number(match[1]));
+      const next = String((Math.max(0, ...sameArea) + 1)).padStart(4, "0");
+      q("nextParcelNumber").textContent = next;
+      return `LKT-${rt}-${rw}-${year}-${next}`;
+    }
+
+    function generateMasterParcelCode() {
+      const rt = q("newParcelRt").value.padStart(2, "0").slice(-2) || "00";
+      const rw = q("newParcelRw").value.padStart(2, "0").slice(-2) || "00";
+      const year = new Date().getFullYear();
+      const sameArea = state.parcels
+        .map(parcel => parcel.code.match(new RegExp(`^LKT-${rt}-${rw}-${year}-(\\d{4})$`)))
+        .filter(Boolean)
+        .map(match => Number(match[1]));
+      const next = String((Math.max(0, ...sameArea) + 1)).padStart(4, "0");
+      return `LKT-${rt}-${rw}-${year}-${next}`;
+    }
+
+    function updateNewParcelCodeStatus() {
+      const code = q("newParcelCode").value.trim();
+      const exists = state.parcels.some(parcel => parcel.code === code);
+      q("newParcelCodeStatus").textContent = exists ? "Kode sudah ada" : "Kode tersedia";
+      q("newParcelCodeStatus").className = exists ? "pill danger" : "pill blue";
+      q("newParcelAlert").className = `inline-alert ${exists ? "danger" : "success"}`;
+      q("newParcelAlert").querySelector("div").textContent = exists
+        ? "Kode persil sudah digunakan. Ganti RT/RW atau nomor urut sebelum menyimpan."
+        : "Setelah disimpan, persil dapat langsung dipilih saat membuat Arsip Baru.";
+    }
+
+    function seedParcelModal() {
+      q("newParcelCode").value = generateMasterParcelCode();
+      q("newParcelDate").value = new Date().toISOString().slice(0, 10);
+      updateNewParcelCodeStatus();
+    }
+
+    function openParcelModal() {
+      seedParcelModal();
+      parcelModal.classList.add("show");
+      parcelModal.setAttribute("aria-hidden", "false");
+      q("newParcelAddress").focus();
+    }
+
+    function closeParcelModal() {
+      parcelModal.classList.remove("show");
+      parcelModal.setAttribute("aria-hidden", "true");
+    }
+
+    function saveMasterParcel() {
+      const code = q("newParcelCode").value.trim();
+      const rt = q("newParcelRt").value.trim().padStart(2, "0");
+      const rw = q("newParcelRw").value.trim().padStart(2, "0");
+      const address = q("newParcelAddress").value.trim();
+      const area = q("newParcelArea").value.trim();
+      const owner = q("newParcelOwner").value.trim();
+      const nop = q("newParcelNop").value.trim() || "Belum terbit";
+      if (!code || !rt || !rw || !address || !area || !owner) {
+        showToast("Data persil belum lengkap.", "Isi kode, RT/RW, alamat, luas, dan pemilik sebelum menyimpan.");
+        return;
+      }
+      if (state.parcels.some(parcel => parcel.code === code)) {
+        updateNewParcelCodeStatus();
+        showToast("Kode persil sudah ada.", "Gunakan kode lain agar data master tidak ganda.");
+        return;
+      }
+      const parcel = {
+        code,
+        nop,
+        rt,
+        rw,
+        address: address.split(",")[0].trim() || address,
+        fullAddress: address,
+        area,
+        owner,
+        previousOwner: owner,
+        status: q("newParcelStatus").value,
+        registeredAt: q("newParcelDate").value || new Date().toISOString().slice(0, 10),
+        boundaries: {
+          north: q("newParcelNorth").value.trim(),
+          south: q("newParcelSouth").value.trim(),
+          east: q("newParcelEast").value.trim(),
+          west: q("newParcelWest").value.trim()
+        },
+        simulated: true
+      };
+      state.parcels.unshift(parcel);
+      upsertParty(owner, "Hidup", "Pemilik persil", code);
+      addAudit("CREATE", "tanah", code);
+      saveState();
+      q("parcelFilterKeyword").value = code;
+      q("parcelFilterRt").value = "";
+      q("parcelFilterRw").value = "";
+      q("parcelFilterStatus").value = "Semua";
+      renderAll();
+      closeParcelModal();
+      showToast("Persil berhasil ditambahkan.", `${code} sudah masuk daftar persil dan bisa dipilih di Arsip Baru.`);
+    }
+
+    function readForm() {
+      return {
+        code: q("parcelCode").value.trim(),
+        nop: q("parcelNop").value.trim() || "Belum terbit",
+        rt: q("parcelRt").value.trim().padStart(2, "0"),
+        rw: q("parcelRw").value.trim().padStart(2, "0"),
+        address: q("parcelAddress").value.trim(),
+        area: q("parcelArea").value.trim(),
+        previousOwner: cleanName(q("transferorName").value) || q("parcelOwner").value.trim(),
+        owner: cleanName(q("recipientName").value),
+        transferorStatus: q("transferorStatus").value,
+        transferorRole: q("transferorRole").value,
+        recipientGender: q("recipientGender").value,
+        recipientPhone: q("recipientPhone").value.trim(),
+        recipientAddress: q("recipientAddress").value.trim(),
+        type: q("jenisPeralihan").value,
+        date: q("eventDate").value,
+        sppht: q("spphtNo").value.trim(),
+        ppat: q("ppatNo").value.trim(),
+        notes: q("transferNotes").value.trim(),
+        historic: q("historicMode").checked,
+        docs: document.querySelectorAll("#uploadList .upload-row.done").length
+      };
+    }
+
+    function addAudit(action, entity, id) {
+      state.audits.unshift({ time: nowLabel(), admin: "Admin Kelurahan", action, entity, id, ip: "192.168.10.14" });
+      state.audits = state.audits.slice(0, 20);
+      saveState();
+      renderAudit();
+    }
+
+    function renderStats() {
+      const simulatedCount = state.archives.filter(item => item.simulated).length;
+      q("statPersil").textContent = (428 + state.parcels.filter(item => item.simulated).length).toLocaleString("id-ID");
+      q("statPeralihan").textContent = (913 + simulatedCount).toLocaleString("id-ID");
+      q("statDokumen").textContent = (3284 + state.archives.filter(item => item.simulated).reduce((sum, item) => sum + item.docs, 0)).toLocaleString("id-ID");
+      q("trendPersil").textContent = simulatedCount ? `+${18 + simulatedCount} tahun ini` : "+18 tahun ini";
+      q("trendPeralihan").textContent = simulatedCount ? `+${42 + simulatedCount} transaksi` : "+42 transaksi";
+    }
+
+    function renderLatestArchives() {
+      q("latestArchiveRows").innerHTML = state.archives.slice(0, 10).map(item => `
+        <tr>
+          <td class="code">${escapeHtml(item.code)}</td>
+          <td>${escapeHtml(item.owner)}</td>
+          <td>${escapeHtml(item.type)}</td>
+          <td>${item.docs} file</td>
+          <td><span class="pill ${pillClass(item.archiveStatus)}">${escapeHtml(item.archiveStatus)}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderSearchRows() {
+      const keyword = q("searchKeyword").value.trim().toLowerCase();
+      const rt = q("searchRt").value.trim();
+      const rw = q("searchRw").value.trim();
+      const type = q("searchType").value;
+      const status = q("searchStatus").value;
+      const rows = state.archives.filter(item => {
+        const parcel = getParcel(item.code);
+        const haystack = [item.code, item.owner, item.previousOwner, item.type, parcel.address, parcel.fullAddress].join(" ").toLowerCase();
+        return (!keyword || haystack.includes(keyword))
+          && (!rt || parcel.rt === rt.padStart(2, "0"))
+          && (!rw || parcel.rw === rw.padStart(2, "0"))
+          && (type === "Semua" || item.type === type)
+          && (status === "Semua" || parcel.status === status);
+      });
+      q("searchRows").innerHTML = rows.map(item => {
+        const parcel = getParcel(item.code);
+        return `
+          <tr>
+            <td class="code">${escapeHtml(item.code)}</td>
+            <td>${escapeHtml(parcel.address || item.code)}</td>
+            <td>${escapeHtml(item.owner)}</td>
+            <td>${escapeHtml(item.type)}</td>
+            <td>${formatDate(item.date)}</td>
+            <td><span class="pill ${pillClass(item.status)}">${escapeHtml(item.status)}</span></td>
+            <td><button class="btn secondary small" data-section-link="detail">Detail</button></td>
+          </tr>
+        `;
+      }).join("") || '<tr><td colspan="7" class="muted">Tidak ada arsip yang cocok dengan filter.</td></tr>';
+    }
+
+    function renderParcelRows() {
+      const keyword = q("parcelFilterKeyword").value.trim().toLowerCase();
+      const rt = q("parcelFilterRt").value.trim();
+      const rw = q("parcelFilterRw").value.trim();
+      const status = q("parcelFilterStatus").value;
+      let rows = state.parcels.filter(parcel => {
+        const haystack = [parcel.code, parcel.nop, parcel.address, parcel.fullAddress, parcel.owner].join(" ").toLowerCase();
+        return (!keyword || haystack.includes(keyword))
+          && (!rt || parcel.rt === rt.padStart(2, "0"))
+          && (!rw || parcel.rw === rw.padStart(2, "0"))
+          && (status === "Semua" || parcel.status === status);
+      });
+      if (q("parcelSort").value === "Kode persil") {
+        rows = rows.sort((a, b) => a.code.localeCompare(b.code));
+      }
+      q("parcelRows").innerHTML = rows.map(parcel => `
+        <tr>
+          <td class="code">${escapeHtml(parcel.code)}</td>
+          <td class="${parcel.nop === "Belum terbit" ? "muted" : "code"}">${escapeHtml(parcel.nop)}</td>
+          <td>${escapeHtml(parcel.rt)}/${escapeHtml(parcel.rw)}</td>
+          <td>${escapeHtml(parcel.address)}</td>
+          <td>${escapeHtml(parcel.area)}</td>
+          <td><span class="pill ${pillClass(parcel.status)}">${escapeHtml(parcel.status)}</span></td>
+          <td><button class="btn secondary small" data-section-link="detail">Buka</button></td>
+        </tr>
+      `).join("") || '<tr><td colspan="7" class="muted">Tidak ada persil yang cocok dengan filter.</td></tr>';
+    }
+
+    function renderPartyRows() {
+      q("partyRows").innerHTML = state.parties.map(party => `
+        <tr>
+          <td>${escapeHtml(party.name)}</td>
+          <td class="code">${escapeHtml(party.nik || "####-####-####-" + String(Math.floor(1000 + Math.random() * 8999)))}</td>
+          <td><span class="pill ${pillClass(party.status)}">${escapeHtml(party.status)}</span></td>
+          <td>${party.count} peralihan</td>
+          <td>${escapeHtml(party.last)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderAudit() {
+      auditRows.innerHTML = state.audits.map(item => `
+        <tr>
+          <td>${escapeHtml(item.time)}</td>
+          <td>${escapeHtml(item.admin)}</td>
+          <td><span class="pill ${pillClass(item.action)}">${escapeHtml(item.action)}</span></td>
+          <td>${escapeHtml(item.entity)}</td>
+          <td class="code">${escapeHtml(item.id)}</td>
+          <td class="code">${escapeHtml(item.ip)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderParcelSuggestions() {
+      q("parcelSuggestions").innerHTML = state.parcels.map(parcel => `<option value="${escapeHtml(parcel.code)} - ${escapeHtml(parcel.fullAddress || parcel.address)}"></option>`).join("");
+    }
+
+    function renderAll() {
+      renderStats();
+      renderLatestArchives();
+      renderSearchRows();
+      renderParcelRows();
+      renderPartyRows();
+      renderAudit();
+      renderParcelSuggestions();
+      updateReview();
+    }
+
+    function updateChainAlert() {
+      const owner = q("parcelOwner").value.trim();
+      const transferor = cleanName(q("transferorName").value);
+      const alert = q("chainAlert");
+      const valid = !owner || !transferor || owner === transferor || q("jenisPeralihan").value === "Kepemilikan Pertama";
+      alert.className = `inline-alert ${valid ? "success" : "danger"}`;
+      alert.querySelector("div").textContent = valid
+        ? `Pengalih cocok dengan pemilik terakhir: ${owner || transferor}.`
+        : `Pengalih tidak cocok. Pemilik terakhir tercatat ${owner}, sementara pengalih adalah ${transferor}.`;
+    }
+
+    function updateReview() {
+      const form = readForm();
+      q("reviewKode").textContent = form.code || "-";
+      q("reviewLokasi").textContent = form.address || "-";
+      q("reviewLuas").textContent = form.area || "-";
+      q("reviewJenis").textContent = form.type || "-";
+      q("reviewPengalih").textContent = form.previousOwner || "-";
+      q("reviewPenerima").textContent = form.owner || "-";
+      q("reviewDokumen").textContent = `${form.docs} file`;
+      q("reviewStorage").textContent = `private/arsip/${(form.date || "2026").slice(0, 4)}`;
+      q("draftStatus").textContent = "Ada perubahan";
+      q("parcelCodeStatus").textContent = state.parcels.some(parcel => parcel.code === form.code && persilMode === "new") ? "Sudah ada" : "Tersedia";
+      updateChainAlert();
+    }
+
+    function saveDraft() {
+      state.draft = readForm();
+      saveState();
+      q("draftStatus").textContent = "Draft tersimpan";
+      addAudit("UPDATE", "draft", state.draft.code || "DRAFT");
+      showToast("Draft tersimpan.", "Input terakhir disimpan di localStorage browser prototype.");
+    }
+
+    function restoreDraft() {
+      if (!state.draft) return;
+      const draft = state.draft;
+      q("parcelCode").value = draft.code || q("parcelCode").value;
+      q("parcelNop").value = draft.nop || q("parcelNop").value;
+      q("parcelRt").value = draft.rt || q("parcelRt").value;
+      q("parcelRw").value = draft.rw || q("parcelRw").value;
+      q("parcelAddress").value = draft.address || q("parcelAddress").value;
+      q("parcelArea").value = draft.area || q("parcelArea").value;
+      q("parcelOwner").value = draft.previousOwner || q("parcelOwner").value;
+      q("transferorName").value = draft.previousOwner || q("transferorName").value;
+      q("recipientName").value = draft.owner || q("recipientName").value;
+      q("jenisPeralihan").value = draft.type || q("jenisPeralihan").value;
+      q("eventDate").value = draft.date || q("eventDate").value;
+      q("spphtNo").value = draft.sppht || q("spphtNo").value;
+      q("ppatNo").value = draft.ppat || q("ppatNo").value;
+      q("transferNotes").value = draft.notes || q("transferNotes").value;
+      q("historicMode").checked = Boolean(draft.historic);
+      q("draftStatus").textContent = "Draft dipulihkan";
+    }
+
+    function selectParcelFromSearch() {
+      const code = q("parcelSearch").value.split(" - ")[0].trim();
+      const parcel = state.parcels.find(item => item.code === code);
+      if (!parcel) return;
+      persilMode = "existing";
+      q("parcelCode").value = parcel.code;
+      q("parcelNop").value = parcel.nop;
+      q("parcelRt").value = parcel.rt;
+      q("parcelRw").value = parcel.rw;
+      q("parcelAddress").value = parcel.fullAddress || parcel.address;
+      q("parcelArea").value = parcel.area;
+      q("parcelOwner").value = parcel.owner;
+      q("transferorName").value = parcel.owner;
+      q("parcelAlert").className = "inline-alert success";
+      q("parcelAlert").querySelector("div").textContent = `Persil ditemukan. Peralihan terakhir mencatat ${parcel.owner} sebagai pemilik sebelum transaksi baru.`;
+      updateReview();
+    }
+
+    function setPersilMode(mode) {
+      persilMode = mode;
+      if (mode === "new") {
+        q("parcelSearch").value = "Persil baru - kode akan dibuat otomatis";
+        q("parcelRt").value = q("parcelRt").value || "07";
+        q("parcelRw").value = q("parcelRw").value || "01";
+        q("parcelCode").value = generateParcelCode();
+        q("parcelNop").value = "Belum terbit";
+        q("parcelAddress").value = "";
+        q("parcelArea").value = "";
+        q("parcelOwner").value = cleanName(q("transferorName").value) || "";
+        q("parcelHistoryCount").textContent = "0 chain";
+        q("parcelAlert").className = "inline-alert warning";
+        q("parcelAlert").querySelector("div").textContent = "Mode persil baru aktif. Isi alamat, luas, dan pihak untuk membuat record tanah baru.";
+      } else {
+        selectParcelFromSearch();
+        q("parcelHistoryCount").textContent = "1 chain";
+      }
+      updateReview();
+    }
+
+    function addDocumentRow() {
+      const index = document.querySelectorAll("#uploadList .upload-row").length + 1;
+      const row = document.createElement("div");
+      row.className = "upload-row";
+      row.innerHTML = `<span class="check"></span><div class="upload-name"><strong>Dokumen Tambahan ${index}</strong><span>Opsional</span></div><div class="progress" style="--value: 0%;"><i></i></div><div class="row"><button class="btn secondary small" data-upload>Unggah</button></div>`;
+      q("uploadList").append(row);
+      showToast("Slot dokumen ditambahkan.", "Operator dapat mengunggah lampiran pendukung tambahan pada prototype.");
+      updateReview();
+    }
+
+    function upsertParty(name, status, role, code) {
+      if (!name) return;
+      const existing = state.parties.find(party => party.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.count += 1;
+        existing.status = status || existing.status;
+        existing.last = `${role}, ${code}`;
+      } else {
+        state.parties.unshift({ name, nik: "####-####-####-" + String(Math.floor(1000 + Math.random() * 8999)), status: status || "Hidup", count: 1, last: `${role}, ${code}` });
+      }
+    }
+
+    function saveArchive() {
+      const form = readForm();
+      if (!form.code || !form.address || !form.area || !form.owner) {
+        showToast("Data belum lengkap.", "Isi kode/alamat/luas persil dan pihak penerima sebelum menyimpan.");
+        setWizardStep(!form.code || !form.address || !form.area ? 1 : 2);
+        return;
+      }
+      if (persilMode === "new" && state.parcels.some(parcel => parcel.code === form.code)) {
+        showToast("Kode persil sudah ada.", "Ubah RT/RW atau gunakan mode persil terdaftar untuk melanjutkan.");
+        setWizardStep(1);
+        return;
+      }
+
+      const addressShort = form.address.split(",")[0].trim() || form.address;
+      const parcel = {
+        code: form.code,
+        nop: form.nop,
+        rt: form.rt,
+        rw: form.rw,
+        address: addressShort,
+        fullAddress: form.address,
+        area: form.area,
+        owner: form.owner,
+        previousOwner: form.previousOwner,
+        status: "Aktif",
+        registeredAt: new Date().toISOString().slice(0, 10),
+        simulated: true
+      };
+      const existingParcel = state.parcels.find(item => item.code === form.code);
+      if (existingParcel) {
+        Object.assign(existingParcel, parcel);
+      } else {
+        state.parcels.unshift(parcel);
+      }
+
+      state.archives.unshift({
+        code: form.code,
+        owner: form.owner,
+        previousOwner: form.previousOwner,
+        type: form.type,
+        date: form.date,
+        status: "Saat ini",
+        archiveStatus: "Terarsip",
+        docs: form.docs,
+        simulated: true
+      });
+      upsertParty(form.previousOwner, form.transferorStatus, form.transferorRole, form.code);
+      upsertParty(form.owner, "Hidup", "Penerima", form.code);
+      state.draft = null;
+      addAudit("CREATE", "peralihan", form.code);
+      saveState();
+      q("parcelFilterKeyword").value = form.code;
+      q("parcelFilterRt").value = "";
+      q("parcelFilterRw").value = "";
+      q("parcelFilterStatus").value = "Semua";
+      q("searchKeyword").value = form.owner;
+      q("searchRt").value = "";
+      q("searchRw").value = "";
+      q("searchType").value = "Semua";
+      q("searchStatus").value = "Semua";
+      renderAll();
+      showToast("Arsip berhasil disimpan.", `${form.code} masuk daftar persil, pencarian, dashboard, dan audit log prototype.`);
+      showSection("persil");
+    }
 
     function showSection(id) {
       const target = document.getElementById(id);
@@ -2155,9 +2811,7 @@
       paperTitle.textContent = title;
       previewModal.classList.add("show");
       previewModal.setAttribute("aria-hidden", "false");
-      const row = document.createElement("tr");
-      row.innerHTML = '<td>14 Mei 2026 17:12</td><td>Admin Kelurahan</td><td><span class="pill blue">VIEW_FILE</span></td><td>dokumen</td><td class="code">PREVIEW</td><td class="code">192.168.10.14</td>';
-      auditRows.prepend(row);
+      addAudit("VIEW_FILE", "dokumen", "PREVIEW");
     }
 
     document.addEventListener("click", event => {
@@ -2170,6 +2824,42 @@
       const action = event.target.closest("[data-action='show-toast']");
       if (action) showToast();
 
+      const saveDraftAction = event.target.closest("[data-action='save-draft']");
+      if (saveDraftAction) saveDraft();
+
+      const resetSimulation = event.target.closest("[data-action='reset-simulation']");
+      if (resetSimulation) {
+        localStorage.removeItem(storageKey);
+        state = createInitialState();
+        restoreDraft();
+        renderAll();
+        showToast("Simulasi direset.", "Data prototype kembali ke contoh awal.");
+      }
+
+      const openParcel = event.target.closest("[data-action='open-parcel-modal']");
+      if (openParcel) openParcelModal();
+
+      const closeParcel = event.target.closest("[data-action='close-parcel-modal']");
+      if (closeParcel) closeParcelModal();
+
+      const saveParcel = event.target.closest("[data-action='save-parcel']");
+      if (saveParcel) saveMasterParcel();
+
+      const addDocument = event.target.closest("[data-action='add-document']");
+      if (addDocument) addDocumentRow();
+
+      const searchArchives = event.target.closest("[data-action='search-archives']");
+      if (searchArchives) {
+        renderSearchRows();
+        showToast("Filter diterapkan.", "Hasil pencarian diperbarui dari data simulasi yang tersimpan.");
+      }
+
+      const filterParcels = event.target.closest("[data-action='filter-parcels']");
+      if (filterParcels) {
+        renderParcelRows();
+        showToast("Daftar persil difilter.", "Tabel membaca data awal dan record simulasi yang sudah disimpan.");
+      }
+
       const step = event.target.closest(".step-btn");
       if (step) setWizardStep(Number(step.dataset.step));
 
@@ -2177,6 +2867,7 @@
       if (choice) {
         document.querySelectorAll(`[data-choice-group="${choice.dataset.choiceGroup}"]`).forEach(item => item.classList.remove("active"));
         choice.classList.add("active");
+        if (choice.dataset.persilMode) setPersilMode(choice.dataset.persilMode);
       }
 
       const upload = event.target.closest("[data-upload]");
@@ -2194,12 +2885,38 @@
           .filter(item => item.textContent.includes("*")).length;
         document.getElementById("missingDocs").textContent = remaining ? `${remaining} wajib belum lengkap` : "Semua wajib lengkap";
         document.getElementById("missingDocs").className = remaining ? "pill warning" : "pill success";
+        updateReview();
         showToast("Dokumen berhasil diunggah.", "File sementara tersimpan sampai proses konfirmasi selesai.");
       }
 
       const preview = event.target.closest("[data-preview]");
       if (preview) openPreview(preview.dataset.preview);
+
+      const tab = event.target.closest("[data-search-tab]");
+      if (tab) {
+        activeSearchTab = tab.dataset.searchTab;
+        document.querySelectorAll("[data-search-tab]").forEach(item => item.classList.toggle("active", item === tab));
+        showToast("Mode pencarian diubah.", `Tab aktif: ${tab.textContent.trim()}.`);
+      }
     });
+
+    document.addEventListener("input", event => {
+      if (event.target.matches("input, textarea, select")) {
+        if (["parcelRt", "parcelRw"].includes(event.target.id) && persilMode === "new") {
+          q("parcelCode").value = generateParcelCode();
+        }
+        if (["newParcelRt", "newParcelRw"].includes(event.target.id)) {
+          q("newParcelCode").value = generateMasterParcelCode();
+          updateNewParcelCodeStatus();
+        }
+        if (event.target.id === "newParcelCode") {
+          updateNewParcelCodeStatus();
+        }
+        updateReview();
+      }
+    });
+
+    q("parcelSearch").addEventListener("change", selectParcelFromSearch);
 
     document.getElementById("menuBtn").addEventListener("click", () => {
       document.body.classList.toggle("menu-open");
@@ -2210,8 +2927,7 @@
       if (currentStep < 5) {
         setWizardStep(currentStep + 1);
       } else {
-        showToast("Arsip berhasil disimpan.", "Chain of title LKT-03-02-2024-0001 diperbarui dan audit log tercatat.");
-        showSection("detail");
+        saveArchive();
       }
     });
 
@@ -2220,6 +2936,8 @@
       previewModal.setAttribute("aria-hidden", "true");
     });
 
+    document.getElementById("closeParcelModal").addEventListener("click", closeParcelModal);
+
     previewModal.addEventListener("click", event => {
       if (event.target === previewModal) {
         previewModal.classList.remove("show");
@@ -2227,14 +2945,21 @@
       }
     });
 
+    parcelModal.addEventListener("click", event => {
+      if (event.target === parcelModal) closeParcelModal();
+    });
+
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") {
         previewModal.classList.remove("show");
         previewModal.setAttribute("aria-hidden", "true");
+        closeParcelModal();
         document.body.classList.remove("menu-open");
       }
     });
 
+    restoreDraft();
+    renderAll();
     setWizardStep(1);
   </script>
 </body>
