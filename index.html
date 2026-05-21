@@ -11,11 +11,113 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
-  <link rel="stylesheet" href="assets/choices.min.css">
-  <script src="assets/choices.min.js"></script>
-  <script src="assets/react.development.js" crossorigin="anonymous"></script>
-  <script src="assets/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="assets/babel.min.js" crossorigin="anonymous"></script>
+  <!-- Adaptive Library Loader: Try local files first (for offline), fallback to CDN (for GitHub Pages / online) -->
+  <script>
+    (function() {
+      var libs = [
+        {
+          name: 'Choices.js CSS',
+          type: 'css',
+          local: 'assets/choices.min.css',
+          cdn: 'https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css'
+        },
+        {
+          name: 'Choices.js',
+          type: 'js',
+          global: 'Choices',
+          local: 'assets/choices.min.js',
+          cdn: 'https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/scripts/choices.min.js'
+        },
+        {
+          name: 'React',
+          type: 'js',
+          global: 'React',
+          local: 'assets/react.development.js',
+          cdn: 'https://unpkg.com/react@18.3.1/umd/react.development.js'
+        },
+        {
+          name: 'ReactDOM',
+          type: 'js',
+          global: 'ReactDOM',
+          local: 'assets/react-dom.development.js',
+          cdn: 'https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js'
+        },
+        {
+          name: 'Babel Standalone',
+          type: 'js',
+          global: 'Babel',
+          local: 'assets/babel.min.js',
+          cdn: 'https://unpkg.com/@babel/standalone@7.29.0/babel.min.js'
+        }
+      ];
+
+      var index = 0;
+
+      function loadNext() {
+        if (index >= libs.length) {
+          // Manual compilation trigger for Babel Standalone since it is loaded dynamically
+          if (window.Babel) {
+            Babel.transformScriptTags();
+          }
+          return;
+        }
+
+        var lib = libs[index];
+        index++;
+
+        if (lib.type === 'css') {
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = lib.local;
+          var head = document.head || document.getElementsByTagName('head')[0];
+          link.onerror = function() {
+            var fallbackLink = document.createElement('link');
+            fallbackLink.rel = 'stylesheet';
+            fallbackLink.href = lib.cdn;
+            head.appendChild(fallbackLink);
+          };
+          head.appendChild(link);
+          loadNext();
+        } else {
+          var script = document.createElement('script');
+          script.src = lib.local;
+          script.crossOrigin = 'anonymous';
+          script.onload = function() {
+            if (window[lib.global]) {
+              loadNext();
+            } else {
+              loadCDN(lib);
+            }
+          };
+          script.onerror = function() {
+            loadCDN(lib);
+          };
+          document.head.appendChild(script);
+        }
+      }
+
+      function loadCDN(lib) {
+        var script = document.createElement('script');
+        script.src = lib.cdn;
+        script.crossOrigin = 'anonymous';
+        script.onload = function() {
+          if (window[lib.global]) {
+            loadNext();
+          } else {
+            console.error('Failed to load ' + lib.name + ' from CDN.');
+            loadNext();
+          }
+        };
+        script.onerror = function() {
+          console.error('Network error loading ' + lib.name + ' from CDN.');
+          loadNext();
+        };
+        document.head.appendChild(script);
+      }
+
+      loadNext();
+    })();
+  </script>
   <style>
 /* SIAP Loktuan — design tokens & base styles (tema pertanahan dipertahankan) */
 
