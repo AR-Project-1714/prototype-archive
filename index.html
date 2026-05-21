@@ -586,7 +586,9 @@ table.data {
   color: var(--ink-2);
 }
 .choices__list--dropdown .choices__item--selectable.is-highlighted,
-.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+.choices__list--dropdown .choices__item--selectable.is-selected,
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted,
+.choices__list[aria-expanded] .choices__item--selectable.is-selected {
   background: var(--primary-soft);
   color: var(--primary-ink);
 }
@@ -596,6 +598,11 @@ table.data {
   margin: 8px;
   padding: 8px 10px;
   width: calc(100% - 16px);
+  outline: none;
+  transition: border-color 120ms;
+}
+.choices__list--dropdown .choices__input:focus {
+  border-color: var(--primary);
 }
 .choices__placeholder { color: var(--ink-4); opacity: 1; }
 
