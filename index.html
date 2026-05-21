@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1280, initial-scale=1">
-  <meta name="description" content="Prototype satu halaman SIADP Loktuan untuk GitHub Pages.">
-  <title>SIADP Loktuan — Prototype Arsip Digital</title>
+  <meta name="description" content="SIAP Loktuan — Sistem Arsip Digital Pertanahan Kelurahan Loktuan.">
+  <title>SIAP Loktuan — Sistem Arsip Digital Pertanahan</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+  <link rel="stylesheet" href="assets/choices.min.css">
+  <script src="assets/choices.min.js"></script>
+  <script src="assets/react.development.js" crossorigin="anonymous"></script>
+  <script src="assets/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="assets/babel.min.js" crossorigin="anonymous"></script>
   <style>
-/* SIADP Loktuan — design tokens & base styles */
+/* SIAP Loktuan — design tokens & base styles (tema pertanahan dipertahankan) */
 
 :root {
   /* warm neutral surfaces */
@@ -79,6 +85,10 @@ body {
 button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 
+/* ---------- Flaticon UIcons alignment ---------- */
+i.fi { display: inline-flex; align-items: center; justify-content: center; line-height: 1; flex: none; }
+i.fi::before { line-height: 1; display: block; }
+
 /* ---------- App shell ---------- */
 .app {
   display: grid;
@@ -109,7 +119,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; color: inher
   color: white;
   display: grid; place-items: center;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 13px;
   letter-spacing: 0.02em;
   box-shadow: inset 0 -2px 0 oklch(30% 0.07 195);
 }
@@ -121,6 +131,9 @@ input, select, textarea { font-family: inherit; font-size: inherit; color: inher
   padding: 14px 12px;
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 .nav-group-label {
   font-size: 10.5px;
@@ -144,6 +157,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; color: inher
   background: transparent;
   width: 100%;
   text-align: left;
+  text-decoration: none;
   transition: background 120ms, color 120ms;
 }
 .nav-item:hover { background: var(--bg-soft); color: var(--ink-1); }
@@ -405,6 +419,10 @@ table.data {
 .textarea { resize: vertical; min-height: 80px; }
 .input::placeholder { color: var(--ink-4); }
 
+/* native date input — desain default HTML dipertahankan, hanya disamakan dengan input lain */
+.input[type="date"] { -webkit-appearance: none; appearance: none; }
+.input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+
 .search-input {
   display: flex; align-items: center; gap: 8px;
   background: var(--surface);
@@ -426,6 +444,58 @@ table.data {
   font-size: 13.5px;
 }
 .search-input .ico { color: var(--ink-3); width: 16px; height: 16px; }
+
+/* ---------- Choices.js (dropdown cantik, tema pertanahan) ---------- */
+.choices { margin-bottom: 0; }
+.choices__inner {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 6px 28px 6px 12px;
+  font-size: 13.5px;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.choices.is-focused .choices__inner,
+.choices.is-open .choices__inner {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px oklch(42% 0.07 195 / 0.12);
+}
+.choices[data-type*="select-one"] .choices__inner { padding-bottom: 6px; }
+.choices__list--single { padding: 0; }
+.choices__list--single .choices__item { color: var(--ink-1); }
+.choices[data-type*="select-one"]::after {
+  border-color: var(--ink-3) transparent transparent;
+  right: 12px;
+}
+.choices[data-type*="select-one"].is-open::after { border-color: transparent transparent var(--ink-3); }
+.choices__list--dropdown, .choices__list[aria-expanded] {
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  background: var(--surface);
+  margin-top: 6px;
+  z-index: 120;
+}
+.choices__list--dropdown .choices__item--selectable,
+.choices__list[aria-expanded] .choices__item--selectable {
+  font-size: 13px;
+  padding: 9px 12px;
+  color: var(--ink-2);
+}
+.choices__list--dropdown .choices__item--selectable.is-highlighted,
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  background: var(--primary-soft);
+  color: var(--primary-ink);
+}
+.choices__list--dropdown .choices__input {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin: 8px;
+  padding: 8px 10px;
+  width: calc(100% - 16px);
+}
+.choices__placeholder { color: var(--ink-4); opacity: 1; }
 
 /* ---------- Toast ---------- */
 .toast-stack {
@@ -754,6 +824,23 @@ table.data {
   line-height: 1.9;
 }
 
+/* surat tanah preview (mirip dokumen SPPHT pada gambar) */
+.surat-preview {
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 22px 26px;
+  font-size: 12.5px;
+  color: var(--ink-1);
+}
+.surat-preview .kop { text-align: center; border-bottom: 2px solid var(--ink-1); padding-bottom: 10px; }
+.surat-preview .kop .l1 { font-weight: 700; font-size: 13px; letter-spacing: 0.02em; }
+.surat-preview .kop .l2 { font-weight: 800; font-size: 16px; letter-spacing: 0.02em; }
+.surat-preview .kop .l3 { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.surat-preview .body { margin-top: 16px; }
+.surat-preview .body .judul { text-align: center; font-weight: 700; margin: 14px 0; }
+.surat-preview dl.kv { grid-template-columns: 150px 1fr; }
+
 /* Pagination */
 .pagi { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--line); background: var(--bg-soft); }
 .pagi .info { color: var(--ink-3); font-size: 12.5px; }
@@ -802,22 +889,148 @@ table.data {
 }
 .check input { width: 16px; height: 16px; accent-color: var(--primary); }
 
-/* tweaks panel z-index above modal */
-[data-tweaks-panel] { z-index: 300 !important; }
+.section-label {
+  font-size: 12px; font-weight: 600; color: var(--ink-2);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+}
 
+/* ---------- Date picker (gaya shadcn/ui) ---------- */
+.datepicker { position: relative; }
+.datepicker-trigger {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  color: var(--ink-1);
+  text-align: left;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.datepicker-trigger .ico { color: var(--ink-3); flex: none; }
+.datepicker-trigger span { flex: 1; }
+.datepicker-trigger:hover { border-color: oklch(75% 0.012 90); }
+.datepicker-trigger:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px oklch(42% 0.07 195 / 0.12); }
+.datepicker.is-open .datepicker-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px oklch(42% 0.07 195 / 0.12); }
+.datepicker-trigger.placeholder span { color: var(--ink-4); }
+.datepicker-trigger.error { border-color: var(--danger); }
+
+.datepicker-pop {
+  position: absolute; z-index: 130;
+  top: calc(100% + 6px); left: 0;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 14px;
+  width: 284px;
+  animation: modal-in 160ms cubic-bezier(.2,.7,.3,1);
+}
+.datepicker-pop.up { top: auto; bottom: calc(100% + 6px); }
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+.dp-title { font-size: 13.5px; font-weight: 600; color: var(--ink-1); }
+.dp-nav {
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface);
+  display: grid; place-items: center; color: var(--ink-2);
+}
+.dp-nav:hover { background: var(--bg-soft); color: var(--ink-1); }
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-dow { margin-bottom: 4px; }
+.dp-dow-cell { text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-4); padding: 4px 0; }
+.dp-day {
+  height: 34px; border: 0; background: transparent; border-radius: 8px;
+  font-size: 13px; color: var(--ink-1); cursor: pointer;
+  transition: background 100ms;
+}
+.dp-day:hover { background: var(--bg-soft); }
+.dp-day.today { border: 1px solid var(--line-strong); font-weight: 600; }
+.dp-day.selected, .dp-day.selected:hover { background: var(--primary); color: white; font-weight: 600; }
+.dp-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
   </style>
-
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Diagnostic Fallback UI -->
+  <div id="error-boundary-fallback" style="display:none; padding:24px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#721c24; background-color:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; margin:20px; max-width:800px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h3 style="margin-top:0; font-size:18px; font-weight:700;">Terjadi Kesalahan Sistem (System Error)</h3>
+    <p style="font-size:14px; margin:10px 0;">Halaman tidak dapat memuat seluruh komponen. Berikut adalah detail kesalahan:</p>
+    <pre id="error-boundary-message" style="white-space:pre-wrap; font-family:'JetBrains Mono', monospace; font-size:12px; margin:14px 0; padding:12px; background:#fff; border:1px solid #e1e4e8; border-radius:6px; max-height:300px; overflow-y:auto; color:#24292e; line-height:1.5;"></pre>
+    <p style="font-size:13px; margin-bottom:0; color:#586069;">
+      <b>Tips Pemecahan Masalah:</b><br>
+      1. Pastikan Anda memiliki koneksi internet aktif karena aplikasi ini mengunduh library React/Babel dari CDN.<br>
+      2. Periksa apakah CDN unpkg.com atau jsdelivr.net diblokir oleh jaringan/firewall/VPN/adblocker Anda.<br>
+      3. Buka Console Developer Tools (tekan <b>F12</b> atau klik kanan -> Inspeksi -> pilih tab <b>Console</b>) untuk melihat log lengkap.<br>
+      4. Coba muat ulang halaman dengan menekan <b>Ctrl + F5</b> (Force Reload).
+    </p>
+  </div>
 
   <script>
-// Store: localStorage-backed simulation for SIADP Loktuan
+    (function() {
+      var fb = document.getElementById('error-boundary-fallback');
+      var msg = document.getElementById('error-boundary-message');
+      
+      function showDiag(errText) {
+        if (fb && msg) {
+          fb.style.display = 'block';
+          if (msg.textContent.indexOf(errText) === -1) {
+            msg.textContent += (msg.textContent ? '\n\n' : '') + errText;
+          }
+        }
+      }
+
+      // 1. Listen for global runtime errors
+      window.addEventListener('error', function(e) {
+        showDiag('Unhandled Error: ' + e.message + '\nLocation: ' + e.filename + ':' + e.lineno + ':' + e.colno);
+      });
+
+      // 2. Listen for unhandled promise rejections
+      window.addEventListener('unhandledrejection', function(e) {
+        var reason = e.reason ? (e.reason.stack || e.reason.message || e.reason) : 'Unknown reason';
+        showDiag('Promise Rejection: ' + reason);
+      });
+
+      // 3. Intercept console.error to capture Babel compilation or React errors
+      var origError = console.error;
+      console.error = function() {
+        origError.apply(console, arguments);
+        var args = Array.prototype.slice.call(arguments).map(function(arg) {
+          if (arg instanceof Error) return arg.stack || arg.message;
+          return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
+        }).join(' ');
+        
+        // Match relevant keywords
+        if (args.indexOf('Babel') !== -1 || args.indexOf('React') !== -1 || args.indexOf('ReactDOM') !== -1 || args.indexOf('createRoot') !== -1) {
+          showDiag('Console Error: ' + args);
+        }
+      };
+
+      // 4. Validate library load status on window load
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var missing = [];
+          if (typeof React === 'undefined') missing.push('React (unpkg.com)');
+          if (typeof ReactDOM === 'undefined') missing.push('ReactDOM (unpkg.com)');
+          if (typeof Babel === 'undefined') missing.push('Babel Standalone (unpkg.com)');
+          if (typeof Choices === 'undefined') missing.push('Choices.js (jsdelivr.net)');
+          
+          if (missing.length > 0) {
+            showDiag('Gagal memuat pustaka eksternal dari CDN:\n- ' + missing.join('\n- ') + '\n\nPeriksa koneksi internet Anda atau pastikan URL CDN tersebut dapat diakses.');
+          }
+        }, 1500);
+      });
+    })();
+  </script>
+
+  <div id="root"></div>
+
+  <script>
+// Store: localStorage-backed simulation for SIAP Loktuan
 // Entities: parcels, archives, parties, audits, draft
 // All data resets via window.SIADP.resetSimulation()
 
 (function () {
-  const KEY = "siadp_v2_state";
+  const KEY = "siap_v3_state";
 
   // ---------------- seed data ----------------
   function seed() {
@@ -829,7 +1042,7 @@ table.data {
       return iso(d);
     };
 
-    const parcels = [
+    let parcels = [
       {
         id: "p-001",
         kode: "LKT-04-02-2018-001",
@@ -936,6 +1149,22 @@ table.data {
       },
     ];
 
+    // Lengkapi tiap persil dengan data dokumen "Surat Tanah" (mengikuti format SPPHT)
+    const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    parcels = parcels.map((p, i) => {
+      const d = new Date(p.tanggalDaftar);
+      const noUrut = String(40 + i).padStart(2, "0");
+      return {
+        ...p,
+        nama: p.pemilikSaatIni,
+        kelurahan: "Loktuan",
+        jenisSurat: "SPPHT",
+        nomorSurat: `500.17.3.3/${noUrut}/KEC-BU/${d.getFullYear()}`,
+        suratFile: `scan_surat_${p.kode.toLowerCase()}.pdf`,
+        suratUploaded: true,
+      };
+    });
+
     const archives = [
       {
         id: "a-001",
@@ -946,7 +1175,7 @@ table.data {
         pengalih: { nama: "Hj. Maryam", nik: "6471010101700001", status: "hidup", peran: "pemilik" },
         penerima: { nama: "Siti Aminah", nik: "6471025612850002", jk: "Perempuan", telp: "0813-5544-6677", alamat: "Jl. Mayjend Sutoyo Gg. Melati No. 12" },
         nomorAkta: "12/2024/PPAT-LKT",
-        catatan: "Jual beli normal antara ibu kandung dan anak.",
+        catatan: "Jual beli normal antara ibu kandung and anak.",
         dokumen: ["SPPHT", "KTP pemohon", "KK pemohon", "Surat pengantar RT/RW", "Surat tidak sengketa"],
         status: "terarsip",
         rekonstruksi: false,
@@ -1028,11 +1257,11 @@ table.data {
       { id: "au-3", waktu: daysAgo(2), admin: "operator02", aksi: "CREATE", entitas: "peralihan", entId: "a-004", ip: "10.0.12.46" },
       { id: "au-4", waktu: daysAgo(3), admin: "operator01", aksi: "UPDATE", entitas: "tanah", entId: "p-005", ip: "10.0.12.45" },
       { id: "au-5", waktu: daysAgo(5), admin: "operator02", aksi: "CREATE", entitas: "tanah", entId: "p-008", ip: "10.0.12.46" },
-      { id: "au-6", waktu: daysAgo(7), admin: "operator01", aksi: "VIEW_FILE", entitas: "dokumen", entId: "a-001/KTP", ip: "10.0.12.45" },
+      { id: "au-6", waktu: daysAgo(7), admin: "operator01", aksi: "VIEW_FILE", entitas: "dokumen", entId: "a-001/SPPHT", ip: "10.0.12.45" },
     ];
 
     return {
-      version: 2,
+      version: 3,
       parcels,
       archives,
       parties,
@@ -1051,8 +1280,7 @@ table.data {
         return s;
       }
       const parsed = JSON.parse(raw);
-      // migration: if version mismatch
-      if (!parsed || parsed.version !== 2) {
+      if (!parsed || parsed.version !== 3 || !parsed.parcels || !parsed.archives || !parsed.parties || !parsed.audits) {
         const s = seed();
         localStorage.setItem(KEY, JSON.stringify(s));
         return s;
@@ -1107,9 +1335,15 @@ table.data {
     return prefix + String(max + 1).padStart(3, "0");
   }
 
+  function nextNomorSurat(parcels) {
+    const year = new Date().getFullYear();
+    const seq = String((parcels.filter((p) => (p.nomorSurat || "").includes(`/KEC-BU/${year}`)).length) + 1).padStart(2, "0");
+    return `500.17.3.3/${seq}/KEC-BU/${year}`;
+  }
+
   window.SIADP = {
     load, save, seed,
-    maskNik, formatDate, formatDateTime, relTime, nextParcelKode,
+    maskNik, formatDate, formatDateTime, relTime, nextParcelKode, nextNomorSurat,
     resetSimulation: () => {
       const s = seed();
       save(s);
@@ -1117,110 +1351,58 @@ table.data {
     },
   };
 })();
-
   </script>
-</head>
-<body>
-  <div id="root"></div>
 
   <script type="text/babel">
-// Icons + reusable UI primitives for SIADP
+const { useState, useEffect, useMemo, useRef, useCallback, createContext, useContext } = React;
 
-// ---------------- Icons (Lucide-style minimal SVG) ----------------
-const Icon = ({ name, size = 18, stroke = 1.75, className = "ico", ...rest }) => {
-  const s = { width: size, height: size, ...rest.style };
-  const common = {
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: stroke,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    className,
-    style: s,
-  };
-  switch (name) {
-    case "dashboard":
-      return <svg {...common}><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>;
-    case "plus":
-      return <svg {...common}><path d="M12 5v14M5 12h14"/></svg>;
-    case "plus-circle":
-      return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>;
-    case "archive":
-      return <svg {...common}><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg>;
-    case "map":
-      return <svg {...common}><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>;
-    case "users":
-      return <svg {...common}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-    case "history":
-      return <svg {...common}><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>;
-    case "settings":
-      return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 1 1 4.21 16.96l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 4.21l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
-    case "search":
-      return <svg {...common}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>;
-    case "bell":
-      return <svg {...common}><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>;
-    case "chevron-right":
-      return <svg {...common}><path d="m9 18 6-6-6-6"/></svg>;
-    case "chevron-left":
-      return <svg {...common}><path d="m15 18-6-6 6-6"/></svg>;
-    case "chevron-down":
-      return <svg {...common}><path d="m6 9 6 6 6-6"/></svg>;
-    case "filter":
-      return <svg {...common}><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>;
-    case "x":
-      return <svg {...common}><path d="M18 6 6 18M6 6l12 12"/></svg>;
-    case "check":
-      return <svg {...common}><path d="M20 6 9 17l-5-5"/></svg>;
-    case "check-circle":
-      return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>;
-    case "alert":
-      return <svg {...common}><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0"/><path d="M12 9v4M12 17h0"/></svg>;
-    case "info":
-      return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h0"/></svg>;
-    case "file":
-      return <svg {...common}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>;
-    case "file-text":
-      return <svg {...common}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>;
-    case "upload":
-      return <svg {...common}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8 12 3 7 8M12 3v12"/></svg>;
-    case "eye":
-      return <svg {...common}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12"/><circle cx="12" cy="12" r="3"/></svg>;
-    case "edit":
-      return <svg {...common}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 1 1 3 3L12 15l-4 1 1-4z"/></svg>;
-    case "trash":
-      return <svg {...common}><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>;
-    case "refresh":
-      return <svg {...common}><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>;
-    case "logout":
-      return <svg {...common}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>;
-    case "open":
-      return <svg {...common}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>;
-    case "user":
-      return <svg {...common}><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>;
-    case "land":
-      return <svg {...common}><path d="M3 20h18"/><path d="M5 20V8l7-4 7 4v12"/><path d="M9 20v-6h6v6"/></svg>;
-    case "shield":
-      return <svg {...common}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>;
-    case "trending":
-      return <svg {...common}><path d="M3 17 9 11l4 4 8-8"/><path d="M14 7h7v7"/></svg>;
-    case "stack":
-      return <svg {...common}><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></svg>;
-    case "save":
-      return <svg {...common}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>;
-    case "menu":
-      return <svg {...common}><path d="M3 6h18M3 12h18M3 18h18"/></svg>;
-    case "key":
-      return <svg {...common}><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3M16 7l3 3"/></svg>;
-    case "calendar":
-      return <svg {...common}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>;
-    case "compass":
-      return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6z"/></svg>;
-    case "lock":
-      return <svg {...common}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-    default:
-      return <svg {...common}><circle cx="12" cy="12" r="6"/></svg>;
-  }
+// ---------------- Icons (Flaticon UIcons — regular rounded) ----------------
+const ICON_MAP = {
+  dashboard: "fi-rr-apps",
+  plus: "fi-rr-plus",
+  "plus-circle": "fi-rr-add",
+  archive: "fi-rr-box-open",
+  map: "fi-rr-map",
+  users: "fi-rr-users",
+  history: "fi-rr-time-past",
+  settings: "fi-rr-settings",
+  search: "fi-rr-search",
+  bell: "fi-rr-bell",
+  "chevron-right": "fi-rr-angle-right",
+  "chevron-left": "fi-rr-angle-left",
+  "chevron-down": "fi-rr-angle-down",
+  filter: "fi-rr-filter",
+  x: "fi-rr-cross-small",
+  check: "fi-rr-check",
+  "check-circle": "fi-rr-checkbox",
+  alert: "fi-rr-exclamation",
+  info: "fi-rr-info",
+  file: "fi-rr-document",
+  "file-text": "fi-rr-document",
+  upload: "fi-rr-cloud-upload-alt",
+  eye: "fi-rr-eye",
+  edit: "fi-rr-pencil",
+  trash: "fi-rr-trash",
+  refresh: "fi-rr-refresh",
+  logout: "fi-rr-sign-out-alt",
+  open: "fi-rr-eye",
+  user: "fi-rr-user",
+  land: "fi-rr-home-location-alt",
+  shield: "fi-rr-shield-check",
+  trending: "fi-rr-stats",
+  stack: "fi-rr-duplicate",
+  save: "fi-rr-disk",
+  menu: "fi-rr-menu-burger",
+  key: "fi-rr-key",
+  calendar: "fi-rr-calendar",
+  compass: "fi-rr-compass",
+  lock: "fi-rr-lock",
+};
+
+const Icon = ({ name, size = 18, stroke, className = "ico", ...rest }) => {
+  const cls = ICON_MAP[name] || "fi-rr-circle-small";
+  const style = { fontSize: size, width: size, height: size, ...rest.style };
+  return <i className={"fi " + cls + " " + className} style={style} aria-hidden="true" />;
 };
 
 // ---------------- Button ----------------
@@ -1230,8 +1412,8 @@ function Btn({ children, variant = "default", icon, size, ...rest }) {
 }
 
 // ---------------- Badge ----------------
-function Badge({ children, variant = "" }) {
-  return <span className={"badge " + variant}><span className="dot"/>{children}</span>;
+function Badge({ children, variant = "", style }) {
+  return <span className={"badge " + variant} style={style}><span className="dot"/>{children}</span>;
 }
 function StatusBadge({ status }) {
   const map = {
@@ -1247,21 +1429,142 @@ function StatusBadge({ status }) {
 }
 
 // ---------------- Field wrapper ----------------
-function Field({ label, required, error, hint, ok, children }) {
+function Field({ label, required, error, hint, ok, children, style }) {
   return (
-    <div className="field">
+    <div className="field" style={style}>
       {label && <label>{label}{required && <span className="req">*</span>}</label>}
       {children}
-      {error && <div className="error"><Icon name="alert" size={12} stroke={2.2}/>{error}</div>}
-      {ok && <div className="ok"><Icon name="check" size={12} stroke={2.2}/>{ok}</div>}
+      {error && <div className="error"><Icon name="alert" size={12}/>{error}</div>}
+      {ok && <div className="ok"><Icon name="check" size={12}/>{ok}</div>}
       {hint && !error && !ok && <div className="hint">{hint}</div>}
+    </div>
+  );
+}
+
+// ---------------- Select (Choices.js wrapper) ----------------
+function Select({ value, onChange, options = [], placeholder, width, className, error, style }) {
+  const selRef = useRef(null);
+  const inst = useRef(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const norm = options.map((o) => (typeof o === "object" ? o : { value: o, label: o }));
+  const optsKey = JSON.stringify(norm) + "|" + (placeholder || "");
+
+  useEffect(() => {
+    const el = selRef.current;
+    if (!el || typeof Choices === "undefined") return;
+    const c = new Choices(el, {
+      searchEnabled: norm.length > 8,
+      searchChoices: norm.length > 8,
+      shouldSort: false,
+      itemSelectText: "",
+      allowHTML: false,
+      placeholder: !!placeholder,
+      placeholderValue: placeholder || null,
+      position: "bottom",
+    });
+    inst.current = c;
+    const handler = (e) => onChangeRef.current && onChangeRef.current(e.target.value);
+    el.addEventListener("change", handler);
+    return () => {
+      el.removeEventListener("change", handler);
+      try { c.destroy(); } catch (err) {}
+      inst.current = null;
+    };
+  }, [optsKey]);
+
+  useEffect(() => {
+    if (inst.current) {
+      try { inst.current.setChoiceByValue(value == null ? "" : value); } catch (e) {}
+    }
+  }, [value, optsKey]);
+
+  return (
+    <select
+      ref={selRef}
+      className={"select" + (error ? " error" : "") + (className ? " " + className : "")}
+      style={{ width, ...style }}
+      defaultValue={value == null ? "" : value}
+    >
+      {placeholder != null && <option value="">{placeholder}</option>}
+      {norm.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  );
+}
+
+// ---------------- DatePicker (gaya shadcn/ui) ----------------
+const DP_MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const DP_DOWS = ["Sn","Sl","Rb","Km","Jm","Sb","Mg"];
+
+function parseISO(s) { return s ? new Date(s + "T00:00:00") : null; }
+function toISO(dt) {
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+}
+
+function DatePicker({ value, onChange, placeholder = "Pilih tanggal", error }) {
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState(() => parseISO(value) || new Date());
+  const ref = useRef(null);
+
+  useEffect(() => { const d = parseISO(value); if (d) setView(d); }, [value]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
+  }, [open]);
+
+  const sel = parseISO(value);
+  const y = view.getFullYear(), m = view.getMonth();
+  const startDay = (new Date(y, m, 1).getDay() + 6) % 7; // Senin di depan
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < startDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const today = new Date();
+  const same = (a, dd) => a && a.getFullYear() === y && a.getMonth() === m && a.getDate() === dd;
+  const fmt = (dt) => dt.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+  const pick = (d) => { onChange(toISO(new Date(y, m, d))); setOpen(false); };
+
+  return (
+    <div className={"datepicker" + (open ? " is-open" : "")} ref={ref}>
+      <button type="button" className={"datepicker-trigger" + (error ? " error" : "") + (value ? "" : " placeholder")} onClick={() => setOpen((o) => !o)}>
+        <Icon name="calendar" size={16}/>
+        <span>{sel ? fmt(sel) : placeholder}</span>
+        <Icon name="chevron-down" size={14}/>
+      </button>
+      {open && (
+        <div className="datepicker-pop">
+          <div className="dp-head">
+            <button type="button" className="dp-nav" onClick={() => setView(new Date(y, m - 1, 1))}><Icon name="chevron-left" size={16}/></button>
+            <div className="dp-title">{DP_MONTHS[m]} {y}</div>
+            <button type="button" className="dp-nav" onClick={() => setView(new Date(y, m + 1, 1))}><Icon name="chevron-right" size={16}/></button>
+          </div>
+          <div className="dp-grid dp-dow">{DP_DOWS.map((d) => <div key={d} className="dp-dow-cell">{d}</div>)}</div>
+          <div className="dp-grid">
+            {cells.map((d, i) => d === null
+              ? <div key={"e" + i}/>
+              : <button type="button" key={i} className={"dp-day" + (same(sel, d) ? " selected" : "") + (same(today, d) ? " today" : "")} onClick={() => pick(d)}>{d}</button>
+            )}
+          </div>
+          <div className="dp-foot">
+            <button type="button" className="btn ghost sm" onClick={() => { onChange(toISO(new Date())); setOpen(false); }}>Hari ini</button>
+            {value && <button type="button" className="btn subtle sm" onClick={() => { onChange(""); setOpen(false); }}>Hapus</button>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ---------------- Modal ----------------
 function Modal({ open, onClose, title, subtitle, children, footer, size = "" }) {
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === "Escape") onClose && onClose(); };
     window.addEventListener("keydown", onKey);
@@ -1293,15 +1596,15 @@ function Modal({ open, onClose, title, subtitle, children, footer, size = "" }) 
 }
 
 // ---------------- Toast ----------------
-const ToastCtx = React.createContext(null);
+const ToastCtx = createContext(null);
 function ToastProvider({ children }) {
-  const [items, setItems] = React.useState([]);
-  const push = React.useCallback((t) => {
+  const [items, setItems] = useState([]);
+  const push = useCallback((t) => {
     const id = Math.random().toString(36).slice(2);
     setItems((arr) => [...arr, { id, ...t }]);
     setTimeout(() => setItems((arr) => arr.filter((x) => x.id !== id)), t.duration || 3200);
   }, []);
-  const api = React.useMemo(() => ({
+  const api = useMemo(() => ({
     success: (t, s) => push({ variant: "success", title: t, sub: s }),
     info: (t, s) => push({ variant: "info", title: t, sub: s }),
     warn: (t, s) => push({ variant: "warning", title: t, sub: s }),
@@ -1314,7 +1617,7 @@ function ToastProvider({ children }) {
         {items.map((t) => (
           <div key={t.id} className={"toast " + t.variant}>
             <div className="ico" style={{ marginTop: 1 }}>
-              <Icon name={t.variant === "success" ? "check-circle" : t.variant === "danger" ? "alert" : "info"} size={18} stroke={2}/>
+              <Icon name={t.variant === "success" ? "check-circle" : t.variant === "danger" ? "alert" : "info"} size={18}/>
             </div>
             <div className="body">
               <div className="t">{t.title}</div>
@@ -1326,7 +1629,7 @@ function ToastProvider({ children }) {
     </ToastCtx.Provider>
   );
 }
-const useToast = () => React.useContext(ToastCtx);
+const useToast = () => useContext(ToastCtx);
 
 // ---------------- Pagination ----------------
 function Pagination({ page, pageSize, total, onPage }) {
@@ -1376,20 +1679,147 @@ function EmptyRow({ cols, icon = "search", title = "Belum ada data", sub }) {
   );
 }
 
-// Expose
+// Expose components
 Object.assign(window, {
-  Icon, Btn, Badge, StatusBadge, Field, Modal,
+  Icon, Btn, Badge, StatusBadge, Field, Select, DatePicker, Modal,
   ToastProvider, useToast, Pagination, ProgressBar, EmptyRow,
 });
 
-  </script>
-  <script type="text/babel">
-// SIADP screens: Dashboard, ArsipSPPHT, DataTanah (+ TambahPersil modal),
-// DataPihak, AuditLog, Pengaturan, DetailRiwayat
+// ---------------- SPA Navigation & State Manager (app.js) ----------------
 
-const { useState, useEffect, useMemo, useRef } = React;
+const PAGE_URL = {
+  "dashboard": "#dashboard",
+  "arsip-baru": "#arsip-baru",
+  "arsip-sppht": "#arsip-sppht",
+  "data-tanah": "#data-tanah",
+  "data-pihak": "#data-pihak",
+  "audit-log": "#audit-log",
+  "pengaturan": "#pengaturan",
+  "detail": "#detail",
+};
 
-// ---------------------------------- DASHBOARD ----------------------------------
+// Navigate across pages (SPA hash changes)
+function go(page, ctx) {
+  let hash = PAGE_URL[page] || "#dashboard";
+  if (ctx) hash += "?parcel=" + encodeURIComponent(ctx);
+  window.location.hash = hash;
+}
+
+function getParam(name) {
+  const hash = window.location.hash;
+  const qIndex = hash.indexOf("?");
+  if (qIndex === -1) return null;
+  const u = new URLSearchParams(hash.slice(qIndex));
+  return u.get(name);
+}
+
+const NAV = [
+  { key: "dashboard", label: "Dashboard", icon: "dashboard" },
+  { key: "arsip-baru", label: "Arsip Baru", icon: "plus-circle", accent: true },
+  { key: "arsip-sppht", label: "Arsip SPPHT", icon: "archive" },
+  { key: "data-tanah", label: "Data Tanah", icon: "land" },
+  { key: "data-pihak", label: "Data Pihak", icon: "users" },
+  { key: "audit-log", label: "Audit Log", icon: "history" },
+  { key: "pengaturan", label: "Pengaturan", icon: "settings" },
+];
+
+const TITLES = {
+  "dashboard": { t: "Dashboard", s: "Ringkasan sistem arsip digital pertanahan." },
+  "arsip-baru": { t: "Arsip Baru", s: "Wizard pembuatan arsip SPPHT / peralihan kepemilikan." },
+  "arsip-sppht": { t: "Arsip SPPHT", s: "Daftar semua arsip peralihan yang tersimpan." },
+  "data-tanah": { t: "Data Tanah", s: "Master data surat tanah di Kelurahan Loktuan." },
+  "data-pihak": { t: "Data Pihak", s: "Pengalih, penerima, dan pemilik tercatat." },
+  "audit-log": { t: "Audit Log", s: "Jejak audit append-only seluruh aktivitas operator." },
+  "pengaturan": { t: "Pengaturan", s: "Akun operator dan informasi sistem." },
+  "detail": { t: "Detail Riwayat Kepemilikan", s: "Chain of title surat tanah." },
+};
+
+function useAppState() {
+  const [state, setState] = useState(() => SIADP.load());
+  useEffect(() => { SIADP.save(state); }, [state]);
+  useEffect(() => {
+    window.SIADP._onView = (entId) => {
+      setState((s) => ({
+        ...s,
+        audits: [{
+          id: "au-" + Date.now(),
+          waktu: new Date().toISOString(),
+          admin: "operator01", aksi: "VIEW_FILE", entitas: "dokumen",
+          entId, ip: "10.0.12.45",
+        }, ...s.audits],
+      }));
+    };
+  }, []);
+  return [state, setState];
+}
+
+function Sidebar({ active }) {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-brand">
+        <div className="brand-mark">SIAP</div>
+        <div className="brand-text">
+          <div className="t1">SIAP Loktuan</div>
+          <div className="t2">Sistem Arsip Digital Pertanahan</div>
+        </div>
+      </div>
+      <nav className="sidebar-nav">
+        <div className="nav-group-label">Operasional</div>
+        {NAV.slice(0, 5).map((n) => (
+          <a key={n.key} href={PAGE_URL[n.key]} className={"nav-item " + (active === n.key ? "active" : "")}>
+            <Icon name={n.icon} size={17}/>
+            <span>{n.label}</span>
+            {n.accent && active !== n.key && <span className="badge-count" style={{ background: "var(--accent-soft)", color: "oklch(45% 0.1 60)" }}>Cepat</span>}
+          </a>
+        ))}
+        <div className="nav-group-label" style={{ marginTop: 8 }}>Sistem</div>
+        {NAV.slice(5).map((n) => (
+          <a key={n.key} href={PAGE_URL[n.key]} className={"nav-item " + (active === n.key ? "active" : "")}>
+            <Icon name={n.icon} size={17}/>
+            <span>{n.label}</span>
+          </a>
+        ))}
+      </nav>
+      <div className="sidebar-foot">
+        <div className="user">
+          <div className="avatar">O1</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-1)" }}>Operator 01</div>
+            <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Kel. Loktuan · Admin</div>
+          </div>
+          <button className="icon-btn" style={{ width: 28, height: 28 }} title="Keluar"><Icon name="logout" size={14}/></button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Topbar({ crumbs }) {
+  return (
+    <div className="topbar">
+      <div className="crumbs">
+        {crumbs.map((c, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <Icon name="chevron-right" size={12} className="sep"/>}
+            <span className={i === crumbs.length - 1 ? "last" : ""}>{c}</span>
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="topbar-spacer"/>
+      <div className="topbar-search">
+        <Icon name="search" size={14}/>
+        <input placeholder="Cari cepat di seluruh sistem…"/>
+        <span style={{ fontSize: 11, padding: "1px 5px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 4, color: "var(--ink-4)" }}>⌘K</span>
+      </div>
+      <Btn variant="primary" icon="plus" onClick={() => go("arsip-baru")}>Arsip Baru</Btn>
+      <button className="icon-btn" title="Notifikasi"><Icon name="bell" size={16}/><span className="dot"/></button>
+    </div>
+  );
+}
+
+Object.assign(window, { go, getParam, NAV, TITLES, PAGE_URL, useAppState, Sidebar, Topbar });
+
+// ---------------- PAGE: Dashboard (index.html) ----------------
 function Dashboard({ state, go }) {
   const totalParcels = state.parcels.length;
   const totalArchives = state.archives.length;
@@ -1418,7 +1848,7 @@ function Dashboard({ state, go }) {
             <span className="dot" style={{ background: "oklch(80% 0.12 155)" }}/> Sistem aktif
           </Badge>
           <h2 style={{ marginTop: 12 }}>Selamat datang, Operator 01</h2>
-          <p>Sistem Informasi Arsip Digital Pertanahan Kelurahan Loktuan. Pantau peralihan, arsipkan SPPHT, dan jaga akurasi data tanah warga.</p>
+          <p>Sistem Arsip Digital Pertanahan Kelurahan Loktuan. Pantau peralihan, arsipkan SPPHT, dan jaga akurasi data surat tanah warga.</p>
           <div className="cta-row">
             <Btn variant="primary" icon="plus" onClick={() => go("arsip-baru")}>Mulai Arsip Baru</Btn>
             <Btn variant="ghost" icon="archive" onClick={() => go("arsip-sppht")}>Arsip SPPHT</Btn>
@@ -1436,7 +1866,7 @@ function Dashboard({ state, go }) {
       <div className="grid-4" style={{ marginTop: 22 }}>
         <div className="stat">
           <div className="ico-wrap"><Icon name="land" size={20}/></div>
-          <div className="label">Total Persil</div>
+          <div className="label">Total Surat Tanah</div>
           <div className="value">{totalParcels}</div>
           <div className="delta">+2 minggu ini</div>
         </div>
@@ -1474,7 +1904,7 @@ function Dashboard({ state, go }) {
               <thead>
                 <tr>
                   <th>Nomor SPPHT</th>
-                  <th>Persil</th>
+                  <th>Surat Tanah</th>
                   <th>Pemilik baru</th>
                   <th>Jenis</th>
                   <th>Tanggal</th>
@@ -1511,7 +1941,7 @@ function Dashboard({ state, go }) {
             {checks.map((c, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 12px", borderRadius: 10, background: c.ok ? "var(--success-soft)" : "var(--warning-soft)" }}>
                 <div style={{ flex: "none", marginTop: 1, color: c.ok ? "var(--success)" : "var(--warning)" }}>
-                  <Icon name={c.ok ? "check-circle" : "alert"} size={18} stroke={2}/>
+                  <Icon name={c.ok ? "check-circle" : "alert"} size={18}/>
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{c.t}</div>
@@ -1521,7 +1951,7 @@ function Dashboard({ state, go }) {
             ))}
           </div>
           <div className="divider"/>
-          <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Distribusi status persil</div>
+          <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Distribusi status surat tanah</div>
           <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
             <Badge variant="success">Terarsip · {byStatus.terarsip || 0}</Badge>
             <Badge variant="warning">Draft · {byStatus.draft || 0}</Badge>
@@ -1533,7 +1963,558 @@ function Dashboard({ state, go }) {
   );
 }
 
-// ---------------------------------- ARSIP SPPHT (list) ----------------------------------
+// ---------------- PAGE: Arsip Baru (arsipBaru.html) ----------------
+const DOCS_WAJIB = [
+  { key: "SPPHT", wajib: true },
+  { key: "KTP pemohon", wajib: true },
+  { key: "KK pemohon", wajib: true },
+  { key: "Surat pengantar RT/RW", wajib: true },
+  { key: "Surat tidak sengketa", wajib: true },
+];
+const DOCS_OPSIONAL = [
+  { key: "KTP saksi 1", wajib: false },
+  { key: "KTP saksi 2", wajib: false },
+  { key: "Denah lokasi", wajib: false },
+  { key: "Dokumen tambahan", wajib: false },
+];
+
+function ArsipBaru({ state, setState, go, initialParcelId }) {
+  const toast = useToast();
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({
+    parcelId: initialParcelId || "",
+    pengalih: { nama: "", nik: "", tempatLahir: "", tanggalLahir: "", pekerjaan: "", noHp: "", alamat: "", status: "hidup", peran: "pemilik" },
+    penerima: { nama: "", nik: "", tempatLahir: "", tanggalLahir: "", pekerjaan: "", noHp: "", alamat: "" },
+    jenis: "Jual Beli",
+    tanggal: new Date().toISOString().slice(0, 10),
+    nomorSPPHT: "",
+    nomorAkta: "",
+    catatan: "",
+    rekonstruksi: false,
+    dokumen: {},
+  });
+
+  useEffect(() => {
+    if (!form.parcelId) return;
+    const p = state.parcels.find((x) => x.id === form.parcelId);
+    if (p && !form.pengalih.nama) {
+      setForm((f) => ({ ...f, pengalih: { ...f.pengalih, nama: p.pemilikSaatIni } }));
+    }
+    if (p && !form.penerima.alamat) {
+      setForm((f) => ({ ...f, penerima: { ...f.penerima, alamat: p.alamat } }));
+    }
+  }, [form.parcelId]);
+
+  useEffect(() => {
+    if (form.parcelId && form.tanggal && !form.nomorSPPHTTouched) {
+      const yearArchives = state.archives.filter((a) => new Date(a.tanggal).getFullYear() === new Date(form.tanggal).getFullYear());
+      const seq = String(yearArchives.length + 1).padStart(3, "0");
+      const month = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][new Date(form.tanggal).getMonth()];
+      setForm((f) => ({ ...f, nomorSPPHT: `SPPHT/${seq}/${month}/${new Date(form.tanggal).getFullYear()}` }));
+    }
+  }, [form.parcelId, form.tanggal]);
+
+  const selectedParcel = state.parcels.find((p) => p.id === form.parcelId);
+
+  const chainIssue = useMemo(() => {
+    if (!selectedParcel) return null;
+    if (form.rekonstruksi) return null;
+    if (form.pengalih.nama && form.pengalih.nama.trim().toLowerCase() !== selectedParcel.pemilikSaatIni.toLowerCase()) {
+      return `Pengalih harus cocok dengan pemilik terakhir surat tanah: "${selectedParcel.pemilikSaatIni}". Aktifkan rekonstruksi historis bila ini peralihan masa lampau.`;
+    }
+    return null;
+  }, [selectedParcel, form.pengalih.nama, form.rekonstruksi]);
+
+  const steps = [
+    { label: "Surat Tanah", desc: "Pilih surat tanah terdaftar", icon: "land" },
+    { label: "Pihak", desc: "Pengalih & penerima", icon: "users" },
+    { label: "Peralihan", desc: "Jenis & tanggal", icon: "stack" },
+    { label: "Dokumen", desc: "Upload bukti", icon: "file-text" },
+    { label: "Review", desc: "Periksa & simpan", icon: "check-circle" },
+  ];
+
+  const docMandatory = DOCS_WAJIB.every((d) => form.dokumen[d.key]?.uploaded);
+
+  const canNext = (s) => {
+    if (s === 0) return !!form.parcelId;
+    if (s === 1) return !!form.pengalih.nama && !!form.penerima.nama && !!form.penerima.nik && !chainIssue;
+    if (s === 2) return !!form.jenis && !!form.tanggal && !!form.nomorSPPHT;
+    if (s === 3) return docMandatory;
+    return true;
+  };
+
+  const goNext = () => {
+    if (!canNext(step)) { toast.error("Belum bisa lanjut", "Lengkapi field wajib pada langkah ini."); return; }
+    setStep((s) => Math.min(steps.length - 1, s + 1));
+  };
+  const goBack = () => setStep((s) => Math.max(0, s - 1));
+
+  const saveDraft = () => {
+    setState({ ...state, draft: { ...form, savedAt: new Date().toISOString() } });
+    toast.success("Draft tersimpan", "Lanjutkan kapan saja dari halaman Arsip Baru.");
+  };
+
+  const resetWizard = () => {
+    setForm({
+      parcelId: "",
+      pengalih: { nama: "", nik: "", tempatLahir: "", tanggalLahir: "", pekerjaan: "", noHp: "", alamat: "", status: "hidup", peran: "pemilik" },
+      penerima: { nama: "", nik: "", tempatLahir: "", tanggalLahir: "", pekerjaan: "", noHp: "", alamat: "" },
+      jenis: "Jual Beli",
+      tanggal: new Date().toISOString().slice(0, 10),
+      nomorSPPHT: "", nomorAkta: "", catatan: "", rekonstruksi: false, dokumen: {},
+    });
+    setStep(0);
+    toast.warn("Wizard direset", "Semua input dikosongkan.");
+  };
+
+  const simpanArsip = () => {
+    if (!docMandatory) { toast.error("Dokumen wajib belum lengkap"); return; }
+    if (chainIssue) { toast.error("Chain of title belum konsisten"); return; }
+    const id = "a-" + Date.now();
+    const archive = {
+      id,
+      parcelId: form.parcelId,
+      nomorSPPHT: form.nomorSPPHT,
+      jenis: form.jenis,
+      tanggal: new Date(form.tanggal).toISOString(),
+      pengalih: { ...form.pengalih },
+      penerima: { ...form.penerima },
+      nomorAkta: form.nomorAkta || "—",
+      catatan: form.catatan,
+      dokumen: Object.keys(form.dokumen).filter((k) => form.dokumen[k]?.uploaded),
+      status: "terarsip",
+      rekonstruksi: form.rekonstruksi,
+    };
+
+    const newParties = [];
+    const findOrAdd = (nama, nik, status, peran) => {
+      if (!nama) return;
+      const exists = state.parties.find((pt) => (nik && pt.nik === nik) || pt.nama === nama);
+      if (exists) { exists.riwayatTerakhir = archive.tanggal; exists.keterlibatan = peran; return; }
+      newParties.push({
+        id: "pt-" + Date.now() + Math.random().toString(36).slice(2, 5),
+        nama, nik: nik || "—", status: status || "hidup", keterlibatan: peran,
+        riwayatTerakhir: archive.tanggal,
+      });
+    };
+    findOrAdd(form.pengalih.nama, form.pengalih.nik, form.pengalih.status, "pengalih");
+    findOrAdd(form.penerima.nama, form.penerima.nik, "hidup", "penerima");
+
+    const updatedParcels = state.parcels.map((p) =>
+      p.id === form.parcelId ? { ...p, pemilikSaatIni: form.penerima.nama, status: "terarsip" } : p
+    );
+
+    setState({
+      ...state,
+      parcels: updatedParcels,
+      archives: [archive, ...state.archives],
+      parties: [...state.parties, ...newParties],
+      audits: [{
+        id: "au-" + Date.now(),
+        waktu: new Date().toISOString(),
+        admin: "operator01", aksi: "CREATE", entitas: "peralihan",
+        entId: id, ip: "10.0.12.45",
+      }, ...state.audits],
+      draft: null,
+    });
+    toast.success("Arsip SPPHT tersimpan", `${form.nomorSPPHT} berhasil diarsipkan`);
+    setTimeout(() => go("detail", form.parcelId), 600);
+  };
+
+  return (
+    <div data-screen-label="Arsip Baru" className="wizard">
+      <div className="stepper">
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Wizard arsip baru</div>
+        {steps.map((s, i) => (
+          <div key={i} className={"step " + (i === step ? "active" : i < step ? "done" : "")} onClick={() => i <= step && setStep(i)} style={{ cursor: i <= step ? "pointer" : "default" }}>
+            <div className="num">{i < step ? <Icon name="check" size={14}/> : i + 1}</div>
+            <div style={{ flex: 1 }}>
+              <div className="label">{s.label}</div>
+              <div className="desc">{s.desc}</div>
+            </div>
+          </div>
+        ))}
+        <div className="divider"/>
+        <Btn size="sm" variant="ghost" icon="refresh" onClick={resetWizard} style={{ width: "100%", justifyContent: "center" }}>Reset Wizard</Btn>
+        {state.draft && (
+          <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: "var(--warning-soft)", fontSize: 11.5, color: "oklch(40% 0.1 78)" }}>
+            <b>Draft tersimpan</b><br/>
+            <span style={{ opacity: 0.85 }}>{SIADP.relTime(state.draft.savedAt)}</span>
+          </div>
+        )}
+      </div>
+
+      <div>
+        {step === 0 && <StepPersil state={state} form={form} setForm={setForm} go={go}/>}
+        {step === 1 && <StepPihak state={state} form={form} setForm={setForm} chainIssue={chainIssue}/>}
+        {step === 2 && <StepPeralihan form={form} setForm={setForm}/>}
+        {step === 3 && <StepDokumen form={form} setForm={setForm}/>}
+        {step === 4 && <StepReview state={state} form={form}/>}
+
+        <div style={{ display: "flex", gap: 10, marginTop: 18, alignItems: "center" }}>
+          <Btn variant="ghost" icon="chevron-left" onClick={goBack} disabled={step === 0}>Kembali</Btn>
+          <div style={{ flex: 1 }}/>
+          <Btn variant="subtle" icon="save" onClick={saveDraft}>Simpan Draft</Btn>
+          {step < steps.length - 1 ? (
+            <Btn variant="primary" onClick={goNext}>Lanjut <Icon name="chevron-right" size={16}/></Btn>
+          ) : (
+            <Btn variant="primary" icon="check" onClick={simpanArsip} disabled={!docMandatory || !!chainIssue}>Simpan Arsip</Btn>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepPersil({ state, form, setForm, go }) {
+  const [q, setQ] = useState("");
+  const selected = state.parcels.find((p) => p.id === form.parcelId);
+  const results = q
+    ? state.parcels.filter((p) =>
+        [p.kode, p.nop, p.nomorSurat, p.alamat, p.pemilikSaatIni, `${p.rt}/${p.rw}`].join(" ").toLowerCase().includes(q.toLowerCase())
+      ).slice(0, 6)
+    : [];
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div style={{ flex: 1 }}>
+          <h3>1. Pilih surat tanah terdaftar</h3>
+          <div className="sub">Wizard hanya membuat arsip atas surat tanah yang sudah ada. Surat tanah baru dibuat dari halaman Data Tanah.</div>
+        </div>
+      </div>
+      <div className="card-pad">
+        <Field label="Cari surat tanah" hint="Cari berdasar nomor surat tanah, NOP, alamat, atau nama pemilik">
+          <div className="search-input">
+            <Icon name="search" size={16}/>
+            <input placeholder="Mulai mengetik nomor surat tanah atau alamat…" value={q} onChange={(e) => setQ(e.target.value)}/>
+          </div>
+        </Field>
+        {q && (
+          <div style={{ marginTop: 10, border: "1px solid var(--line)", borderRadius: 10, maxHeight: 240, overflowY: "auto", background: "var(--surface)" }}>
+            {results.length === 0 && <div style={{ padding: 14, color: "var(--ink-3)", fontSize: 13 }}>Tidak ada surat tanah yang cocok.</div>}
+            {results.map((p) => (
+              <div key={p.id}
+                onClick={() => { setForm((f) => ({ ...f, parcelId: p.id })); setQ(""); }}
+                style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid var(--line)", display: "flex", gap: 12, alignItems: "center" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-soft)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = ""}
+              >
+                <Icon name="land" size={18}/>
+                <div style={{ flex: 1 }}>
+                  <div className="mono" style={{ fontSize: 12, fontWeight: 600 }}>{p.kode}</div>
+                  <div style={{ fontSize: 12.5, color: "var(--ink-2)" }}>{p.alamat} · RT {p.rt}/{p.rw}</div>
+                </div>
+                <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{p.pemilikSaatIni}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selected && (
+          <div style={{ marginTop: 18, padding: 16, border: "1px solid var(--primary-soft)", background: "var(--primary-soft)", borderRadius: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--primary)", color: "white", display: "grid", placeItems: "center" }}>
+                <Icon name="check" size={18}/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="mono" style={{ fontSize: 12, fontWeight: 700, color: "var(--primary-ink)" }}>{selected.kode}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 600 }}>{selected.alamat}</div>
+                <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>Nomor Surat {selected.nomorSurat} · RT {selected.rt}/{selected.rw} · {selected.luas} m²</div>
+              </div>
+              <StatusBadge status={selected.status}/>
+              <Btn size="sm" variant="ghost" icon="x" onClick={() => setForm((f) => ({ ...f, parcelId: "" }))}>Ganti</Btn>
+            </div>
+            <div className="grid-3" style={{ marginTop: 14, gap: 10 }}>
+              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
+                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Pemilik terakhir</div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{selected.pemilikSaatIni}</div>
+              </div>
+              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
+                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Luas tanah</div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{selected.luas} m²</div>
+              </div>
+              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
+                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tanggal pendaftaran</div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{SIADP.formatDate(selected.tanggalDaftar)}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!selected && !q && (
+          <div style={{ marginTop: 14, display: "flex", gap: 12, padding: 14, background: "var(--info-soft)", borderRadius: 10 }}>
+            <Icon name="info" size={18} className="ico" style={{ color: "var(--info)" }}/>
+            <div style={{ fontSize: 12.5, color: "var(--ink-2)" }}>
+              Surat tanah baru? <a onClick={() => go("data-tanah")} style={{ color: "var(--primary-ink)", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Daftarkan di Data Tanah</a> terlebih dahulu, lalu kembali ke wizard ini.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PartyFields({ data, set, prefix }) {
+  return (
+    <div className="col">
+      <Field label={`Nama ${prefix}`} required>
+        <input className="input" placeholder="Nama lengkap" value={data.nama} onChange={(e) => set("nama", e.target.value)}/>
+      </Field>
+      <Field label={`NIK ${prefix}`} hint="16 digit, akan dimask saat ditampilkan">
+        <input className="input mono" placeholder="6471010101700001" value={data.nik} onChange={(e) => set("nik", e.target.value.replace(/\D/g, "").slice(0, 16))}/>
+      </Field>
+      <div className="grid-2">
+        <Field label="Tempat lahir">
+          <input className="input" placeholder="Bontang" value={data.tempatLahir} onChange={(e) => set("tempatLahir", e.target.value)}/>
+        </Field>
+        <Field label="Tanggal lahir">
+          <DatePicker value={data.tanggalLahir} onChange={(v) => set("tanggalLahir", v)} placeholder="Pilih tanggal"/>
+        </Field>
+      </div>
+      <Field label="Pekerjaan">
+        <input className="input" placeholder="Wiraswasta" value={data.pekerjaan} onChange={(e) => set("pekerjaan", e.target.value)}/>
+      </Field>
+      <Field label="No HP">
+        <input className="input mono" placeholder="0851-0123-5412" value={data.noHp} onChange={(e) => set("noHp", e.target.value)}/>
+      </Field>
+      <Field label="Alamat">
+        <textarea className="textarea" rows={2} placeholder="Alamat sesuai KTP" value={data.alamat} onChange={(e) => set("alamat", e.target.value)}/>
+      </Field>
+    </div>
+  );
+}
+
+function StepPihak({ state, form, setForm, chainIssue }) {
+  const setP = (k, v) => setForm((f) => ({ ...f, pengalih: { ...f.pengalih, [k]: v } }));
+  const setR = (k, v) => setForm((f) => ({ ...f, penerima: { ...f.penerima, [k]: v } }));
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div style={{ flex: 1 }}>
+          <h3>2. Pihak pengalih & penerima</h3>
+          <div className="sub">Pengalih harus cocok dengan pemilik terakhir untuk menjaga chain of title.</div>
+        </div>
+        <label className="check">
+          <input type="checkbox" checked={form.rekonstruksi} onChange={(e) => setForm((f) => ({ ...f, rekonstruksi: e.target.checked }))}/>
+          Rekonstruksi historis
+        </label>
+      </div>
+      <div className="card-pad">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div style={{ padding: 16, background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="user" size={14}/> Pengalih
+            </div>
+            <PartyFields data={form.pengalih} set={setP} prefix="pengalih"/>
+          </div>
+
+          <div style={{ padding: 16, background: "var(--primary-soft)", border: "1px solid transparent", borderRadius: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--primary-ink)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="user" size={14}/> Penerima
+            </div>
+            <PartyFields data={form.penerima} set={setR} prefix="penerima"/>
+          </div>
+        </div>
+
+        {chainIssue && (
+          <div style={{ marginTop: 14, padding: 14, borderRadius: 10, background: "var(--danger-soft)", border: "1px solid oklch(85% 0.08 27)", display: "flex", gap: 12 }}>
+            <Icon name="alert" size={18} style={{ color: "var(--danger)", flex: "none", marginTop: 1 }}/>
+            <div style={{ fontSize: 12.5, color: "oklch(38% 0.13 27)" }}>
+              <b>Chain of title tidak konsisten.</b> {chainIssue}
+            </div>
+          </div>
+        )}
+        {!chainIssue && form.pengalih.nama && (
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: "var(--success-soft)", display: "flex", gap: 10 }}>
+            <Icon name="check-circle" size={18} style={{ color: "var(--success)", flex: "none", marginTop: 1 }}/>
+            <div style={{ fontSize: 12.5, color: "var(--success)" }}>Chain of title konsisten dengan data master surat tanah.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StepPeralihan({ form, setForm }) {
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div style={{ flex: 1 }}>
+          <h3>3. Data peralihan</h3>
+          <div className="sub">Tetapkan jenis, tanggal, nomor SPPHT, dan keterangan tambahan.</div>
+        </div>
+      </div>
+      <div className="card-pad">
+        <div className="grid-2">
+          <Field label="Jenis peralihan" required>
+            <Select value={form.jenis} onChange={(v) => setForm((f) => ({ ...f, jenis: v }))}
+              options={["Jual Beli","Waris","Hibah","Tukar Menukar","Pelepasan Hak"]}/>
+          </Field>
+          <Field label="Tanggal peristiwa" required>
+            <DatePicker value={form.tanggal} onChange={(v) => setForm((f) => ({ ...f, tanggal: v }))} placeholder="Pilih tanggal peristiwa"/>
+          </Field>
+          <Field label="Nomor SPPHT" required hint="Diisi otomatis, bisa diubah">
+            <input className="input mono" value={form.nomorSPPHT} onChange={(e) => setForm((f) => ({ ...f, nomorSPPHT: e.target.value, nomorSPPHTTouched: true }))}/>
+          </Field>
+          <Field label="Nomor akta PPAT" hint="Wajib untuk jual beli, opsional untuk waris">
+            <input className="input mono" placeholder="12/2026/PPAT-LKT" value={form.nomorAkta} onChange={(e) => setForm((f) => ({ ...f, nomorAkta: e.target.value }))}/>
+          </Field>
+        </div>
+        <Field label="Catatan tambahan" hint="Konteks atau alasan peralihan (opsional)" style={{ marginTop: 14 }}>
+          <textarea className="textarea" rows={3} value={form.catatan} onChange={(e) => setForm((f) => ({ ...f, catatan: e.target.value }))} placeholder="Mis. peralihan antar keluarga, kondisi sengketa sebelumnya, dll."/>
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+function StepDokumen({ form, setForm }) {
+  const toast = useToast();
+  const simulateUpload = (key) => {
+    setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: false, progress: 0 } } }));
+    let p = 0;
+    const tick = () => {
+      p += 14 + Math.floor(Math.random() * 18);
+      if (p >= 100) {
+        setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: true, progress: 100 } } }));
+        toast.success("Dokumen ter-upload", key);
+        return;
+      }
+      setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: false, progress: p } } }));
+      setTimeout(tick, 220);
+    };
+    setTimeout(tick, 200);
+  };
+
+  const removeDoc = (key) => {
+    setForm((f) => { const next = { ...f.dokumen }; delete next[key]; return { ...f, dokumen: next }; });
+  };
+
+  const wajibCount = DOCS_WAJIB.filter((d) => form.dokumen[d.key]?.uploaded).length;
+  const wajibTotal = DOCS_WAJIB.length;
+
+  const renderRow = (d) => {
+    const st = form.dokumen[d.key];
+    const inProgress = st && !st.uploaded && st.progress != null;
+    const done = st?.uploaded;
+    return (
+      <div key={d.key} className={"upload-row " + (done ? "done" : "")}>
+        <div className="file-ico"><Icon name={done ? "check" : "file-text"} size={18}/></div>
+        <div className="meta">
+          <div className="name">{d.key} {d.wajib && <span style={{ color: "var(--danger)" }}>*</span>}</div>
+          <div className="sub">
+            {done ? `Terverifikasi · scan_${d.key.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.pdf` :
+              inProgress ? <span>Mengunggah… {Math.round(st.progress)}%</span> :
+              d.wajib ? "Belum diunggah · dokumen wajib" : "Belum diunggah · opsional"}
+          </div>
+          {inProgress && <div style={{ marginTop: 6 }}><ProgressBar value={st.progress} height={6}/></div>}
+        </div>
+        {done ? (
+          <Btn size="sm" variant="ghost" icon="trash" onClick={() => removeDoc(d.key)}>Hapus</Btn>
+        ) : (
+          <Btn size="sm" variant={d.wajib ? "primary" : "subtle"} icon="upload" onClick={() => simulateUpload(d.key)} disabled={inProgress}>Upload</Btn>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div style={{ flex: 1 }}>
+          <h3>4. Upload dokumen pendukung</h3>
+          <div className="sub">Upload bersifat simulasi pada prototype. Status kelengkapan diperbarui otomatis.</div>
+        </div>
+        <Badge variant={wajibCount === wajibTotal ? "success" : "warning"}>{wajibCount}/{wajibTotal} wajib lengkap</Badge>
+      </div>
+      <div className="card-pad">
+        <div className="section-label">Dokumen wajib</div>
+        <div>{DOCS_WAJIB.map(renderRow)}</div>
+        <div className="section-label" style={{ marginTop: 22 }}>Dokumen opsional</div>
+        <div>{DOCS_OPSIONAL.map(renderRow)}</div>
+      </div>
+    </div>
+  );
+}
+
+function StepReview({ state, form }) {
+  const p = state.parcels.find((x) => x.id === form.parcelId);
+  const dokumenList = Object.keys(form.dokumen).filter((k) => form.dokumen[k]?.uploaded);
+  const allMandatory = DOCS_WAJIB.every((d) => form.dokumen[d.key]?.uploaded);
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div style={{ flex: 1 }}>
+          <h3>5. Review sebelum simpan</h3>
+          <div className="sub">Periksa rangkuman di bawah. Tekan <b>Simpan Arsip</b> untuk mengarsipkan SPPHT ini.</div>
+        </div>
+        <Badge variant={allMandatory ? "success" : "danger"}>{allMandatory ? "Siap simpan" : "Dokumen wajib belum lengkap"}</Badge>
+      </div>
+      <div className="card-pad">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <SummaryBox title="Surat Tanah">
+            <dl className="kv">
+              <dt>Nomor surat tanah</dt><dd className="mono">{p?.kode}</dd>
+              <dt>Nomor surat</dt><dd className="mono" style={{ fontSize: 12 }}>{p?.nomorSurat}</dd>
+              <dt>Alamat</dt><dd>{p?.alamat}</dd>
+              <dt>RT/RW</dt><dd>{p?.rt}/{p?.rw}</dd>
+              <dt>Luas</dt><dd>{p?.luas} m²</dd>
+            </dl>
+          </SummaryBox>
+          <SummaryBox title="Peralihan">
+            <dl className="kv">
+              <dt>Jenis</dt><dd>{form.jenis}{form.rekonstruksi && <Badge variant="warning" style={{ marginLeft: 6 }}>Rekonstruksi</Badge>}</dd>
+              <dt>Tanggal</dt><dd>{SIADP.formatDate(new Date(form.tanggal).toISOString())}</dd>
+              <dt>Nomor SPPHT</dt><dd className="mono">{form.nomorSPPHT}</dd>
+              <dt>Nomor akta</dt><dd className="mono">{form.nomorAkta || "—"}</dd>
+              <dt>Catatan</dt><dd>{form.catatan || "—"}</dd>
+            </dl>
+          </SummaryBox>
+          <SummaryBox title="Pengalih">
+            <dl className="kv">
+              <dt>Nama</dt><dd>{form.pengalih.nama || "—"}</dd>
+              <dt>NIK</dt><dd className="mono">{SIADP.maskNik(form.pengalih.nik)}</dd>
+              <dt>Tempat/tgl lahir</dt><dd>{[form.pengalih.tempatLahir, form.pengalih.tanggalLahir ? SIADP.formatDate(form.pengalih.tanggalLahir) : ""].filter(Boolean).join(", ") || "—"}</dd>
+              <dt>Pekerjaan</dt><dd>{form.pengalih.pekerjaan || "—"}</dd>
+              <dt>No HP</dt><dd className="mono">{form.pengalih.noHp || "—"}</dd>
+              <dt>Alamat</dt><dd>{form.pengalih.alamat || "—"}</dd>
+            </dl>
+          </SummaryBox>
+          <SummaryBox title="Penerima">
+            <dl className="kv">
+              <dt>Nama</dt><dd>{form.penerima.nama || "—"}</dd>
+              <dt>NIK</dt><dd className="mono">{SIADP.maskNik(form.penerima.nik)}</dd>
+              <dt>Tempat/tgl lahir</dt><dd>{[form.penerima.tempatLahir, form.penerima.tanggalLahir ? SIADP.formatDate(form.penerima.tanggalLahir) : ""].filter(Boolean).join(", ") || "—"}</dd>
+              <dt>Pekerjaan</dt><dd>{form.penerima.pekerjaan || "—"}</dd>
+              <dt>No HP</dt><dd className="mono">{form.penerima.noHp || "—"}</dd>
+              <dt>Alamat</dt><dd>{form.penerima.alamat || "—"}</dd>
+            </dl>
+          </SummaryBox>
+        </div>
+
+        <div style={{ marginTop: 14 }}>
+          <SummaryBox title={`Dokumen terunggah (${dokumenList.length})`}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {dokumenList.length === 0 && <div style={{ color: "var(--ink-3)", fontSize: 12.5 }}>Belum ada dokumen.</div>}
+              {dokumenList.map((d) => <Badge key={d} variant="success">{d}</Badge>)}
+            </div>
+          </SummaryBox>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryBox({ title, children }) {
+  return (
+    <div style={{ padding: 14, border: "1px solid var(--line)", borderRadius: 12, background: "var(--surface-2)" }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>{title}</div>
+      {children}
+    </div>
+  );
+}
+
+// ---------------- PAGE: Arsip SPPHT (arsipSppht.html) ----------------
 function ArsipSPPHTList({ state, go }) {
   const [q, setQ] = useState("");
   const [committedQ, setCommittedQ] = useState("");
@@ -1563,7 +2544,7 @@ function ArsipSPPHTList({ state, go }) {
       if (!lq) return true;
       const hay = [
         a.pengalih?.nik, a.penerima?.nik,
-        p.kode, p.nop, a.nomorSPPHT,
+        p.kode, p.nop, a.nomorSPPHT, p.nomorSurat,
         p.pemilikSaatIni, a.pengalih?.nama, a.penerima?.nama,
         p.alamat, `${p.rt}/${p.rw}`, a.jenis,
       ].filter(Boolean).join(" ").toLowerCase();
@@ -1592,7 +2573,7 @@ function ArsipSPPHTList({ state, go }) {
         <div className="card-head">
           <div style={{ flex: 1 }}>
             <h3>Daftar Arsip SPPHT / Peralihan</h3>
-            <div className="sub">Cari berdasar NIK, nomor persil, NOP, nomor SPPHT, nama, atau alamat.</div>
+            <div className="sub">Cari berdasar NIK, nomor surat tanah, NOP, nomor SPPHT, nama, atau alamat.</div>
           </div>
           <Btn variant="primary" icon="plus" onClick={() => go("arsip-baru")}>Arsip Baru</Btn>
         </div>
@@ -1613,34 +2594,18 @@ function ArsipSPPHTList({ state, go }) {
             </div>
           </Field>
           <Field label="RT">
-            <select className="select" style={{ width: 100 }} value={rt} onChange={(e) => setRt(e.target.value)}>
-              <option value="">Semua</option>
-              {rtsRws.rts.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <Select width={110} value={rt} onChange={setRt} placeholder="Semua" options={rtsRws.rts}/>
           </Field>
           <Field label="RW">
-            <select className="select" style={{ width: 100 }} value={rw} onChange={(e) => setRw(e.target.value)}>
-              <option value="">Semua</option>
-              {rtsRws.rws.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <Select width={110} value={rw} onChange={setRw} placeholder="Semua" options={rtsRws.rws}/>
           </Field>
           <Field label="Jenis peralihan">
-            <select className="select" style={{ width: 160 }} value={jenis} onChange={(e) => setJenis(e.target.value)}>
-              <option value="">Semua</option>
-              <option>Jual Beli</option>
-              <option>Waris</option>
-              <option>Hibah</option>
-              <option>Tukar Menukar</option>
-              <option>Pelepasan Hak</option>
-            </select>
+            <Select width={170} value={jenis} onChange={setJenis} placeholder="Semua"
+              options={["Jual Beli","Waris","Hibah","Tukar Menukar","Pelepasan Hak"]}/>
           </Field>
           <Field label="Status">
-            <select className="select" style={{ width: 140 }} value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="">Semua</option>
-              <option value="terarsip">Terarsip</option>
-              <option value="draft">Draft</option>
-              <option value="sengketa">Sengketa</option>
-            </select>
+            <Select width={150} value={status} onChange={setStatus} placeholder="Semua"
+              options={[{value:"terarsip",label:"Terarsip"},{value:"draft",label:"Draft"},{value:"sengketa",label:"Sengketa"}]}/>
           </Field>
           <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
             <Btn variant="ghost" icon="refresh" onClick={() => { setQ(""); setCommittedQ(""); setRt(""); setRw(""); setJenis(""); setStatus(""); setPage(1); }}>Reset</Btn>
@@ -1653,7 +2618,7 @@ function ArsipSPPHTList({ state, go }) {
           <table className="data">
             <thead>
               <tr>
-                <th>Kode persil</th>
+                <th>Nomor Surat Tanah</th>
                 <th>Lokasi</th>
                 <th>Pemilik</th>
                 <th>Jenis</th>
@@ -1694,7 +2659,16 @@ function ArsipSPPHTList({ state, go }) {
   );
 }
 
-// ---------------------------------- DATA TANAH ----------------------------------
+// ---------------- PAGE: Data Tanah (dataTanah.html) ----------------
+const JENIS_SURAT = [
+  "SPPHT",
+  "Surat Keterangan Tanah (SKT)",
+  "Surat Pelepasan Hak (SPH)",
+  "Sporadik",
+  "Akta Hibah",
+  "Surat Keterangan Waris",
+];
+
 function DataTanah({ state, setState, go }) {
   const [q, setQ] = useState("");
   const [committedQ, setCommittedQ] = useState("");
@@ -1710,8 +2684,7 @@ function DataTanah({ state, setState, go }) {
       if (fStatus && p.status !== fStatus) return false;
       if (fRT && p.rt !== fRT) return false;
       if (!lq) return true;
-      // search ONLY by pemilik (pemilikSaatIni + pemilikAwal) and alamat
-      const hay = [p.pemilikSaatIni, p.pemilikAwal, p.alamat].filter(Boolean).join(" ").toLowerCase();
+      const hay = [p.pemilikSaatIni, p.pemilikAwal, p.alamat, p.nama].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(lq);
     });
   }, [state.parcels, committedQ, fStatus, fRT]);
@@ -1721,11 +2694,11 @@ function DataTanah({ state, setState, go }) {
       <div className="card">
         <div className="card-head">
           <div style={{ flex: 1 }}>
-            <h3>Master Data Tanah / Persil</h3>
+            <h3>Master Data Surat Tanah</h3>
             <div className="sub">Pencarian hanya berdasarkan nama pemilik atau alamat lokasi.</div>
           </div>
           <Btn variant="ghost" icon="filter" onClick={() => setShowFilter((v) => !v)}>Filter</Btn>
-          <Btn variant="primary" icon="plus" onClick={() => setOpenAdd(true)}>Tambah Persil</Btn>
+          <Btn variant="primary" icon="plus" onClick={() => setOpenAdd(true)}>Tambah Surat Tanah</Btn>
         </div>
 
         <div className="filter-bar">
@@ -1739,7 +2712,7 @@ function DataTanah({ state, setState, go }) {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     setCommittedQ(q);
-                    toast.info("Daftar diperbarui", q ? `Kata kunci: "${q}"` : "Semua persil ditampilkan");
+                    toast.info("Daftar diperbarui", q ? `Kata kunci: "${q}"` : "Semua surat tanah ditampilkan");
                   }
                 }}
               />
@@ -1748,23 +2721,17 @@ function DataTanah({ state, setState, go }) {
           {showFilter && (
             <>
               <Field label="Status">
-                <select className="select" style={{ width: 140 }} value={fStatus} onChange={(e) => setFStatus(e.target.value)}>
-                  <option value="">Semua</option>
-                  <option value="terarsip">Terarsip</option>
-                  <option value="draft">Draft</option>
-                  <option value="sengketa">Sengketa</option>
-                </select>
+                <Select width={150} value={fStatus} onChange={setFStatus} placeholder="Semua"
+                  options={[{value:"terarsip",label:"Terarsip"},{value:"draft",label:"Draft"},{value:"sengketa",label:"Sengketa"}]}/>
               </Field>
               <Field label="RT">
-                <select className="select" style={{ width: 100 }} value={fRT} onChange={(e) => setFRT(e.target.value)}>
-                  <option value="">Semua</option>
-                  {[...new Set(state.parcels.map((p) => p.rt))].sort().map((r) => <option key={r}>{r}</option>)}
-                </select>
+                <Select width={110} value={fRT} onChange={setFRT} placeholder="Semua"
+                  options={[...new Set(state.parcels.map((p) => p.rt))].sort()}/>
               </Field>
             </>
           )}
           <div style={{ marginLeft: "auto", color: "var(--ink-3)", fontSize: 12 }}>
-            Menampilkan <b style={{ color: "var(--ink-1)" }}>{filtered.length}</b> dari <b style={{ color: "var(--ink-1)" }}>{state.parcels.length}</b> persil
+            Menampilkan <b style={{ color: "var(--ink-1)" }}>{filtered.length}</b> dari <b style={{ color: "var(--ink-1)" }}>{state.parcels.length}</b> surat tanah
           </div>
         </div>
 
@@ -1772,8 +2739,8 @@ function DataTanah({ state, setState, go }) {
           <table className="data">
             <thead>
               <tr>
-                <th>Kode persil</th>
-                <th>NOP PBB</th>
+                <th>Nomor Surat Tanah</th>
+                <th>Nomor Surat</th>
                 <th>RT/RW</th>
                 <th>Lokasi</th>
                 <th>Luas</th>
@@ -1783,11 +2750,11 @@ function DataTanah({ state, setState, go }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && <EmptyRow cols={8} icon="land" title="Persil tidak ditemukan" sub="Coba kata kunci nama pemilik atau alamat yang lain."/>}
+              {filtered.length === 0 && <EmptyRow cols={8} icon="land" title="Surat tanah tidak ditemukan" sub="Coba kata kunci nama pemilik atau alamat yang lain."/>}
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td className="mono">{p.kode}</td>
-                  <td className="mono" style={{ fontSize: 11.5 }}>{p.nop}</td>
+                  <td className="mono" style={{ fontSize: 11.5 }}>{p.nomorSurat || "—"}</td>
                   <td>RT {p.rt}/{p.rw}</td>
                   <td>{p.alamat}</td>
                   <td><span style={{ fontWeight: 600 }}>{p.luas}</span> <span style={{ color: "var(--ink-3)" }}>m²</span></td>
@@ -1803,7 +2770,7 @@ function DataTanah({ state, setState, go }) {
         </div>
       </div>
 
-      <TambahPersilModal
+      <TambahSuratTanahModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
         state={state}
@@ -1820,21 +2787,27 @@ function DataTanah({ state, setState, go }) {
           };
           setState(next);
           setOpenAdd(false);
-          toast.success("Persil tersimpan", `${parcel.kode} ditambahkan ke Data Tanah`);
+          toast.success("Surat tanah tersimpan", `${parcel.kode} ditambahkan ke Data Tanah`);
         }}
       />
     </div>
   );
 }
 
-// ---------------------------------- Tambah Persil Modal ----------------------------------
-function TambahPersilModal({ open, onClose, state, onSave }) {
-  const empty = { rt: "", rw: "", kode: "", nop: "", alamat: "", luas: "", pemilikSaatIni: "", status: "terarsip", tanggalDaftar: new Date().toISOString().slice(0, 10), batas: { utara: "", selatan: "", timur: "", barat: "" } };
+function TambahSuratTanahModal({ open, onClose, state, onSave }) {
+  const empty = {
+    nama: "", nomorSurat: "", jenisSurat: "SPPHT",
+    rt: "", rw: "", kode: "", nop: "",
+    alamat: "", kelurahan: "Loktuan", luas: "",
+    pemilikSaatIni: "", status: "terarsip",
+    tanggalDaftar: new Date().toISOString().slice(0, 10),
+    suratUploaded: false,
+    batas: { utara: "", selatan: "", timur: "", barat: "" },
+  };
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState({});
   const toast = useToast();
 
-  // auto-generate kode when rt+rw set
   useEffect(() => {
     if (!open) return;
     if (form.rt && form.rw && !form.kodeTouched) {
@@ -1844,7 +2817,10 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
   }, [form.rt, form.rw, open]);
 
   useEffect(() => {
-    if (open) { setForm(empty); setErrors({}); }
+    if (open) {
+      setForm({ ...empty, nomorSurat: SIADP.nextNomorSurat(state.parcels) });
+      setErrors({});
+    }
   }, [open]);
 
   const codeStatus = useMemo(() => {
@@ -1856,14 +2832,21 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
   const change = (k, v) => setForm((f) => ({ ...f, [k]: v, ...(k === "kode" ? { kodeTouched: true } : {}) }));
   const changeBatas = (k, v) => setForm((f) => ({ ...f, batas: { ...f.batas, [k]: v } }));
 
+  const uploadSurat = () => {
+    setForm((f) => ({ ...f, suratUploading: true }));
+    setTimeout(() => setForm((f) => ({ ...f, suratUploading: false, suratUploaded: true, suratFile: `scan_surat_${(f.kode||"baru").toLowerCase()}.pdf` })), 900);
+  };
+
   const submit = () => {
     const e = {};
+    if (!form.nama) e.nama = "Nama wajib diisi";
+    if (!form.nomorSurat) e.nomorSurat = "Nomor surat wajib diisi";
     if (!form.rt) e.rt = "RT wajib diisi";
     if (!form.rw) e.rw = "RW wajib diisi";
-    if (!form.alamat) e.alamat = "Alamat wajib diisi";
+    if (!form.alamat) e.alamat = "Lokasi wajib diisi";
     if (!form.luas) e.luas = "Luas wajib diisi";
     if (!form.pemilikSaatIni) e.pemilikSaatIni = "Pemilik wajib diisi";
-    if (!form.kode) e.kode = "Kode persil wajib diisi";
+    if (!form.kode) e.kode = "Nomor surat tanah wajib diisi";
     if (codeStatus && !codeStatus.ok) e.kode = "Kode sudah ada";
     setErrors(e);
     if (Object.keys(e).length > 0) {
@@ -1873,6 +2856,10 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
     onSave({
       id: "p-" + Date.now(),
       kode: form.kode,
+      nama: form.nama,
+      nomorSurat: form.nomorSurat,
+      jenisSurat: form.jenisSurat,
+      kelurahan: form.kelurahan || "Loktuan",
       nop: form.nop || "—",
       rt: form.rt, rw: form.rw,
       alamat: form.alamat,
@@ -1881,6 +2868,8 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
       pemilikSaatIni: form.pemilikSaatIni,
       status: form.status,
       tanggalDaftar: new Date(form.tanggalDaftar).toISOString(),
+      suratUploaded: form.suratUploaded,
+      suratFile: form.suratFile || "",
       batas: form.batas,
     });
   };
@@ -1889,74 +2878,109 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Tambah Persil Baru"
-      subtitle="Isi data master tanah. Persil baru bisa langsung dipilih di Arsip Baru setelah disimpan."
+      title="Tambah Surat Tanah Baru"
+      subtitle="Input data dokumen surat tanah (SPPHT) beserta letak tanah. Surat tanah baru bisa langsung dipilih di Arsip Baru setelah disimpan."
+      size="lg"
       footer={<>
         <Btn variant="ghost" onClick={onClose}>Batal</Btn>
-        <Btn variant="primary" icon="save" onClick={submit}>Simpan Persil</Btn>
+        <Btn variant="primary" icon="save" onClick={submit}>Simpan Surat Tanah</Btn>
       </>}
     >
       <div style={{ display: "grid", gap: 18 }}>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>Lokasi administratif</div>
-          <div className="grid-3">
+        <div style={{ padding: 16, border: "1px solid var(--primary-soft)", background: "var(--primary-soft)", borderRadius: 12 }}>
+          <div className="section-label" style={{ color: "var(--primary-ink)" }}>
+            <Icon name="file-text" size={13} style={{ marginRight: 6 }}/> Dokumen Surat Tanah
+          </div>
+          <div className="grid-2">
+            <Field label="Nama" required error={errors.nama} hint="Nama pemohon/pemilik pada surat">
+              <input className={"input" + (errors.nama ? " error" : "")} placeholder="Contoh: ILHAM MUBAROK" value={form.nama}
+                onChange={(e) => { change("nama", e.target.value); if (!form.pemilikTouched) setForm((f)=>({...f, pemilikSaatIni: e.target.value})); }}/>
+            </Field>
+            <Field label="Nomor Surat" required error={errors.nomorSurat} hint="Format: 500.17.3.3/NO/KEC-BU/TAHUN">
+              <input className={"input mono" + (errors.nomorSurat ? " error" : "")} placeholder="500.17.3.3/41/KEC-BU/2026" value={form.nomorSurat} onChange={(e) => change("nomorSurat", e.target.value)}/>
+            </Field>
+          </div>
+          <div className="grid-2" style={{ marginTop: 14 }}>
+            <Field label="Jenis Surat" required>
+              <Select value={form.jenisSurat} onChange={(v) => change("jenisSurat", v)} options={JENIS_SURAT}/>
+            </Field>
+            <Field label="Tanggal surat" required>
+              <DatePicker value={form.tanggalDaftar} onChange={(v) => change("tanggalDaftar", v)} placeholder="Pilih tanggal surat"/>
+            </Field>
+          </div>
+
+          <div className="section-label" style={{ marginTop: 16, marginBottom: 8, color: "var(--primary-ink)" }}>Letak Tanah</div>
+          <div className="grid-2">
+            <Field label="Lokasi" required error={errors.alamat}>
+              <input className={"input" + (errors.alamat ? " error" : "")} placeholder="Jl. RE. Martadinata Gg. Elang RT.35" value={form.alamat} onChange={(e) => change("alamat", e.target.value)}/>
+            </Field>
+            <Field label="Kelurahan" required>
+              <input className="input" value={form.kelurahan} onChange={(e) => change("kelurahan", e.target.value)}/>
+            </Field>
+          </div>
+          <div className="grid-3" style={{ marginTop: 14 }}>
             <Field label="RT" required error={errors.rt}>
-              <input className={"input" + (errors.rt ? " error" : "")} placeholder="04" value={form.rt} onChange={(e) => change("rt", e.target.value.padStart(2, "0").slice(0, 2))}/>
+              <input className={"input" + (errors.rt ? " error" : "")} placeholder="35" value={form.rt} onChange={(e) => change("rt", e.target.value.padStart(2, "0").slice(0, 2))}/>
             </Field>
             <Field label="RW" required error={errors.rw}>
               <input className={"input" + (errors.rw ? " error" : "")} placeholder="02" value={form.rw} onChange={(e) => change("rw", e.target.value.padStart(2, "0").slice(0, 2))}/>
             </Field>
-            <Field label="Tanggal pendaftaran" required>
-              <input className="input" type="date" value={form.tanggalDaftar} onChange={(e) => change("tanggalDaftar", e.target.value)}/>
+            <Field label="Luas Tanah (m²)" required error={errors.luas}>
+              <input className={"input" + (errors.luas ? " error" : "")} type="number" placeholder="74.83" value={form.luas} onChange={(e) => change("luas", e.target.value)}/>
             </Field>
+          </div>
+
+          <div style={{ marginTop: 14 }}>
+            <div className={"upload-row " + (form.suratUploaded ? "done" : "")}>
+              <div className="file-ico"><Icon name={form.suratUploaded ? "check" : "file-text"} size={18}/></div>
+              <div className="meta">
+                <div className="name">Berkas pindai surat tanah</div>
+                <div className="sub">
+                  {form.suratUploaded ? `Terunggah · ${form.suratFile}` :
+                    form.suratUploading ? "Mengunggah…" : "PDF/JPG hasil scan dokumen surat tanah (simulasi)"}
+                </div>
+              </div>
+              {form.suratUploaded
+                ? <Btn size="sm" variant="ghost" icon="trash" onClick={() => setForm((f)=>({...f, suratUploaded:false, suratFile:""}))}>Hapus</Btn>
+                : <Btn size="sm" variant="subtle" icon="upload" onClick={uploadSurat} disabled={form.suratUploading}>Unggah</Btn>}
+            </div>
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>Identitas persil</div>
+          <div className="section-label">Identitas registrasi</div>
           <div className="grid-2">
             <Field
-              label="Kode persil"
+              label="Nomor surat tanah (kode arsip)"
               required
               error={errors.kode}
               ok={codeStatus?.ok ? codeStatus.msg : null}
-              hint={!form.kode ? "Format: LKT-RT-RW-TAHUN-NOURUT (otomatis)" : null}
+              hint={!form.kode ? "Format: LKT-RT-RW-TAHUN-NOURUT (otomatis dari RT/RW)" : null}
             >
               <input
                 className={"input mono" + (errors.kode || (codeStatus && !codeStatus.ok) ? " error" : "")}
-                placeholder="LKT-04-02-2026-001"
+                placeholder="LKT-35-02-2026-001"
                 value={form.kode}
                 onChange={(e) => change("kode", e.target.value.toUpperCase())}
               />
             </Field>
-            <Field label="NOP PBB" hint="Optional saat pendaftaran awal">
+            <Field label="NOP PBB" hint="Opsional saat pendaftaran awal">
               <input className="input mono" placeholder="65.71.030.012.001-0000.0" value={form.nop} onChange={(e) => change("nop", e.target.value)}/>
             </Field>
           </div>
           <div className="grid-2" style={{ marginTop: 14 }}>
-            <Field label="Alamat lokasi" required error={errors.alamat}>
-              <input className={"input" + (errors.alamat ? " error" : "")} placeholder="Jl. Mayjend Sutoyo Gg. Melati No. ?" value={form.alamat} onChange={(e) => change("alamat", e.target.value)}/>
+            <Field label="Pemilik saat ini" required error={errors.pemilikSaatIni}>
+              <input className={"input" + (errors.pemilikSaatIni ? " error" : "")} placeholder="Nama lengkap pemilik" value={form.pemilikSaatIni} onChange={(e) => { setForm((f)=>({...f, pemilikSaatIni: e.target.value, pemilikTouched: true})); }}/>
             </Field>
-            <Field label="Luas tanah (m²)" required error={errors.luas}>
-              <input className={"input" + (errors.luas ? " error" : "")} type="number" placeholder="240" value={form.luas} onChange={(e) => change("luas", e.target.value)}/>
-            </Field>
-          </div>
-          <div className="grid-2" style={{ marginTop: 14 }}>
-            <Field label="Pemilik awal/terakhir" required error={errors.pemilikSaatIni}>
-              <input className={"input" + (errors.pemilikSaatIni ? " error" : "")} placeholder="Nama lengkap pemilik" value={form.pemilikSaatIni} onChange={(e) => change("pemilikSaatIni", e.target.value)}/>
-            </Field>
-            <Field label="Status persil">
-              <select className="select" value={form.status} onChange={(e) => change("status", e.target.value)}>
-                <option value="terarsip">Terarsip</option>
-                <option value="draft">Draft</option>
-                <option value="sengketa">Sengketa</option>
-              </select>
+            <Field label="Status surat tanah">
+              <Select value={form.status} onChange={(v) => change("status", v)}
+                options={[{value:"terarsip",label:"Terarsip"},{value:"draft",label:"Draft"},{value:"sengketa",label:"Sengketa"}]}/>
             </Field>
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>Batas tanah</div>
+          <div className="section-label">Batas tanah</div>
           <div className="grid-2">
             <Field label="Batas utara"><input className="input" placeholder="Tanah / Jalan / Saluran" value={form.batas.utara} onChange={(e) => changeBatas("utara", e.target.value)}/></Field>
             <Field label="Batas selatan"><input className="input" placeholder="Tanah / Jalan / Saluran" value={form.batas.selatan} onChange={(e) => changeBatas("selatan", e.target.value)}/></Field>
@@ -1969,204 +2993,7 @@ function TambahPersilModal({ open, onClose, state, onSave }) {
   );
 }
 
-// ---------------------------------- DETAIL RIWAYAT ----------------------------------
-function DetailRiwayat({ state, parcelId, go }) {
-  const p = state.parcels.find((x) => x.id === parcelId);
-  const toast = useToast();
-  const [previewDoc, setPreviewDoc] = useState(null);
-
-  if (!p) {
-    return (
-      <div className="card card-pad" data-screen-label="Detail Riwayat">
-        <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
-          <Icon name="alert" size={32}/>
-          <div style={{ fontWeight: 600, color: "var(--ink-1)", marginTop: 8 }}>Persil tidak ditemukan</div>
-          <Btn variant="primary" icon="chevron-left" style={{ marginTop: 14 }} onClick={() => go("data-tanah")}>Kembali ke Data Tanah</Btn>
-        </div>
-      </div>
-    );
-  }
-
-  const archives = state.archives
-    .filter((a) => a.parcelId === p.id)
-    .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-  const openDoc = (a, doc) => {
-    setPreviewDoc({ archive: a, doc });
-    // append audit VIEW_FILE
-    setTimeout(() => {
-      // We'll have parent setState for audit; pass via global onAuditView
-      window.SIADP._onView && window.SIADP._onView(a.id + "/" + doc);
-    }, 0);
-    toast.info("Membuka pratinjau dokumen", doc + " — audit VIEW_FILE tercatat");
-  };
-
-  return (
-    <div data-screen-label="Detail Riwayat">
-      {/* Hero */}
-      <div className="card card-pad" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 24, alignItems: "stretch" }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-            <Btn size="sm" variant="ghost" icon="chevron-left" onClick={() => go("data-tanah")}>Kembali</Btn>
-            <span style={{ color: "var(--ink-4)" }}>·</span>
-            <span className="mono" style={{ color: "var(--ink-3)", fontSize: 12.5 }}>{p.kode}</span>
-          </div>
-          <h2 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.01em" }}>{p.alamat}</h2>
-          <div style={{ color: "var(--ink-3)", marginTop: 4, fontSize: 13.5 }}>RT {p.rt} / RW {p.rw} · Kelurahan Loktuan</div>
-
-          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-            <StatusBadge status={p.status}/>
-            <Badge variant="muted">NOP <span className="mono" style={{ marginLeft: 4 }}>{p.nop}</span></Badge>
-            <Badge variant="muted">Luas {p.luas} m²</Badge>
-            <Badge variant="primary"><Icon name="user" size={12} stroke={2}/> {p.pemilikSaatIni}</Badge>
-          </div>
-
-          <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
-            <Btn variant="primary" icon="plus" onClick={() => go("arsip-baru", p.id)}>Tambah Peralihan</Btn>
-            <Btn variant="ghost" icon="edit" onClick={() => toast.info("Mode edit", "Form edit persil belum diaktifkan di prototype.")}>Edit Persil</Btn>
-          </div>
-        </div>
-
-        <div className="map-preview">
-          <div className="label">Sketsa bidang · {p.kode}</div>
-          <svg viewBox="0 0 320 180" className="parcel" preserveAspectRatio="none">
-            <polygon
-              points="60,40 250,30 270,140 80,150"
-              fill="oklch(96% 0.04 195 / 0.85)"
-              stroke="oklch(42% 0.07 195)"
-              strokeWidth="2"
-              strokeDasharray="4 3"
-            />
-            <text x="160" y="95" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="11" fill="oklch(35% 0.06 195)">{p.luas} m²</text>
-            <text x="160" y="20" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">U: {p.batas.utara}</text>
-            <text x="160" y="170" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">S: {p.batas.selatan}</text>
-            <text x="10" y="95" textAnchor="start" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">B</text>
-            <text x="310" y="95" textAnchor="end" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">T</text>
-          </svg>
-        </div>
-      </div>
-
-      {/* Body grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginTop: 16 }}>
-        <div className="card">
-          <div className="card-head">
-            <div style={{ flex: 1 }}>
-              <h3>Riwayat Kepemilikan</h3>
-              <div className="sub">Chain of title dari arsip SPPHT yang tersimpan.</div>
-            </div>
-            <Badge variant="muted">{archives.length} peralihan</Badge>
-          </div>
-          <div className="card-pad">
-            {archives.length === 0 ? (
-              <div style={{ padding: 30, textAlign: "center", color: "var(--ink-3)" }}>
-                <Icon name="info" size={24}/>
-                <div style={{ fontWeight: 600, color: "var(--ink-1)", marginTop: 6 }}>Persil baru</div>
-                <div style={{ marginTop: 4 }}>Belum ada arsip SPPHT. Tambahkan peralihan pertama untuk membangun rantai kepemilikan.</div>
-              </div>
-            ) : (
-              <div className="timeline">
-                {archives.map((a, i) => (
-                  <div key={a.id} className={"tl-item " + (i === 0 ? "first" : "")}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                      <Badge variant={a.jenis === "Waris" ? "info" : a.jenis === "Hibah" ? "warning" : "primary"}>{a.jenis}</Badge>
-                      <span className="mono" style={{ fontSize: 12 }}>{a.nomorSPPHT}</span>
-                      <span style={{ color: "var(--ink-3)", fontSize: 12 }}>· {SIADP.formatDate(a.tanggal)}</span>
-                      {a.rekonstruksi && <Badge variant="warning">Rekonstruksi historis</Badge>}
-                    </div>
-                    <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 14, alignItems: "center" }}>
-                      <div style={{ background: "var(--bg-soft)", border: "1px solid var(--line)", borderRadius: 10, padding: 12 }}>
-                        <div style={{ fontSize: 11, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Pengalih · {a.pengalih.peran || "—"}</div>
-                        <div style={{ fontWeight: 600, marginTop: 4 }}>{a.pengalih.nama}</div>
-                        <div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 2 }}>{SIADP.maskNik(a.pengalih.nik)}</div>
-                        <div style={{ marginTop: 6 }}><StatusBadge status={a.pengalih.status}/></div>
-                      </div>
-                      <Icon name="chevron-right" size={20} stroke={2}/>
-                      <div style={{ background: "var(--primary-soft)", border: "1px solid transparent", borderRadius: 10, padding: 12 }}>
-                        <div style={{ fontSize: 11, color: "var(--primary-ink)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Penerima</div>
-                        <div style={{ fontWeight: 600, marginTop: 4 }}>{a.penerima.nama}</div>
-                        <div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 2 }}>{SIADP.maskNik(a.penerima.nik)}</div>
-                        <div style={{ marginTop: 6, fontSize: 11.5, color: "var(--ink-3)" }}>{a.penerima.jk} · {a.penerima.telp}</div>
-                      </div>
-                    </div>
-                    {a.catatan && <div style={{ marginTop: 10, fontSize: 12.5, color: "var(--ink-2)", fontStyle: "italic" }}>“{a.catatan}”</div>}
-                    <div style={{ marginTop: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {a.dokumen.map((d, j) => (
-                        <button key={j} className="chip" onClick={() => openDoc(a, d)}>
-                          <Icon name="file-text" size={12}/>{d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="col">
-          <div className="card card-pad">
-            <h3 style={{ margin: 0, fontSize: 14 }}>Batas Tanah</h3>
-            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[["Utara", p.batas.utara], ["Selatan", p.batas.selatan], ["Timur", p.batas.timur], ["Barat", p.batas.barat]].map(([k, v]) => (
-                <div key={k} style={{ padding: "10px 12px", background: "var(--bg-soft)", border: "1px solid var(--line)", borderRadius: 10 }}>
-                  <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{k}</div>
-                  <div style={{ fontSize: 12.5, marginTop: 3, color: "var(--ink-1)", fontWeight: 500 }}>{v || "—"}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card card-pad">
-            <h3 style={{ margin: 0, fontSize: 14 }}>Validasi Server-side</h3>
-            <div style={{ color: "var(--ink-3)", fontSize: 11.5, marginTop: 2 }}>Log dari proses validasi terakhir</div>
-            <div className="terminal" style={{ marginTop: 12 }}>
-              <div><span className="prompt">$</span> siadp validate parcel {p.kode}</div>
-              <div className="dim">[INFO] memvalidasi struktur persil…</div>
-              <div className="ok">[ OK ] kode persil unik ✓</div>
-              <div className="ok">[ OK ] luas dan alamat lengkap ✓</div>
-              {archives.length > 0
-                ? <div className="ok">[ OK ] chain-of-title {archives.length} simpul utuh ✓</div>
-                : <div className="warn">[WARN] belum ada arsip SPPHT terkait</div>}
-              {p.status === "sengketa"
-                ? <div className="err">[ERR ] persil ditandai SENGKETA — peralihan ditangguhkan</div>
-                : <div className="ok">[ OK ] status persil siap untuk peralihan baru ✓</div>}
-              <div className="dim">selesai dalam 84ms</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Doc preview modal */}
-      <Modal
-        open={!!previewDoc}
-        onClose={() => setPreviewDoc(null)}
-        title={previewDoc ? `Pratinjau: ${previewDoc.doc}` : ""}
-        subtitle={previewDoc ? `${previewDoc.archive.nomorSPPHT} · ${SIADP.formatDate(previewDoc.archive.tanggal)}` : ""}
-        size="lg"
-        footer={<>
-          <Btn variant="ghost" icon="x" onClick={() => setPreviewDoc(null)}>Tutup</Btn>
-          <Btn variant="subtle" icon="upload">Unduh salinan</Btn>
-        </>}
-      >
-        {previewDoc && (
-          <div className="doc-preview">
-            <div style={{ textAlign: "center", fontWeight: 700, fontSize: 13, color: "var(--ink-1)", letterSpacing: "0.1em" }}>— {previewDoc.doc.toUpperCase()} —</div>
-            <div style={{ marginTop: 16 }}>Nomor SPPHT: <b>{previewDoc.archive.nomorSPPHT}</b></div>
-            <div>Persil: {p.kode} — {p.alamat}</div>
-            <div>Jenis peralihan: {previewDoc.archive.jenis}</div>
-            <div>Tanggal: {SIADP.formatDate(previewDoc.archive.tanggal)}</div>
-            <div style={{ marginTop: 14 }}>Pengalih: {previewDoc.archive.pengalih.nama} · NIK {SIADP.maskNik(previewDoc.archive.pengalih.nik)}</div>
-            <div>Penerima: {previewDoc.archive.penerima.nama} · NIK {SIADP.maskNik(previewDoc.archive.penerima.nik)}</div>
-            <div style={{ marginTop: 18, color: "var(--ink-3)" }}>[Halaman pratinjau dokumen — tampilan simulasi untuk uji alur arsip digital]</div>
-            <div style={{ marginTop: 8, color: "var(--ink-3)" }}>Sistem akan menampilkan PDF/JPG asli pada implementasi sesungguhnya.</div>
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
-}
-
-// ---------------------------------- DATA PIHAK ----------------------------------
+// ---------------- PAGE: Data Pihak (dataPihak.html) ----------------
 function DataPihak({ state }) {
   const toast = useToast();
   return (
@@ -2218,7 +3045,7 @@ function DataPihak({ state }) {
   );
 }
 
-// ---------------------------------- AUDIT LOG ----------------------------------
+// ---------------- PAGE: Audit Log (auditLog.html) ----------------
 function AuditLog({ state }) {
   const [aksi, setAksi] = useState("");
   const filtered = aksi ? state.audits.filter((a) => a.aksi === aksi) : state.audits;
@@ -2234,13 +3061,8 @@ function AuditLog({ state }) {
         </div>
         <div className="filter-bar">
           <Field label="Aksi">
-            <select className="select" style={{ width: 180 }} value={aksi} onChange={(e) => setAksi(e.target.value)}>
-              <option value="">Semua aksi</option>
-              <option value="CREATE">CREATE</option>
-              <option value="UPDATE">UPDATE</option>
-              <option value="VIEW_FILE">VIEW_FILE</option>
-              <option value="LOGIN">LOGIN</option>
-            </select>
+            <Select width={190} value={aksi} onChange={setAksi} placeholder="Semua aksi"
+              options={["CREATE","UPDATE","VIEW_FILE","LOGIN"]}/>
           </Field>
         </div>
         <div className="table-wrap">
@@ -2275,7 +3097,7 @@ function AuditLog({ state }) {
   );
 }
 
-// ---------------------------------- PENGATURAN ----------------------------------
+// ---------------- PAGE: Pengaturan (pengaturan.html) ----------------
 function Pengaturan({ onReset }) {
   const toast = useToast();
   const [pwd, setPwd] = useState({ lama: "", baru: "", konf: "" });
@@ -2290,7 +3112,7 @@ function Pengaturan({ onReset }) {
     <div data-screen-label="Pengaturan">
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 16 }}>
         <div className="card card-pad">
-          <h3 style={{ margin: 0, fontSize: 15 }}><Icon name="key" size={16} stroke={2}/> Ganti Password</h3>
+          <h3 style={{ margin: 0, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Icon name="key" size={16}/> Ganti Password</h3>
           <div style={{ color: "var(--ink-3)", fontSize: 12.5, marginTop: 4 }}>Perbarui password operator. Minimum 8 karakter, gabungan huruf dan angka.</div>
           <div className="col" style={{ marginTop: 16, maxWidth: 360 }}>
             <Field label="Password lama" required><input className="input" type="password" value={pwd.lama} onChange={(e) => setPwd({ ...pwd, lama: e.target.value })}/></Field>
@@ -2302,9 +3124,10 @@ function Pengaturan({ onReset }) {
 
         <div className="col">
           <div className="card card-pad">
-            <h3 style={{ margin: 0, fontSize: 15 }}><Icon name="info" size={16} stroke={2}/> Informasi Sistem</h3>
+            <h3 style={{ margin: 0, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Icon name="info" size={16}/> Informasi Sistem</h3>
             <dl className="kv" style={{ marginTop: 14 }}>
-              <dt>Versi prototype</dt><dd>2.0.0 (simulasi)</dd>
+              <dt>Aplikasi</dt><dd>SIAP — Sistem Arsip Digital Pertanahan</dd>
+              <dt>Versi prototype</dt><dd>3.0.0 (simulasi)</dd>
               <dt>Target stack</dt><dd>React + Postgres + S3-compatible</dd>
               <dt>Storage</dt><dd>localStorage browser</dd>
               <dt>Backup terakhir</dt><dd>Sabtu, 10 Mei 2026 · 03:00 WITA</dd>
@@ -2312,8 +3135,8 @@ function Pengaturan({ onReset }) {
             </dl>
           </div>
           <div className="card card-pad">
-            <h3 style={{ margin: 0, fontSize: 15, color: "var(--danger)" }}><Icon name="alert" size={16} stroke={2}/> Reset Simulasi</h3>
-            <div style={{ color: "var(--ink-3)", fontSize: 12.5, marginTop: 4 }}>Mengembalikan seluruh data (persil, arsip, pihak, audit) ke contoh awal. Tindakan ini tidak bisa dibatalkan.</div>
+            <h3 style={{ margin: 0, fontSize: 15, color: "var(--danger)", display: "flex", alignItems: "center", gap: 8 }}><Icon name="alert" size={16}/> Reset Simulasi</h3>
+            <div style={{ color: "var(--ink-3)", fontSize: 12.5, marginTop: 4 }}>Mengembalikan seluruh data (surat tanah, arsip, pihak, audit) ke contoh awal. Tindakan ini tidak bisa dibatalkan.</div>
             <Btn variant="danger" icon="refresh" style={{ marginTop: 14 }} onClick={() => {
               onReset();
               toast.warn("Data simulasi direset", "Semua entitas dikembalikan ke contoh awal");
@@ -2325,703 +3148,286 @@ function Pengaturan({ onReset }) {
   );
 }
 
-Object.assign(window, {
-  Dashboard, ArsipSPPHTList, DataTanah, TambahPersilModal,
-  DetailRiwayat, DataPihak, AuditLog, Pengaturan,
-});
-
-  </script>
-  <script type="text/babel">
-// SIADP Arsip Baru — wizard 5 langkah
-// Step: Persil → Pihak → Peralihan → Dokumen → Review
-
-const DOCS_WAJIB = [
-  { key: "SPPHT", wajib: true },
-  { key: "KTP pemohon", wajib: true },
-  { key: "KK pemohon", wajib: true },
-  { key: "Surat pengantar RT/RW", wajib: true },
-  { key: "Surat tidak sengketa", wajib: true },
-];
-const DOCS_OPSIONAL = [
-  { key: "KTP saksi 1", wajib: false },
-  { key: "KTP saksi 2", wajib: false },
-  { key: "Denah lokasi", wajib: false },
-  { key: "Dokumen tambahan", wajib: false },
-];
-
-function ArsipBaru({ state, setState, go, initialParcelId }) {
+// ---------------- PAGE: Detail Riwayat (detail.html) ----------------
+function DetailRiwayat({ state, parcelId, go }) {
+  const p = state.parcels.find((x) => x.id === parcelId);
   const toast = useToast();
-  const [step, setStep] = React.useState(0);
-  const [form, setForm] = React.useState({
-    parcelId: initialParcelId || "",
-    pengalih: { nama: "", nik: "", status: "hidup", peran: "pemilik" },
-    penerima: { nama: "", nik: "", jk: "Laki-laki", telp: "", alamat: "" },
-    jenis: "Jual Beli",
-    tanggal: new Date().toISOString().slice(0, 10),
-    nomorSPPHT: "",
-    nomorAkta: "",
-    catatan: "",
-    rekonstruksi: false,
-    dokumen: {}, // { key: { uploaded: true/false, progress: 0..100 } }
+  const [previewDoc, setPreviewDoc] = useState(null);
+
+  if (!p) {
+    return (
+      <div className="card card-pad" data-screen-label="Detail Riwayat">
+        <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
+          <Icon name="alert" size={32}/>
+          <div style={{ fontWeight: 600, color: "var(--ink-1)", marginTop: 8 }}>Surat tanah tidak ditemukan</div>
+          <Btn variant="primary" icon="chevron-left" style={{ marginTop: 14 }} onClick={() => go("data-tanah")}>Kembali ke Data Tanah</Btn>
+        </div>
+      </div>
+    );
+  }
+
+  const archives = state.archives
+    .filter((a) => a.parcelId === p.id)
+    .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+  const openDoc = (a, doc) => {
+    setPreviewDoc({ archive: a, doc });
+    setTimeout(() => { window.SIADP._onView && window.SIADP._onView(a.id + "/" + doc); }, 0);
+    toast.info("Membuka pratinjau dokumen", doc + " — audit VIEW_FILE tercatat");
+  };
+
+  return (
+    <div data-screen-label="Detail Riwayat">
+      <div className="card card-pad" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 24, alignItems: "stretch" }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <Btn size="sm" variant="ghost" icon="chevron-left" onClick={() => go("data-tanah")}>Kembali</Btn>
+            <span style={{ color: "var(--ink-4)" }}>·</span>
+            <span className="mono" style={{ color: "var(--ink-3)", fontSize: 12.5 }}>{p.kode}</span>
+          </div>
+          <h2 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.01em" }}>{p.alamat}</h2>
+          <div style={{ color: "var(--ink-3)", marginTop: 4, fontSize: 13.5 }}>RT {p.rt} / RW {p.rw} · Kelurahan {p.kelurahan || "Loktuan"}</div>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+            <StatusBadge status={p.status}/>
+            <Badge variant="muted">Nomor Surat <span className="mono" style={{ marginLeft: 4 }}>{p.nomorSurat || "—"}</span></Badge>
+            <Badge variant="muted">NOP <span className="mono" style={{ marginLeft: 4 }}>{p.nop}</span></Badge>
+            <Badge variant="muted">Luas {p.luas} m²</Badge>
+            <Badge variant="primary"><Icon name="user" size={12}/> {p.pemilikSaatIni}</Badge>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+            <Btn variant="primary" icon="plus" onClick={() => go("arsip-baru", p.id)}>Tambah Peralihan</Btn>
+            <Btn variant="ghost" icon="file-text" onClick={() => openDoc({ id: "surat-" + p.id, nomorSPPHT: p.nomorSurat, tanggal: p.tanggalDaftar, jenis: p.jenisSurat || "SPPHT", pengalih: { nama: "—", nik: "—" }, penerima: { nama: p.pemilikSaatIni, nik: "—" } }, "Surat Tanah")}>Lihat Surat Tanah</Btn>
+          </div>
+        </div>
+
+        <div className="map-preview">
+          <div className="label">Sketsa bidang · {p.kode}</div>
+          <svg viewBox="0 0 320 180" className="parcel" preserveAspectRatio="none">
+            <polygon points="60,40 250,30 270,140 80,150" fill="oklch(96% 0.04 195 / 0.85)" stroke="oklch(42% 0.07 195)" strokeWidth="2" strokeDasharray="4 3"/>
+            <text x="160" y="95" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="11" fill="oklch(35% 0.06 195)">{p.luas} m²</text>
+            <text x="160" y="20" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">U: {p.batas.utara}</text>
+            <text x="160" y="170" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">S: {p.batas.selatan}</text>
+            <text x="10" y="95" textAnchor="start" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">B</text>
+            <text x="310" y="95" textAnchor="end" fontFamily="JetBrains Mono" fontSize="9" fill="oklch(40% 0.05 195)">T</text>
+          </svg>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginTop: 16 }}>
+        <div className="card">
+          <div className="card-head">
+            <div style={{ flex: 1 }}>
+              <h3>Riwayat Kepemilikan</h3>
+              <div className="sub">Chain of title dari arsip SPPHT yang tersimpan.</div>
+            </div>
+            <Badge variant="muted">{archives.length} peralihan</Badge>
+          </div>
+          <div className="card-pad">
+            {archives.length === 0 ? (
+              <div style={{ padding: 30, textAlign: "center", color: "var(--ink-3)" }}>
+                <Icon name="info" size={24}/>
+                <div style={{ fontWeight: 600, color: "var(--ink-1)", marginTop: 6 }}>Surat tanah baru</div>
+                <div style={{ marginTop: 4 }}>Belum ada arsip SPPHT. Tambahkan peralihan pertama untuk membangun rantai kepemilikan.</div>
+              </div>
+            ) : (
+              <div className="timeline">
+                {archives.map((a, i) => (
+                  <div key={a.id} className={"tl-item " + (i === 0 ? "first" : "")}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <Badge variant={a.jenis === "Waris" ? "info" : a.jenis === "Hibah" ? "warning" : "primary"}>{a.jenis}</Badge>
+                      <span className="mono" style={{ fontSize: 12 }}>{a.nomorSPPHT}</span>
+                      <span style={{ color: "var(--ink-3)", fontSize: 12 }}>· {SIADP.formatDate(a.tanggal)}</span>
+                      {a.rekonstruksi && <Badge variant="warning">Rekonstruksi historis</Badge>}
+                    </div>
+                    <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 14, alignItems: "center" }}>
+                      <div style={{ background: "var(--bg-soft)", border: "1px solid var(--line)", borderRadius: 10, padding: 12 }}>
+                        <div style={{ fontSize: 11, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Pengalih · {a.pengalih.peran || "—"}</div>
+                        <div style={{ fontWeight: 600, marginTop: 4 }}>{a.pengalih.nama}</div>
+                        <div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 2 }}>{SIADP.maskNik(a.pengalih.nik)}</div>
+                        <div style={{ marginTop: 6 }}><StatusBadge status={a.pengalih.status}/></div>
+                      </div>
+                      <Icon name="chevron-right" size={20}/>
+                      <div style={{ background: "var(--primary-soft)", border: "1px solid transparent", borderRadius: 10, padding: 12 }}>
+                        <div style={{ fontSize: 11, color: "var(--primary-ink)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Penerima</div>
+                        <div style={{ fontWeight: 600, marginTop: 4 }}>{a.penerima.nama}</div>
+                        <div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 2 }}>{SIADP.maskNik(a.penerima.nik)}</div>
+                        <div style={{ marginTop: 6, fontSize: 11.5, color: "var(--ink-3)" }}>{[a.penerima.pekerjaan || a.penerima.jk, a.penerima.noHp || a.penerima.telp].filter(Boolean).join(" · ") || "—"}</div>
+                      </div>
+                    </div>
+                    {a.catatan && <div style={{ marginTop: 10, fontSize: 12.5, color: "var(--ink-2)", fontStyle: "italic" }}>“{a.catatan}”</div>}
+                    <div style={{ marginTop: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {a.dokumen.map((d, j) => (
+                        <button key={j} className="chip" onClick={() => openDoc(a, d)}>
+                          <Icon name="file-text" size={12}/>{d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="col">
+          <div className="card card-pad">
+            <h3 style={{ margin: 0, fontSize: 14 }}>Batas Tanah</h3>
+            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {[["Utara", p.batas.utara], ["Selatan", p.batas.selatan], ["Timur", p.batas.timur], ["Barat", p.batas.barat]].map(([k, v]) => (
+                <div key={k} style={{ padding: "10px 12px", background: "var(--bg-soft)", border: "1px solid var(--line)", borderRadius: 10 }}>
+                  <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{k}</div>
+                  <div style={{ fontSize: 12.5, marginTop: 3, color: "var(--ink-1)", fontWeight: 500 }}>{v || "—"}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card card-pad">
+            <h3 style={{ margin: 0, fontSize: 14 }}>Batas Tanah</h3>
+            <div style={{ color: "var(--ink-3)", fontSize: 11.5, marginTop: 2 }}>Log dari proses validasi terakhir</div>
+            <div className="terminal" style={{ marginTop: 12 }}>
+              <div><span className="prompt">$</span> siap validate surat {p.kode}</div>
+              <div className="dim">[INFO] memvalidasi struktur surat tanah…</div>
+              <div className="ok">[ OK ] nomor surat tanah unik ✓</div>
+              <div className="ok">[ OK ] luas dan alamat lengkap ✓</div>
+              {archives.length > 0
+                ? <div className="ok">[ OK ] chain-of-title {archives.length} simpul utuh ✓</div>
+                : <div className="warn">[WARN] belum ada arsip SPPHT terkait</div>}
+              {p.status === "sengketa"
+                ? <div className="err">[ERR ] surat tanah ditandai SENGKETA — peralihan ditangguhkan</div>
+                : <div className="ok">[ OK ] status surat tanah siap untuk peralihan baru ✓</div>}
+              <div className="dim">selesai dalam 84ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Modal
+        open={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        title={previewDoc ? `Pratinjau: ${previewDoc.doc}` : ""}
+        subtitle={previewDoc ? `${previewDoc.archive.nomorSPPHT} · ${SIADP.formatDate(previewDoc.archive.tanggal)}` : ""}
+        size="lg"
+        footer={<>
+          <Btn variant="ghost" icon="x" onClick={() => setPreviewDoc(null)}>Tutup</Btn>
+          <Btn variant="subtle" icon="upload">Unduh salinan</Btn>
+        </>}
+      >
+        {previewDoc && previewDoc.doc === "Surat Tanah" ? (
+          <div className="surat-preview">
+            <div className="kop">
+              <div className="l1">PEMERINTAH KOTA BONTANG</div>
+              <div className="l2">KECAMATAN BONTANG UTARA</div>
+              <div className="l3">KELURAHAN {(p.kelurahan || "LOKTUAN").toUpperCase()} — KALIMANTAN TIMUR</div>
+            </div>
+            <div className="body">
+              <div className="judul">SURAT PERNYATAAN PENGUASAAN FISIK DAN PENGGUNAAN TANAH</div>
+              <dl className="kv">
+                <dt>Nama</dt><dd>{p.nama || p.pemilikSaatIni}</dd>
+                <dt>Nomor Surat</dt><dd className="mono">{p.nomorSurat || "—"}</dd>
+                <dt>Jenis Surat</dt><dd>{p.jenisSurat || "SPPHT"}</dd>
+              </dl>
+              <div className="section-label" style={{ marginTop: 16 }}>Letak Tanah</div>
+              <dl className="kv">
+                <dt>Lokasi</dt><dd>{p.alamat}</dd>
+                <dt>RT</dt><dd>{p.rt}</dd>
+                <dt>Kelurahan</dt><dd>{p.kelurahan || "Loktuan"}</dd>
+                <dt>Luas Tanah</dt><dd>± {p.luas} m²</dd>
+              </dl>
+              <div style={{ marginTop: 18, color: "var(--ink-3)", fontSize: 11.5 }}>[Halaman pratinjau dokumen — tampilan simulasi untuk uji alur arsip digital. Sistem akan menampilkan PDF/JPG hasil scan asli pada implementasi sesungguhnya.]</div>
+            </div>
+          </div>
+        ) : previewDoc && (
+          <div className="doc-preview">
+            <div style={{ textAlign: "center", fontWeight: 700, fontSize: 13, color: "var(--ink-1)", letterSpacing: "0.1em" }}>— {previewDoc.doc.toUpperCase()} —</div>
+            <div style={{ marginTop: 16 }}>Nomor SPPHT: <b>{previewDoc.archive.nomorSPPHT}</b></div>
+            <div>Surat tanah: {p.kode} — {p.alamat}</div>
+            <div>Jenis peralihan: {previewDoc.archive.jenis}</div>
+            <div>Tanggal: {SIADP.formatDate(previewDoc.archive.tanggal)}</div>
+            <div style={{ marginTop: 14 }}>Pengalih: {previewDoc.archive.pengalih.nama} · NIK {SIADP.maskNik(previewDoc.archive.pengalih.nik)}</div>
+            <div>Penerima: {previewDoc.archive.penerima.nama} · NIK {SIADP.maskNik(previewDoc.archive.penerima.nik)}</div>
+            <div style={{ marginTop: 18, color: "var(--ink-3)" }}>[Halaman pratinjau dokumen — tampilan simulasi untuk uji alur arsip digital]</div>
+            <div style={{ marginTop: 8, color: "var(--ink-3)" }}>Sistem akan menampilkan PDF/JPG asli pada implementasi sesungguhnya.</div>
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+// ---------------- MAIN SPA SHELL & ROUTER (Root) ----------------
+function App() {
+  const [state, setState] = useAppState();
+  const [route, setRoute] = useState(() => {
+    const hash = window.location.hash || "#dashboard";
+    const rawRoute = hash.startsWith("#") ? hash.slice(1) : hash;
+    return rawRoute.split("?")[0] || "dashboard";
   });
 
-  // Pre-fill pengalih from parcel pemilikSaatIni when parcel changes
-  React.useEffect(() => {
-    if (!form.parcelId) return;
-    const p = state.parcels.find((x) => x.id === form.parcelId);
-    if (p && !form.pengalih.nama) {
-      setForm((f) => ({ ...f, pengalih: { ...f.pengalih, nama: p.pemilikSaatIni } }));
-    }
-    if (p && !form.penerima.alamat) {
-      setForm((f) => ({ ...f, penerima: { ...f.penerima, alamat: p.alamat } }));
-    }
-  }, [form.parcelId]);
-
-  // Auto-generate nomor SPPHT once parcel + tanggal exist
-  React.useEffect(() => {
-    if (form.parcelId && form.tanggal && !form.nomorSPPHTTouched) {
-      const yearArchives = state.archives.filter((a) => new Date(a.tanggal).getFullYear() === new Date(form.tanggal).getFullYear());
-      const seq = String(yearArchives.length + 1).padStart(3, "0");
-      const month = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][new Date(form.tanggal).getMonth()];
-      setForm((f) => ({ ...f, nomorSPPHT: `SPPHT/${seq}/${month}/${new Date(form.tanggal).getFullYear()}` }));
-    }
-  }, [form.parcelId, form.tanggal]);
-
-  const selectedParcel = state.parcels.find((p) => p.id === form.parcelId);
-
-  // Chain-of-title validation
-  const chainIssue = React.useMemo(() => {
-    if (!selectedParcel) return null;
-    if (form.rekonstruksi) return null;
-    if (form.pengalih.nama && form.pengalih.nama.trim().toLowerCase() !== selectedParcel.pemilikSaatIni.toLowerCase()) {
-      return `Pengalih harus cocok dengan pemilik terakhir persil: "${selectedParcel.pemilikSaatIni}". Aktifkan rekonstruksi historis bila ini peralihan masa lampau.`;
-    }
-    return null;
-  }, [selectedParcel, form.pengalih.nama, form.rekonstruksi]);
-
-  const steps = [
-    { label: "Persil", desc: "Pilih persil terdaftar", icon: "land" },
-    { label: "Pihak", desc: "Pengalih & penerima", icon: "users" },
-    { label: "Peralihan", desc: "Jenis & tanggal", icon: "stack" },
-    { label: "Dokumen", desc: "Upload bukti", icon: "file-text" },
-    { label: "Review", desc: "Periksa & simpan", icon: "check-circle" },
-  ];
-
-  const docMandatory = DOCS_WAJIB.every((d) => form.dokumen[d.key]?.uploaded);
-
-  const canNext = (s) => {
-    if (s === 0) return !!form.parcelId;
-    if (s === 1) return !!form.pengalih.nama && !!form.penerima.nama && !!form.penerima.nik && !chainIssue;
-    if (s === 2) return !!form.jenis && !!form.tanggal && !!form.nomorSPPHT;
-    if (s === 3) return docMandatory;
-    return true;
-  };
-
-  const goNext = () => {
-    if (!canNext(step)) {
-      toast.error("Belum bisa lanjut", "Lengkapi field wajib pada langkah ini.");
-      return;
-    }
-    setStep((s) => Math.min(steps.length - 1, s + 1));
-  };
-  const goBack = () => setStep((s) => Math.max(0, s - 1));
-
-  const saveDraft = () => {
-    setState({ ...state, draft: { ...form, savedAt: new Date().toISOString() } });
-    toast.success("Draft tersimpan", "Lanjutkan kapan saja dari halaman Arsip Baru.");
-  };
-
-  const resetWizard = () => {
-    setForm({
-      parcelId: "",
-      pengalih: { nama: "", nik: "", status: "hidup", peran: "pemilik" },
-      penerima: { nama: "", nik: "", jk: "Laki-laki", telp: "", alamat: "" },
-      jenis: "Jual Beli",
-      tanggal: new Date().toISOString().slice(0, 10),
-      nomorSPPHT: "",
-      nomorAkta: "",
-      catatan: "",
-      rekonstruksi: false,
-      dokumen: {},
-    });
-    setStep(0);
-    toast.warn("Wizard direset", "Semua input dikosongkan.");
-  };
-
-  const simpanArsip = () => {
-    if (!docMandatory) { toast.error("Dokumen wajib belum lengkap"); return; }
-    if (chainIssue) { toast.error("Chain of title belum konsisten"); return; }
-    const id = "a-" + Date.now();
-    const archive = {
-      id,
-      parcelId: form.parcelId,
-      nomorSPPHT: form.nomorSPPHT,
-      jenis: form.jenis,
-      tanggal: new Date(form.tanggal).toISOString(),
-      pengalih: { ...form.pengalih },
-      penerima: { ...form.penerima },
-      nomorAkta: form.nomorAkta || "—",
-      catatan: form.catatan,
-      dokumen: Object.keys(form.dokumen).filter((k) => form.dokumen[k]?.uploaded),
-      status: "terarsip",
-      rekonstruksi: form.rekonstruksi,
-    };
-
-    const newParties = [];
-    const findOrAdd = (nama, nik, status, peran) => {
-      if (!nama) return;
-      const exists = state.parties.find((pt) => (nik && pt.nik === nik) || pt.nama === nama);
-      if (exists) {
-        exists.riwayatTerakhir = archive.tanggal;
-        exists.keterlibatan = peran;
-        return;
-      }
-      newParties.push({
-        id: "pt-" + Date.now() + Math.random().toString(36).slice(2, 5),
-        nama, nik: nik || "—", status: status || "hidup", keterlibatan: peran,
-        riwayatTerakhir: archive.tanggal,
-      });
-    };
-    findOrAdd(form.pengalih.nama, form.pengalih.nik, form.pengalih.status, "pengalih");
-    findOrAdd(form.penerima.nama, form.penerima.nik, "hidup", "penerima");
-
-    // update parcel pemilikSaatIni
-    const updatedParcels = state.parcels.map((p) =>
-      p.id === form.parcelId ? { ...p, pemilikSaatIni: form.penerima.nama, status: "terarsip" } : p
-    );
-
-    setState({
-      ...state,
-      parcels: updatedParcels,
-      archives: [archive, ...state.archives],
-      parties: [...state.parties, ...newParties],
-      audits: [{
-        id: "au-" + Date.now(),
-        waktu: new Date().toISOString(),
-        admin: "operator01", aksi: "CREATE", entitas: "peralihan",
-        entId: id, ip: "10.0.12.45",
-      }, ...state.audits],
-      draft: null,
-    });
-    toast.success("Arsip SPPHT tersimpan", `${form.nomorSPPHT} berhasil diarsipkan`);
-    setTimeout(() => go("detail", form.parcelId), 600);
-  };
-
-  return (
-    <div data-screen-label="Arsip Baru" className="wizard">
-      <div className="stepper">
-        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Wizard arsip baru</div>
-        {steps.map((s, i) => (
-          <div key={i} className={"step " + (i === step ? "active" : i < step ? "done" : "")} onClick={() => i <= step && setStep(i)} style={{ cursor: i <= step ? "pointer" : "default" }}>
-            <div className="num">{i < step ? <Icon name="check" size={14} stroke={2.5}/> : i + 1}</div>
-            <div style={{ flex: 1 }}>
-              <div className="label">{s.label}</div>
-              <div className="desc">{s.desc}</div>
-            </div>
-          </div>
-        ))}
-        <div className="divider"/>
-        <Btn size="sm" variant="ghost" icon="refresh" onClick={resetWizard} style={{ width: "100%", justifyContent: "center" }}>Reset Wizard</Btn>
-        {state.draft && (
-          <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: "var(--warning-soft)", fontSize: 11.5, color: "oklch(40% 0.1 78)" }}>
-            <b>Draft tersimpan</b><br/>
-            <span style={{ opacity: 0.85 }}>{SIADP.relTime(state.draft.savedAt)}</span>
-          </div>
-        )}
-      </div>
-
-      <div>
-        {step === 0 && <StepPersil state={state} form={form} setForm={setForm} go={go}/>}
-        {step === 1 && <StepPihak state={state} form={form} setForm={setForm} chainIssue={chainIssue}/>}
-        {step === 2 && <StepPeralihan form={form} setForm={setForm}/>}
-        {step === 3 && <StepDokumen form={form} setForm={setForm}/>}
-        {step === 4 && <StepReview state={state} form={form}/>}
-
-        <div style={{ display: "flex", gap: 10, marginTop: 18, alignItems: "center" }}>
-          <Btn variant="ghost" icon="chevron-left" onClick={goBack} disabled={step === 0}>Kembali</Btn>
-          <div style={{ flex: 1 }}/>
-          <Btn variant="subtle" icon="save" onClick={saveDraft}>Simpan Draft</Btn>
-          {step < steps.length - 1 ? (
-            <Btn variant="primary" onClick={goNext}>Lanjut <Icon name="chevron-right" size={16}/></Btn>
-          ) : (
-            <Btn variant="primary" icon="check" onClick={simpanArsip} disabled={!docMandatory || !!chainIssue}>Simpan Arsip</Btn>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------- Step 1: Persil ----------------
-function StepPersil({ state, form, setForm, go }) {
-  const [q, setQ] = React.useState("");
-  const selected = state.parcels.find((p) => p.id === form.parcelId);
-  const results = q
-    ? state.parcels.filter((p) =>
-        [p.kode, p.nop, p.alamat, p.pemilikSaatIni, `${p.rt}/${p.rw}`].join(" ").toLowerCase().includes(q.toLowerCase())
-      ).slice(0, 6)
-    : [];
-  return (
-    <div className="card">
-      <div className="card-head">
-        <div style={{ flex: 1 }}>
-          <h3>1. Pilih persil terdaftar</h3>
-          <div className="sub">Wizard hanya membuat arsip atas persil yang sudah ada. Persil baru dibuat dari halaman Data Tanah.</div>
-        </div>
-      </div>
-      <div className="card-pad">
-        <Field label="Cari persil" hint="Cari berdasar kode persil, NOP, alamat, atau nama pemilik">
-          <div className="search-input">
-            <Icon name="search" size={16}/>
-            <input
-              placeholder="Mulai mengetik kode persil atau alamat…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-        </Field>
-        {q && (
-          <div style={{ marginTop: 10, border: "1px solid var(--line)", borderRadius: 10, maxHeight: 240, overflowY: "auto", background: "var(--surface)" }}>
-            {results.length === 0 && <div style={{ padding: 14, color: "var(--ink-3)", fontSize: 13 }}>Tidak ada persil yang cocok.</div>}
-            {results.map((p) => (
-              <div key={p.id}
-                onClick={() => { setForm((f) => ({ ...f, parcelId: p.id })); setQ(""); }}
-                style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid var(--line)", display: "flex", gap: 12, alignItems: "center" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-soft)"}
-                onMouseLeave={(e) => e.currentTarget.style.background = ""}
-              >
-                <Icon name="land" size={18}/>
-                <div style={{ flex: 1 }}>
-                  <div className="mono" style={{ fontSize: 12, fontWeight: 600 }}>{p.kode}</div>
-                  <div style={{ fontSize: 12.5, color: "var(--ink-2)" }}>{p.alamat} · RT {p.rt}/{p.rw}</div>
-                </div>
-                <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{p.pemilikSaatIni}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {selected && (
-          <div style={{ marginTop: 18, padding: 16, border: "1px solid var(--primary-soft)", background: "var(--primary-soft)", borderRadius: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--primary)", color: "white", display: "grid", placeItems: "center" }}>
-                <Icon name="check" size={18} stroke={2.5}/>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="mono" style={{ fontSize: 12, fontWeight: 700, color: "var(--primary-ink)" }}>{selected.kode}</div>
-                <div style={{ fontSize: 13.5, fontWeight: 600 }}>{selected.alamat}</div>
-                <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>NOP {selected.nop} · RT {selected.rt}/{selected.rw} · {selected.luas} m²</div>
-              </div>
-              <StatusBadge status={selected.status}/>
-              <Btn size="sm" variant="ghost" icon="x" onClick={() => setForm((f) => ({ ...f, parcelId: "" }))}>Ganti</Btn>
-            </div>
-            <div className="grid-3" style={{ marginTop: 14, gap: 10 }}>
-              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
-                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Pemilik terakhir</div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{selected.pemilikSaatIni}</div>
-              </div>
-              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
-                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Luas tanah</div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{selected.luas} m²</div>
-              </div>
-              <div style={{ padding: 10, background: "white", borderRadius: 8 }}>
-                <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tanggal pendaftaran</div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{SIADP.formatDate(selected.tanggalDaftar)}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!selected && !q && (
-          <div style={{ marginTop: 14, display: "flex", gap: 12, padding: 14, background: "var(--info-soft)", borderRadius: 10 }}>
-            <Icon name="info" size={18} stroke={2} className="ico" style={{ color: "var(--info)" }}/>
-            <div style={{ fontSize: 12.5, color: "var(--ink-2)" }}>
-              Persil baru? <a onClick={() => go("data-tanah")} style={{ color: "var(--primary-ink)", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Daftarkan di Data Tanah</a> terlebih dahulu, lalu kembali ke wizard ini.
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------- Step 2: Pihak ----------------
-function StepPihak({ state, form, setForm, chainIssue }) {
-  const setP = (k, v) => setForm((f) => ({ ...f, pengalih: { ...f.pengalih, [k]: v } }));
-  const setR = (k, v) => setForm((f) => ({ ...f, penerima: { ...f.penerima, [k]: v } }));
-  return (
-    <div className="card">
-      <div className="card-head">
-        <div style={{ flex: 1 }}>
-          <h3>2. Pihak pengalih & penerima</h3>
-          <div className="sub">Pengalih harus cocok dengan pemilik terakhir untuk menjaga chain of title.</div>
-        </div>
-        <label className="check">
-          <input type="checkbox" checked={form.rekonstruksi} onChange={(e) => setForm((f) => ({ ...f, rekonstruksi: e.target.checked }))}/>
-          Rekonstruksi historis
-        </label>
-      </div>
-      <div className="card-pad">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div style={{ padding: 16, background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>
-              <Icon name="user" size={14} stroke={2}/> Pengalih
-            </div>
-            <div className="col">
-              <Field label="Nama pengalih" required>
-                <input className="input" placeholder="Nama lengkap" value={form.pengalih.nama} onChange={(e) => setP("nama", e.target.value)}/>
-              </Field>
-              <Field label="NIK pengalih" hint="16 digit, akan dimask saat ditampilkan">
-                <input className="input mono" placeholder="6471010101700001" value={form.pengalih.nik} onChange={(e) => setP("nik", e.target.value.replace(/\D/g, "").slice(0, 16))}/>
-              </Field>
-              <div className="grid-2">
-                <Field label="Status hidup">
-                  <select className="select" value={form.pengalih.status} onChange={(e) => setP("status", e.target.value)}>
-                    <option value="hidup">Hidup</option>
-                    <option value="meninggal">Meninggal</option>
-                    <option value="badan hukum">Badan hukum</option>
-                  </select>
-                </Field>
-                <Field label="Peran">
-                  <select className="select" value={form.pengalih.peran} onChange={(e) => setP("peran", e.target.value)}>
-                    <option value="pemilik">Pemilik</option>
-                    <option value="pewaris">Pewaris</option>
-                    <option value="ahli waris">Ahli waris</option>
-                    <option value="kuasa">Kuasa</option>
-                  </select>
-                </Field>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ padding: 16, background: "var(--primary-soft)", border: "1px solid transparent", borderRadius: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--primary-ink)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>
-              <Icon name="user" size={14} stroke={2}/> Penerima
-            </div>
-            <div className="col">
-              <Field label="Nama penerima" required>
-                <input className="input" placeholder="Nama lengkap" value={form.penerima.nama} onChange={(e) => setR("nama", e.target.value)}/>
-              </Field>
-              <Field label="NIK penerima" required>
-                <input className="input mono" placeholder="16 digit NIK" value={form.penerima.nik} onChange={(e) => setR("nik", e.target.value.replace(/\D/g, "").slice(0, 16))}/>
-              </Field>
-              <div className="grid-2">
-                <Field label="Jenis kelamin">
-                  <select className="select" value={form.penerima.jk} onChange={(e) => setR("jk", e.target.value)}>
-                    <option>Laki-laki</option>
-                    <option>Perempuan</option>
-                  </select>
-                </Field>
-                <Field label="Nomor telepon">
-                  <input className="input" placeholder="08xx-xxxx-xxxx" value={form.penerima.telp} onChange={(e) => setR("telp", e.target.value)}/>
-                </Field>
-              </div>
-              <Field label="Alamat penerima">
-                <input className="input" placeholder="Alamat sesuai KTP" value={form.penerima.alamat} onChange={(e) => setR("alamat", e.target.value)}/>
-              </Field>
-            </div>
-          </div>
-        </div>
-
-        {chainIssue && (
-          <div style={{ marginTop: 14, padding: 14, borderRadius: 10, background: "var(--danger-soft)", border: "1px solid oklch(85% 0.08 27)", display: "flex", gap: 12 }}>
-            <Icon name="alert" size={18} stroke={2} style={{ color: "var(--danger)", flex: "none", marginTop: 1 }}/>
-            <div style={{ fontSize: 12.5, color: "oklch(38% 0.13 27)" }}>
-              <b>Chain of title tidak konsisten.</b> {chainIssue}
-            </div>
-          </div>
-        )}
-        {!chainIssue && form.pengalih.nama && (
-          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: "var(--success-soft)", display: "flex", gap: 10 }}>
-            <Icon name="check-circle" size={18} stroke={2} style={{ color: "var(--success)", flex: "none", marginTop: 1 }}/>
-            <div style={{ fontSize: 12.5, color: "var(--success)" }}>Chain of title konsisten dengan data master persil.</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------- Step 3: Peralihan ----------------
-function StepPeralihan({ form, setForm }) {
-  return (
-    <div className="card">
-      <div className="card-head">
-        <div style={{ flex: 1 }}>
-          <h3>3. Data peralihan</h3>
-          <div className="sub">Tetapkan jenis, tanggal, nomor SPPHT, dan keterangan tambahan.</div>
-        </div>
-      </div>
-      <div className="card-pad">
-        <div className="grid-2">
-          <Field label="Jenis peralihan" required>
-            <select className="select" value={form.jenis} onChange={(e) => setForm((f) => ({ ...f, jenis: e.target.value }))}>
-              <option>Jual Beli</option>
-              <option>Waris</option>
-              <option>Hibah</option>
-              <option>Tukar Menukar</option>
-              <option>Pelepasan Hak</option>
-            </select>
-          </Field>
-          <Field label="Tanggal peristiwa" required>
-            <input className="input" type="date" value={form.tanggal} onChange={(e) => setForm((f) => ({ ...f, tanggal: e.target.value }))}/>
-          </Field>
-          <Field label="Nomor SPPHT" required hint="Diisi otomatis, bisa diubah">
-            <input className="input mono" value={form.nomorSPPHT} onChange={(e) => setForm((f) => ({ ...f, nomorSPPHT: e.target.value, nomorSPPHTTouched: true }))}/>
-          </Field>
-          <Field label="Nomor akta PPAT" hint="Wajib untuk jual beli, opsional untuk waris">
-            <input className="input mono" placeholder="12/2026/PPAT-LKT" value={form.nomorAkta} onChange={(e) => setForm((f) => ({ ...f, nomorAkta: e.target.value }))}/>
-          </Field>
-        </div>
-        <Field label="Catatan tambahan" hint="Konteks atau alasan peralihan (opsional)" style={{ marginTop: 14 }}>
-          <textarea className="textarea" rows={3} value={form.catatan} onChange={(e) => setForm((f) => ({ ...f, catatan: e.target.value }))} placeholder="Mis. peralihan antar keluarga, kondisi sengketa sebelumnya, dll."/>
-        </Field>
-      </div>
-    </div>
-  );
-}
-
-// ---------------- Step 4: Dokumen ----------------
-function StepDokumen({ form, setForm }) {
-  const toast = useToast();
-  const simulateUpload = (key) => {
-    setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: false, progress: 0 } } }));
-    let p = 0;
-    const tick = () => {
-      p += 14 + Math.floor(Math.random() * 18);
-      if (p >= 100) {
-        setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: true, progress: 100 } } }));
-        toast.success("Dokumen ter-upload", key);
-        return;
-      }
-      setForm((f) => ({ ...f, dokumen: { ...f.dokumen, [key]: { uploaded: false, progress: p } } }));
-      setTimeout(tick, 220);
-    };
-    setTimeout(tick, 200);
-  };
-
-  const removeDoc = (key) => {
-    setForm((f) => {
-      const next = { ...f.dokumen };
-      delete next[key];
-      return { ...f, dokumen: next };
-    });
-  };
-
-  const wajibCount = DOCS_WAJIB.filter((d) => form.dokumen[d.key]?.uploaded).length;
-  const wajibTotal = DOCS_WAJIB.length;
-
-  const renderRow = (d) => {
-    const st = form.dokumen[d.key];
-    const inProgress = st && !st.uploaded && st.progress != null;
-    const done = st?.uploaded;
-    return (
-      <div key={d.key} className={"upload-row " + (done ? "done" : "")}>
-        <div className="file-ico"><Icon name={done ? "check" : "file-text"} size={18} stroke={done ? 2.5 : 1.75}/></div>
-        <div className="meta">
-          <div className="name">{d.key} {d.wajib && <span style={{ color: "var(--danger)" }}>*</span>}</div>
-          <div className="sub">
-            {done ? `Terverifikasi · scan_${d.key.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.pdf` :
-              inProgress ? <span>Mengunggah… {Math.round(st.progress)}%</span> :
-              d.wajib ? "Belum diunggah · dokumen wajib" : "Belum diunggah · opsional"}
-          </div>
-          {inProgress && <div style={{ marginTop: 6 }}><ProgressBar value={st.progress} height={6}/></div>}
-        </div>
-        {done ? (
-          <Btn size="sm" variant="ghost" icon="trash" onClick={() => removeDoc(d.key)}>Hapus</Btn>
-        ) : (
-          <Btn size="sm" variant={d.wajib ? "primary" : "subtle"} icon="upload" onClick={() => simulateUpload(d.key)} disabled={inProgress}>Upload</Btn>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div className="card">
-      <div className="card-head">
-        <div style={{ flex: 1 }}>
-          <h3>4. Upload dokumen pendukung</h3>
-          <div className="sub">Upload bersifat simulasi pada prototype. Status kelengkapan diperbarui otomatis.</div>
-        </div>
-        <Badge variant={wajibCount === wajibTotal ? "success" : "warning"}>
-          {wajibCount}/{wajibTotal} wajib lengkap
-        </Badge>
-      </div>
-      <div className="card-pad">
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Dokumen wajib</div>
-        <div>{DOCS_WAJIB.map(renderRow)}</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-2)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10, marginTop: 22 }}>Dokumen opsional</div>
-        <div>{DOCS_OPSIONAL.map(renderRow)}</div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------- Step 5: Review ----------------
-function StepReview({ state, form }) {
-  const p = state.parcels.find((x) => x.id === form.parcelId);
-  const dokumenList = Object.keys(form.dokumen).filter((k) => form.dokumen[k]?.uploaded);
-  const allMandatory = DOCS_WAJIB.every((d) => form.dokumen[d.key]?.uploaded);
-  return (
-    <div className="card">
-      <div className="card-head">
-        <div style={{ flex: 1 }}>
-          <h3>5. Review sebelum simpan</h3>
-          <div className="sub">Periksa rangkuman di bawah. Tekan <b>Simpan Arsip</b> untuk mengarsipkan SPPHT ini.</div>
-        </div>
-        <Badge variant={allMandatory ? "success" : "danger"}>
-          {allMandatory ? "Siap simpan" : "Dokumen wajib belum lengkap"}
-        </Badge>
-      </div>
-      <div className="card-pad">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <SummaryBox title="Persil">
-            <dl className="kv">
-              <dt>Kode</dt><dd className="mono">{p?.kode}</dd>
-              <dt>NOP</dt><dd className="mono" style={{ fontSize: 12 }}>{p?.nop}</dd>
-              <dt>Alamat</dt><dd>{p?.alamat}</dd>
-              <dt>RT/RW</dt><dd>{p?.rt}/{p?.rw}</dd>
-              <dt>Luas</dt><dd>{p?.luas} m²</dd>
-            </dl>
-          </SummaryBox>
-          <SummaryBox title="Peralihan">
-            <dl className="kv">
-              <dt>Jenis</dt><dd>{form.jenis}{form.rekonstruksi && <Badge variant="warning" style={{ marginLeft: 6 }}>Rekonstruksi</Badge>}</dd>
-              <dt>Tanggal</dt><dd>{SIADP.formatDate(new Date(form.tanggal).toISOString())}</dd>
-              <dt>Nomor SPPHT</dt><dd className="mono">{form.nomorSPPHT}</dd>
-              <dt>Nomor akta</dt><dd className="mono">{form.nomorAkta || "—"}</dd>
-              <dt>Catatan</dt><dd>{form.catatan || "—"}</dd>
-            </dl>
-          </SummaryBox>
-          <SummaryBox title="Pengalih">
-            <dl className="kv">
-              <dt>Nama</dt><dd>{form.pengalih.nama || "—"}</dd>
-              <dt>NIK</dt><dd className="mono">{SIADP.maskNik(form.pengalih.nik)}</dd>
-              <dt>Status</dt><dd>{form.pengalih.status}</dd>
-              <dt>Peran</dt><dd>{form.pengalih.peran}</dd>
-            </dl>
-          </SummaryBox>
-          <SummaryBox title="Penerima">
-            <dl className="kv">
-              <dt>Nama</dt><dd>{form.penerima.nama || "—"}</dd>
-              <dt>NIK</dt><dd className="mono">{SIADP.maskNik(form.penerima.nik)}</dd>
-              <dt>Jenis kelamin</dt><dd>{form.penerima.jk}</dd>
-              <dt>Telepon</dt><dd>{form.penerima.telp || "—"}</dd>
-              <dt>Alamat</dt><dd>{form.penerima.alamat || "—"}</dd>
-            </dl>
-          </SummaryBox>
-        </div>
-
-        <div style={{ marginTop: 14 }}>
-          <SummaryBox title={`Dokumen terunggah (${dokumenList.length})`}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {dokumenList.length === 0 && <div style={{ color: "var(--ink-3)", fontSize: 12.5 }}>Belum ada dokumen.</div>}
-              {dokumenList.map((d) => <Badge key={d} variant="success">{d}</Badge>)}
-            </div>
-          </SummaryBox>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SummaryBox({ title, children }) {
-  return (
-    <div style={{ padding: 14, border: "1px solid var(--line)", borderRadius: 12, background: "var(--surface-2)" }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>{title}</div>
-      {children}
-    </div>
-  );
-}
-
-Object.assign(window, { ArsipBaru });
-
-  </script>
-  <script type="text/babel">
-// SIADP main app: layout shell + routing
-const { useState, useEffect, useMemo, useCallback } = React;
-
-const NAV = [
-  { key: "dashboard", label: "Dashboard", icon: "dashboard" },
-  { key: "arsip-baru", label: "Arsip Baru", icon: "plus-circle", accent: true },
-  { key: "arsip-sppht", label: "Arsip SPPHT", icon: "archive" },
-  { key: "data-tanah", label: "Data Tanah", icon: "land" },
-  { key: "data-pihak", label: "Data Pihak", icon: "users" },
-  { key: "audit-log", label: "Audit Log", icon: "history" },
-  { key: "pengaturan", label: "Pengaturan", icon: "settings" },
-];
-
-const TITLES = {
-  "dashboard": { t: "Dashboard", s: "Ringkasan sistem arsip digital pertanahan." },
-  "arsip-baru": { t: "Arsip Baru", s: "Wizard pembuatan arsip SPPHT / peralihan kepemilikan." },
-  "arsip-sppht": { t: "Arsip SPPHT", s: "Daftar semua arsip peralihan yang tersimpan." },
-  "data-tanah": { t: "Data Tanah", s: "Master data persil di Kelurahan Loktuan." },
-  "data-pihak": { t: "Data Pihak", s: "Pengalih, penerima, dan pemilik tercatat." },
-  "audit-log": { t: "Audit Log", s: "Jejak audit append-only seluruh aktivitas operator." },
-  "pengaturan": { t: "Pengaturan", s: "Akun operator dan informasi sistem." },
-  "detail": { t: "Detail Riwayat Kepemilikan", s: "Chain of title persil." },
-};
-
-function App() {
-  const [state, setState] = useState(() => SIADP.load());
-  const [route, setRoute] = useState({ page: "dashboard", ctx: null });
-
-  // persist state on changes
-  useEffect(() => { SIADP.save(state); }, [state]);
-
-  // global notification listener for VIEW_FILE audit append
   useEffect(() => {
-    window.SIADP._onView = (entId) => {
-      setState((s) => ({
-        ...s,
-        audits: [{
-          id: "au-" + Date.now(),
-          waktu: new Date().toISOString(),
-          admin: "operator01", aksi: "VIEW_FILE", entitas: "dokumen",
-          entId, ip: "10.0.12.45",
-        }, ...s.audits],
-      }));
+    // Set default hash if not present
+    if (!window.location.hash) {
+      window.location.hash = "#dashboard";
+    }
+
+    const handleHashChange = () => {
+      const hash = window.location.hash || "#dashboard";
+      const rawRoute = hash.startsWith("#") ? hash.slice(1) : hash;
+      setRoute(rawRoute.split("?")[0] || "dashboard");
     };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const go = useCallback((page, ctx = null) => {
-    setRoute({ page, ctx });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  const meta = TITLES[route] || { t: "—", s: "" };
+  let title = meta.t;
+  let sub = meta.s;
+  let crumbs = ["Beranda", title];
 
-  const onReset = () => {
-    const fresh = SIADP.resetSimulation();
-    setState(fresh);
-    setRoute({ page: "dashboard", ctx: null });
+  if (route === "detail") {
+    crumbs = ["Beranda", "Data Tanah", "Detail Riwayat"];
+  }
+
+  const renderPage = () => {
+    switch (route) {
+      case "dashboard":
+        return <Dashboard state={state} go={go}/>;
+      case "arsip-baru":
+        return <ArsipBaru state={state} setState={setState} go={go} initialParcelId={getParam("parcel")}/>;
+      case "arsip-sppht":
+        return <ArsipSPPHTList state={state} go={go}/>;
+      case "data-tanah":
+        return <DataTanah state={state} setState={setState} go={go}/>;
+      case "data-pihak":
+        return <DataPihak state={state}/>;
+      case "audit-log":
+        return <AuditLog state={state}/>;
+      case "pengaturan":
+        return <Pengaturan onReset={() => setState(SIADP.resetSimulation())}/>;
+      case "detail":
+        return <DetailRiwayat state={state} parcelId={getParam("parcel")} go={go}/>;
+      default:
+        return <Dashboard state={state} go={go}/>;
+    }
   };
-
-  const title = TITLES[route.page] || { t: "—", s: "" };
-  const crumbs = route.page === "detail"
-    ? ["Beranda", "Data Tanah", "Detail Riwayat"]
-    : ["Beranda", title.t];
 
   return (
     <ToastProvider>
       <div className="app">
-        <Sidebar active={route.page} onNav={(k) => go(k)}/>
+        <Sidebar active={route}/>
         <div className="main">
-          <Topbar crumbs={crumbs} onArsipBaru={() => go("arsip-baru")}/>
+          <Topbar crumbs={crumbs}/>
           <div className="content">
             <div className="page-head">
               <div>
-                <h1>{title.t}</h1>
-                <div className="sub">{title.s}</div>
+                <h1>{title}</h1>
+                <div className="sub">{sub}</div>
               </div>
             </div>
-
-            {route.page === "dashboard" && <Dashboard state={state} go={go}/>}
-            {route.page === "arsip-baru" && <ArsipBaru state={state} setState={setState} go={go} initialParcelId={route.ctx}/>}
-            {route.page === "arsip-sppht" && <ArsipSPPHTList state={state} go={go}/>}
-            {route.page === "data-tanah" && <DataTanah state={state} setState={setState} go={go}/>}
-            {route.page === "data-pihak" && <DataPihak state={state}/>}
-            {route.page === "audit-log" && <AuditLog state={state}/>}
-            {route.page === "pengaturan" && <Pengaturan onReset={onReset}/>}
-            {route.page === "detail" && <DetailRiwayat state={state} parcelId={route.ctx} go={go}/>}
+            {renderPage()}
           </div>
         </div>
       </div>
@@ -3029,72 +3435,8 @@ function App() {
   );
 }
 
-function Sidebar({ active, onNav }) {
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">
-        <div className="brand-mark">SI</div>
-        <div className="brand-text">
-          <div className="t1">SIADP Loktuan</div>
-          <div className="t2">Arsip Digital Pertanahan</div>
-        </div>
-      </div>
-      <nav className="sidebar-nav">
-        <div className="nav-group-label">Operasional</div>
-        {NAV.slice(0, 5).map((n) => (
-          <button key={n.key} className={"nav-item " + (active === n.key ? "active" : "")} onClick={() => onNav(n.key)}>
-            <Icon name={n.icon} size={17}/>
-            <span>{n.label}</span>
-            {n.accent && active !== n.key && <span className="badge-count" style={{ background: "var(--accent-soft)", color: "oklch(45% 0.1 60)" }}>Cepat</span>}
-          </button>
-        ))}
-        <div className="nav-group-label" style={{ marginTop: 8 }}>Sistem</div>
-        {NAV.slice(5).map((n) => (
-          <button key={n.key} className={"nav-item " + (active === n.key ? "active" : "")} onClick={() => onNav(n.key)}>
-            <Icon name={n.icon} size={17}/>
-            <span>{n.label}</span>
-          </button>
-        ))}
-      </nav>
-      <div className="sidebar-foot">
-        <div className="user">
-          <div className="avatar">O1</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-1)" }}>Operator 01</div>
-            <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Kel. Loktuan · Admin</div>
-          </div>
-          <button className="icon-btn" style={{ width: 28, height: 28 }}><Icon name="logout" size={14}/></button>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function Topbar({ crumbs, onArsipBaru }) {
-  return (
-    <div className="topbar">
-      <div className="crumbs">
-        {crumbs.map((c, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <Icon name="chevron-right" size={12} className="sep"/>}
-            <span className={i === crumbs.length - 1 ? "last" : ""}>{c}</span>
-          </React.Fragment>
-        ))}
-      </div>
-      <div className="topbar-spacer"/>
-      <div className="topbar-search">
-        <Icon name="search" size={14}/>
-        <input placeholder="Cari cepat di seluruh sistem…"/>
-        <span style={{ fontSize: 11, padding: "1px 5px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 4, color: "var(--ink-4)" }}>⌘K</span>
-      </div>
-      <Btn variant="primary" icon="plus" onClick={onArsipBaru}>Arsip Baru</Btn>
-      <button className="icon-btn" title="Notifikasi"><Icon name="bell" size={16}/><span className="dot"/></button>
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-
+// Mount the App
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
   </script>
 </body>
 </html>
